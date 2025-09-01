@@ -1,0 +1,9 @@
+name: endoscape
+root: /path/to/endoscape
+split: train
+ignore_index: -1
+recommended_canvas: [768, 768]
+label_map:  # optional remapping or aliasing if needed
+  1: "Esophagus"
+  2: "Stomach"
+  # ... add more labels as needed

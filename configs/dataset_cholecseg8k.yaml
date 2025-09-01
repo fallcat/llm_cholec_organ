@@ -1,0 +1,5 @@
+name: cholecseg8k
+hf_name: minwoosun/CholecSeg8k
+split: train
+ignore_index: -1
+recommended_canvas: [768, 768]
