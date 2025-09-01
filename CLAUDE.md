@@ -135,3 +135,7 @@ endopoint-build-cache --dataset cholecseg8k
 ```
 
 See `claude_code_commands/01-refactor-code.md` for the full refactoring plan.
+
+### Recap
+Whenever you start looking at the project again, you should check this file for the current progress, and then update it concisely after you finish every day's work.
+`claude_code_commands/00-recap.md`
