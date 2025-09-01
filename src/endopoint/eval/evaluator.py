@@ -123,9 +123,44 @@ class PointingEvaluator:
         """
         few_shot_examples = {}
         
+        # Handle different plan formats
+        if 'plan' in fewshot_plan:
+            # New format: {'plan': {'1': {...}, '2': {...}}}
+            actual_plan = fewshot_plan['plan']
+        else:
+            # Old format: {'organ_name': {...}}
+            actual_plan = fewshot_plan
+        
         for organ_name in self.organ_names:
             examples = []
-            organ_plan = fewshot_plan.get(organ_name, {})
+            
+            # Try to find the organ plan by ID or name
+            organ_id = str(self.adapter.label2id.get(organ_name, -1))
+            
+            # First try by ID (new format)
+            if organ_id in actual_plan:
+                organ_data = actual_plan[organ_id]
+                # Extract examples from new format
+                # positives is list of dicts, negatives are list of ints
+                positives = organ_data.get('positives', [])
+                pos_indices = [item['idx'] if isinstance(item, dict) else item for item in positives]
+                
+                negatives_easy = organ_data.get('negatives_easy', [])
+                neg_easy_indices = [item['idx'] if isinstance(item, dict) else item for item in negatives_easy]
+                
+                negatives_hard = organ_data.get('negatives_hard', [])
+                neg_hard_indices = [item['idx'] if isinstance(item, dict) else item for item in negatives_hard]
+                
+                organ_plan = {
+                    'positive': pos_indices,
+                    'negative_easy': neg_easy_indices,
+                    'negative_hard': neg_hard_indices
+                }
+            # Fallback to name (old format)
+            elif organ_name in actual_plan:
+                organ_plan = actual_plan[organ_name]
+            else:
+                organ_plan = {}
             
             # Add positive examples
             for idx in organ_plan.get("positive", []):
@@ -275,9 +310,7 @@ class PointingEvaluator:
             for organ_name in self.organ_names:
                 organ_examples = few_shot_examples.get(organ_name, [])
                 
-                # For few-shot, we need to modify the approach
-                # Since the current model adapters don't support few-shot directly,
-                # we'll use zero-shot for now and mark this for future enhancement
+                # Pass few-shot examples if available
                 result = run_pointing_on_canvas(
                     model=model,
                     img_t=img_t,
@@ -287,7 +320,7 @@ class PointingEvaluator:
                     canvas_height=self.canvas_height,
                     system_prompt_builder=build_pointing_system_prompt,
                     user_prompt_builder=build_pointing_user_prompt,
-                    few_shot_examples=None,  # TODO: Implement few-shot support
+                    few_shot_examples=organ_examples if organ_examples else None,
                 )
                 organ_results.append(result)
             

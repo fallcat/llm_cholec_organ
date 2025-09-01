@@ -8,6 +8,13 @@ from .pointing import (
     tensor_to_pil,
 )
 from .evaluator import PointingEvaluator
+from .enhanced_evaluator import EnhancedPointingEvaluator
+from .pointing_metrics import (
+    calculate_comprehensive_metrics,
+    print_metrics_table,
+    save_metrics_json,
+    check_point_hit,
+)
 
 __all__ = [
     "parse_pointing_json",
@@ -17,4 +24,9 @@ __all__ = [
     "calculate_pointing_metrics",
     "tensor_to_pil",
     "PointingEvaluator",
+    "EnhancedPointingEvaluator",
+    "calculate_comprehensive_metrics",
+    "print_metrics_table",
+    "save_metrics_json",
+    "check_point_hit",
 ]

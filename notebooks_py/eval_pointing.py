@@ -2,6 +2,78 @@
 """
 Comprehensive Pointing Evaluation Pipeline
 Evaluates zero-shot and few-shot (with/without hard negatives) pointing performance
+
+USAGE:
+    # Quick test with 5 samples
+    EVAL_QUICK_TEST=true python3 eval_pointing.py
+    
+    # Full evaluation with all test samples
+    python3 eval_pointing.py
+    
+    # Evaluate specific number of samples
+    EVAL_NUM_SAMPLES=20 python3 eval_pointing.py
+    
+    # Use specific models
+    EVAL_MODELS='gpt-4o-mini,claude-3-5-sonnet-20241022' python3 eval_pointing.py
+    
+    # Disable cache for fresh API calls
+    EVAL_USE_CACHE=false python3 eval_pointing.py
+    
+    # Disable enhanced metrics (not recommended)
+    EVAL_USE_ENHANCED=false python3 eval_pointing.py
+    
+    # Combine options
+    EVAL_NUM_SAMPLES=10 EVAL_USE_CACHE=false EVAL_MODELS='gpt-4o-mini' python3 eval_pointing.py
+
+ENVIRONMENT VARIABLES:
+    EVAL_NUM_SAMPLES    - Number of samples to evaluate (default: all)
+    EVAL_MODELS         - Comma-separated list of models (default: gpt-4o-mini, claude-3-5-sonnet-20241022, gemini-2.0-flash-exp)
+    EVAL_USE_CACHE      - Whether to use cached responses (default: true)
+    EVAL_USE_ENHANCED   - Whether to use enhanced metrics (default: true)
+    EVAL_QUICK_TEST     - Quick test mode with 5 samples (default: false)
+
+OUTPUT:
+    Results are saved to: results/pointing_YYYYMMDD_HHMMSS/
+    - zero_shot/MODEL/cholecseg8k_pointing/*.json      # Per-sample results
+    - fewshot_standard/MODEL/cholecseg8k_pointing/*.json
+    - fewshot_hard_negatives/MODEL/cholecseg8k_pointing/*.json
+    - raw_results.pkl                                   # Complete results pickle
+    - summary.csv                                       # Summary statistics
+    - metrics_comparison.txt                            # Comprehensive comparison
+
+METRICS:
+    The enhanced evaluator provides:
+    - Confusion matrix (TP, FN, TN, FP) per organ
+    - Presence Accuracy: How well organs are detected
+    - Hit@Point|Present: Pointing accuracy when organ is detected
+    - Gated Accuracy: Combined detection + pointing performance
+    - Macro/Micro averages across all organs
+
+PREREQUISITES:
+    1. Install dependencies: pip install numpy torch pandas tqdm datasets pillow
+    2. Create API_KEYS2.json with OpenAI, Anthropic, and Google API keys
+    3. Prepare few-shot examples: python3 prepare_fewshot_examples.py
+
+ANALYZING RESULTS:
+    # View latest results
+    python3 eval_pointing_analyze.py --latest
+    
+    # View specific results
+    python3 eval_pointing_analyze.py results/pointing_20250901_041511
+
+CACHE MANAGEMENT:
+    # Clear all caches before evaluation
+    python3 clear_cache.py
+    
+    # Debug cache issues
+    python3 debug_cache.py
+
+EXAMPLE OUTPUT:
+    Model: gpt-4o-mini | Prompt: zero_shot | Split: train | Examples used: 10
+    ID  Label                     TP   FN   TN   FP   PresenceAcc   Hit@Pt|Pres   GatedAcc
+     2  Liver                      10    0    0    0   100.00%       40.00%        40.00%
+    ...
+    Macro PresenceAcc= 57.50%   Macro Hit@Point|Present= 14.94%   Macro GatedAcc= 55.00%
 """
 
 import os
@@ -24,7 +96,7 @@ os.environ['GOOGLE_API_KEY'] = api_keys['GOOGLE_API_KEY']
 
 # Import from endopoint package
 from endopoint.datasets.cholecseg8k import CholecSeg8kAdapter
-from endopoint.eval import PointingEvaluator
+from endopoint.eval.enhanced_evaluator import EnhancedPointingEvaluator
 
 # Import dataset and few-shot utilities
 from datasets import load_dataset
@@ -36,7 +108,7 @@ from few_shot_selection import (
 print("✓ Environment setup complete")
 
 
-def main(num_samples=None, models=None, use_cache=True):
+def main(num_samples=None, models=None, use_cache=True, use_enhanced=True):
     """Main evaluation function.
     
     Args:
@@ -45,6 +117,8 @@ def main(num_samples=None, models=None, use_cache=True):
         models: Optional list of model names to evaluate. If None, uses default models.
         use_cache: Whether to use cache for model responses (default: True).
                   Set to False to bypass cache (useful for testing changes).
+        use_enhanced: Whether to use enhanced metrics (default: True).
+                     Enhanced metrics match the notebook's comprehensive output.
     """
     
     # Configuration
@@ -113,7 +187,7 @@ def main(num_samples=None, models=None, use_cache=True):
     output_dir = Path(ROOT_DIR) / "results" / f"pointing_{timestamp}"
     
     # Initialize evaluator
-    evaluator = PointingEvaluator(
+    evaluator = EnhancedPointingEvaluator(
         models=MODELS,
         dataset=dataset,
         dataset_adapter=CholecSeg8kAdapter(),
@@ -123,11 +197,18 @@ def main(num_samples=None, models=None, use_cache=True):
         use_cache=use_cache,
     )
     
-    # Run evaluation
-    results = evaluator.run_full_evaluation(
-        test_indices=test_indices,
-        fewshot_plans=fewshot_plans,
-    )
+    # Run evaluation with enhanced metrics
+    if use_enhanced:
+        results = evaluator.run_full_evaluation_enhanced(
+            test_indices=test_indices,
+            fewshot_plans=fewshot_plans,
+            split="train",  # Using train split for test indices
+        )
+    else:
+        results = evaluator.run_full_evaluation(
+            test_indices=test_indices,
+            fewshot_plans=fewshot_plans,
+        )
     
     print("\n✨ Evaluation complete!")
     
@@ -136,13 +217,38 @@ def main(num_samples=None, models=None, use_cache=True):
     print("Final Summary")
     print("="*60)
     
-    for model_name in MODELS:
-        print(f"\n{model_name}:")
-        model_results = results[model_name]
-        for eval_type in ["zero_shot", "few_shot_standard", "few_shot_hard_negatives"]:
-            if eval_type in model_results:
-                metrics = model_results[eval_type]["metrics"]
-                print(f"  {eval_type:25} Acc: {metrics['overall_accuracy']:.3f}, F1: {metrics['avg_f1']:.3f}")
+    if use_enhanced:
+        # Enhanced summary with comprehensive metrics
+        for model_name in MODELS:
+            print(f"\n{model_name}:")
+            model_results = results[model_name]
+            for eval_type in ["zero_shot", "few_shot_standard", "few_shot_hard_negatives"]:
+                if eval_type in model_results and "metrics_rows" in model_results[eval_type]:
+                    rows = model_results[eval_type]["metrics_rows"]
+                    totals = model_results[eval_type]["metrics_totals"]
+                    
+                    # Calculate macro metrics
+                    pres_accs = [r["PresenceAcc"] for r in rows if r["PresenceAcc"] is not None]
+                    gated_accs = [r["GatedAcc"] for r in rows if r["GatedAcc"] is not None]
+                    hit_rates = [r["Hit@Point|Present"] for r in rows if r["Hit@Point|Present"] is not None]
+                    f1_scores = [r["F1"] for r in rows if r["F1"] is not None]
+                    
+                    import numpy as np
+                    macro_presence = np.mean(pres_accs) if pres_accs else 0.0
+                    macro_gated = np.mean(gated_accs) if gated_accs else 0.0
+                    macro_hit = np.mean(hit_rates) if hit_rates else 0.0
+                    macro_f1 = np.mean(f1_scores) if f1_scores else 0.0
+                    
+                    print(f"  {eval_type:25} PresAcc: {macro_presence:.3f}, GatedAcc: {macro_gated:.3f}, Hit@Pt: {macro_hit:.3f}, F1: {macro_f1:.3f}")
+    else:
+        # Standard summary
+        for model_name in MODELS:
+            print(f"\n{model_name}:")
+            model_results = results[model_name]
+            for eval_type in ["zero_shot", "few_shot_standard", "few_shot_hard_negatives"]:
+                if eval_type in model_results:
+                    metrics = model_results[eval_type]["metrics"]
+                    print(f"  {eval_type:25} Acc: {metrics['overall_accuracy']:.3f}, F1: {metrics['avg_f1']:.3f}")
 
 
 if __name__ == "__main__":
@@ -161,10 +267,11 @@ if __name__ == "__main__":
     
     QUICK_TEST = os.environ.get('EVAL_QUICK_TEST', '').lower() == 'true'
     USE_CACHE = os.environ.get('EVAL_USE_CACHE', 'true').lower() != 'false'
+    USE_ENHANCED = os.environ.get('EVAL_USE_ENHANCED', 'true').lower() != 'false'
     
     if QUICK_TEST:
         print("🚀 Running in quick test mode (5 samples, gpt-4o-mini only)")
-        main(num_samples=5, models=["gpt-4o-mini"], use_cache=USE_CACHE)
+        main(num_samples=5, models=["gpt-4o-mini"], use_cache=USE_CACHE, use_enhanced=USE_ENHANCED)
     else:
         # Show configuration
         print("\n" + "="*60)
@@ -173,15 +280,17 @@ if __name__ == "__main__":
         print(f"Samples: {NUM_SAMPLES if NUM_SAMPLES else 'all'}")
         print(f"Models: {', '.join(MODELS) if MODELS else 'all default models'}")
         print(f"Cache: {'enabled' if USE_CACHE else 'disabled'}")
+        print(f"Enhanced metrics: {'enabled' if USE_ENHANCED else 'disabled'}")
         print("\nTo customize, either:")
         print("1. In notebooks: Call main() directly with parameters")
         print("2. Set environment variables before running:")
         print("   export EVAL_NUM_SAMPLES=10")
         print("   export EVAL_MODELS='gpt-4o-mini,claude-3-5-sonnet-20241022'")
         print("   export EVAL_USE_CACHE=false  # to disable cache")
+        print("   export EVAL_USE_ENHANCED=false  # to disable enhanced metrics")
         print("   export EVAL_QUICK_TEST=true")
         print("3. Or run inline: EVAL_USE_CACHE=false python3 eval_pointing.py")
         print("="*60 + "\n")
         
         # Run evaluation
-        main(num_samples=NUM_SAMPLES, models=MODELS, use_cache=USE_CACHE)
+        main(num_samples=NUM_SAMPLES, models=MODELS, use_cache=USE_CACHE, use_enhanced=USE_ENHANCED)
