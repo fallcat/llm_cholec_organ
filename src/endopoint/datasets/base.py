@@ -1,13 +1,14 @@
 """Base dataset adapter protocol and registry."""
 
-from typing import Any, Callable, Dict, Optional, Protocol, Sequence, Tuple
+from typing import Any, Callable, Dict, Optional, Sequence, Tuple
+from abc import ABC, abstractmethod
 
 import torch
 from PIL import Image
 
 
-class DatasetAdapter(Protocol):
-    """Protocol for dataset adapters.
+class DatasetAdapter(ABC):
+    """Abstract base class for dataset adapters.
     
     All dataset implementations must follow this interface to ensure
     compatibility with the endopoint system.
@@ -15,36 +16,43 @@ class DatasetAdapter(Protocol):
     
     # Identity & schema
     @property
+    @abstractmethod
     def dataset_tag(self) -> str:
         """Unique identifier for the dataset."""
-        ...
+        pass
     
     @property
+    @abstractmethod
     def version(self) -> str:
         """Dataset version (e.g., 'v1' or HF revision)."""
-        ...
+        pass
     
     @property
+    @abstractmethod
     def id2label(self) -> Dict[int, str]:
         """Mapping from class ID to label name."""
-        ...
+        pass
     
     @property
+    @abstractmethod
     def label_ids(self) -> Sequence[int]:
         """List of valid label IDs (excludes background)."""
-        ...
+        pass
     
     @property
+    @abstractmethod
     def ignore_index(self) -> int:
         """Label ID to ignore in loss computation (-1 if none)."""
-        ...
+        pass
     
     @property
+    @abstractmethod
     def recommended_canvas(self) -> Tuple[int, int]:
         """Recommended canvas size (width, height) for processing."""
-        ...
+        pass
     
     # Data access
+    @abstractmethod
     def total(self, split: str) -> int:
         """Get total number of examples in split.
         
@@ -54,8 +62,9 @@ class DatasetAdapter(Protocol):
         Returns:
             Number of examples in split
         """
-        ...
+        pass
     
+    @abstractmethod
     def get_example(self, split: str, index: int) -> Any:
         """Get example from dataset.
         
@@ -66,8 +75,9 @@ class DatasetAdapter(Protocol):
         Returns:
             Dataset-specific example object
         """
-        ...
+        pass
     
+    @abstractmethod
     def example_to_tensors(self, example: Any) -> Tuple[torch.Tensor, torch.Tensor]:
         """Convert example to image and label tensors.
         
@@ -78,9 +88,10 @@ class DatasetAdapter(Protocol):
             img_t: FloatTensor [C,H,W] in [0,1]
             lab_t: LongTensor [H,W] with class IDs
         """
-        ...
+        pass
     
     # Semantics
+    @abstractmethod
     def labels_to_presence_vector(
         self, lab_t: torch.Tensor, min_pixels: int = 1
     ) -> torch.Tensor:
@@ -93,7 +104,7 @@ class DatasetAdapter(Protocol):
         Returns:
             LongTensor [K] over self.label_ids with {0,1}
         """
-        ...
+        pass
     
     # Optional utilities
     def sample_point_in_mask(
@@ -112,7 +123,7 @@ class DatasetAdapter(Protocol):
         Returns:
             (x, y) coordinates or None if class not present
         """
-        ...
+        return None
 
 
 # Dataset registry

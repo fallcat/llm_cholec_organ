@@ -97,6 +97,10 @@ class CholecSeg8kAdapter:
         return LABEL_IDS
     
     @property
+    def label2id(self) -> Dict[str, int]:
+        return LABEL2ID.copy()
+    
+    @property
     def ignore_index(self) -> int:
         return -1
     

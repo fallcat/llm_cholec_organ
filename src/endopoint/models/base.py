@@ -1,6 +1,7 @@
 """Base model adapter protocol."""
 
-from typing import Protocol, Sequence, Tuple, Union
+from typing import Sequence, Tuple, Union
+from abc import ABC, abstractmethod
 
 from PIL import Image
 
@@ -10,13 +11,14 @@ OneQuery = Tuple[PromptPart, ...]
 Batch = Sequence[OneQuery]
 
 
-class ModelAdapter(Protocol):
-    """Protocol for model adapters.
+class ModelAdapter(ABC):
+    """Abstract base class for model adapters.
     
     All model implementations must follow this interface to ensure
     compatibility with the endopoint system.
     """
     
+    @abstractmethod
     def __call__(self, prompts: Batch, *, system_prompt: str) -> Sequence[str]:
         """Process a batch of prompts through the model.
         
@@ -27,4 +29,4 @@ class ModelAdapter(Protocol):
         Returns:
             List of model responses, one per query
         """
-        ...
+        pass

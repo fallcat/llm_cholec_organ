@@ -1,11 +1,20 @@
 """Evaluation modules for endopoint."""
 
-from .parser import parse_pointing_json
-from .runner import PointingEvaluator
-from .summarize import summarize_pointing
+from .parser import parse_pointing_json, parse_existence_response
+from .pointing import (
+    run_pointing_on_canvas,
+    pointing_pipeline,
+    calculate_pointing_metrics,
+    tensor_to_pil,
+)
+from .evaluator import PointingEvaluator
 
 __all__ = [
     "parse_pointing_json",
+    "parse_existence_response",
+    "run_pointing_on_canvas",
+    "pointing_pipeline",
+    "calculate_pointing_metrics",
+    "tensor_to_pil",
     "PointingEvaluator",
-    "summarize_pointing",
 ]
