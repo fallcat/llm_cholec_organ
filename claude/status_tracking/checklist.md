@@ -68,11 +68,25 @@
 - [x] **Canvas**
   - [x] `original` size (224x224) as primary in `eval_pointing_original_size.py`.
 
-## Confirmatory experiments (EndoScape)
-- [ ] Add dataset class with the same API: `example_to_tensors`, `ID2LABEL`, `LABEL_IDS`.
-- [ ] Recompute **presence cache** and **balanced selection** (same knobs).
-- [ ] Run **only**: best config (few-shot + hard-neg + chosen reasoning) **and** zero-shot baseline.
-- [ ] Optional: replicate **one** small ablation (e.g., shots) on a smaller subset.
+## Confirmatory experiments (SSG-VQA)
+- [ ] **Dataset integration**: Add SSG-VQA dataset adapter with spatial relation questions
+  - [ ] Dataset class with the same API: `example_to_tensors`, `ID2LABEL`, `LABEL_IDS`
+  - [ ] Handle VQA format: questions about spatial relations between organs
+  - [ ] Map question types to evaluation metrics
+- [ ] **Evaluation setup**:
+  - [ ] Adapt prompts for VQA-style spatial reasoning tasks
+  - [ ] Recompute **presence cache** and **balanced selection** if applicable
+  - [ ] Run **only**: best config (few-shot + hard-neg + chosen reasoning) **and** zero-shot baseline
+- [ ] **Spatial relation focus**:
+  - [ ] Test model's understanding of: above/below, left/right, near/far relations
+  - [ ] Compare performance on spatial vs. simple presence questions
+- [ ] Optional: replicate **one** small ablation (e.g., shots) on a smaller subset
+
+## Confirmatory experiments (EndoScape) [DEPRECATED - replaced by SSG-VQA]
+- [ ] ~~Add dataset class with the same API: `example_to_tensors`, `ID2LABEL`, `LABEL_IDS`.~~
+- [ ] ~~Recompute **presence cache** and **balanced selection** (same knobs).~~
+- [ ] ~~Run **only**: best config (few-shot + hard-neg + chosen reasoning) **and** zero-shot baseline.~~
+- [ ] ~~Optional: replicate **one** small ablation (e.g., shots) on a smaller subset.~~
 
 ## Cell Selection Implementation ✅
 - [x] **Prompt builders** (`src/endopoint/prompts/builders.py`):
