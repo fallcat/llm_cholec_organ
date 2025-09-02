@@ -1,50 +1,39 @@
 #!/usr/bin/env python
 """
-Comprehensive Pointing Evaluation Pipeline - Using Original Image Size
-This version uses the original image dimensions without rescaling.
+Comprehensive Pointing Evaluation Pipeline
+Evaluates zero-shot and few-shot (with/without hard negatives) pointing performance
 
 USAGE:
     # Quick test with 5 samples
-    EVAL_QUICK_TEST=true python3 eval_pointing_original_size.py
+    EVAL_QUICK_TEST=true python3 eval_pointing.py
     
     # Full evaluation with all test samples
-    python3 eval_pointing_original_size.py
+    python3 eval_pointing.py
     
     # Evaluate specific number of samples
-    EVAL_NUM_SAMPLES=20 python3 eval_pointing_original_size.py
+    EVAL_NUM_SAMPLES=20 python3 eval_pointing.py
     
     # Use specific models
-    EVAL_MODELS='gpt-5-mini,claude-4-sonnet' python3 eval_pointing_original_size.py
-    
-    # Test with LLaVA only
-    EVAL_MODELS='llava-hf/llava-v1.6-mistral-7b-hf' python3 eval_pointing_original_size.py
-    
-    # Run only few-shot evaluation (skip zero-shot)
-    EVAL_SKIP_ZERO_SHOT=true python3 eval_pointing_original_size.py
-    
-    # Run only zero-shot evaluation (skip few-shot)
-    EVAL_SKIP_FEW_SHOT=true python3 eval_pointing_original_size.py
+    EVAL_MODELS='gpt-4o-mini,claude-3-5-sonnet-20241022' python3 eval_pointing.py
     
     # Disable cache for fresh API calls
-    EVAL_USE_CACHE=false python3 eval_pointing_original_size.py
+    EVAL_USE_CACHE=false python3 eval_pointing.py
     
     # Disable enhanced metrics (not recommended)
-    EVAL_USE_ENHANCED=false python3 eval_pointing_original_size.py
+    EVAL_USE_ENHANCED=false python3 eval_pointing.py
     
     # Combine options
-    EVAL_NUM_SAMPLES=10 EVAL_USE_CACHE=false EVAL_MODELS='gpt-5-mini' python3 eval_pointing_original_size.py
+    EVAL_NUM_SAMPLES=10 EVAL_USE_CACHE=false EVAL_MODELS='gpt-4o-mini' python3 eval_pointing.py
 
 ENVIRONMENT VARIABLES:
     EVAL_NUM_SAMPLES    - Number of samples to evaluate (default: all)
-    EVAL_MODELS         - Comma-separated list of models (default: all 7 models - see DEFAULT_MODELS in code)
+    EVAL_MODELS         - Comma-separated list of models (default: gpt-4o-mini, claude-3-5-sonnet-20241022, gemini-2.0-flash-exp)
     EVAL_USE_CACHE      - Whether to use cached responses (default: true)
     EVAL_USE_ENHANCED   - Whether to use enhanced metrics (default: true)
     EVAL_QUICK_TEST     - Quick test mode with 5 samples (default: false)
-    EVAL_SKIP_ZERO_SHOT - Skip zero-shot evaluation (default: false)
-    EVAL_SKIP_FEW_SHOT  - Skip few-shot evaluation (default: false)
 
 OUTPUT:
-    Results are saved to: results/pointing_original_YYYYMMDD_HHMMSS/
+    Results are saved to: results/pointing_YYYYMMDD_HHMMSS/
     - zero_shot/MODEL/cholecseg8k_pointing/*.json      # Per-sample results
     - fewshot_standard/MODEL/cholecseg8k_pointing/*.json
     - fewshot_hard_negatives/MODEL/cholecseg8k_pointing/*.json
@@ -70,7 +59,7 @@ ANALYZING RESULTS:
     python3 eval_pointing_analyze.py --latest
     
     # View specific results
-    python3 eval_pointing_analyze.py results/pointing_original_20250901_041511
+    python3 eval_pointing_analyze.py results/pointing_20250901_041511
 
 CACHE MANAGEMENT:
     # Clear all caches before evaluation
@@ -80,7 +69,7 @@ CACHE MANAGEMENT:
     python3 debug_cache.py
 
 EXAMPLE OUTPUT:
-    Model: gpt-5-mini | Prompt: zero_shot | Split: train | Examples used: 10
+    Model: gpt-4o-mini | Prompt: zero_shot | Split: train | Examples used: 10
     ID  Label                     TP   FN   TN   FP   PresenceAcc   Hit@Pt|Pres   GatedAcc
      2  Liver                      10    0    0    0   100.00%       40.00%        40.00%
     ...
@@ -119,23 +108,7 @@ from few_shot_selection import (
 print("✓ Environment setup complete")
 
 
-def get_original_image_size(dataset, split="train", sample_idx=0):
-    """Get the original image size from the dataset.
-    
-    Args:
-        dataset: HuggingFace dataset object
-        split: Dataset split to check
-        sample_idx: Sample index to check
-        
-    Returns:
-        Tuple of (width, height)
-    """
-    example = dataset[split][sample_idx]
-    img = example['image']  # PIL Image
-    return img.size  # Returns (width, height)
-
-
-def main(num_samples=None, models=None, use_cache=True, use_enhanced=True, skip_zero_shot=False, skip_few_shot=False):
+def main(num_samples=None, models=None, use_cache=True, use_enhanced=True):
     """Main evaluation function.
     
     Args:
@@ -146,21 +119,13 @@ def main(num_samples=None, models=None, use_cache=True, use_enhanced=True, skip_
                   Set to False to bypass cache (useful for testing changes).
         use_enhanced: Whether to use enhanced metrics (default: True).
                      Enhanced metrics match the notebook's comprehensive output.
-        skip_zero_shot: Whether to skip zero-shot evaluation (default: False).
-        skip_few_shot: Whether to skip few-shot evaluation (default: False).
     """
     
     # Configuration
     DEFAULT_MODELS = [
-        # Commercial APIs
-        "gpt-5-mini",
-        "claude-4-sonnet",
-        "gemini-2.5-pro",
-        # Open Source VLMs
-        "llava-hf/llava-v1.6-mistral-7b-hf",
-        "Qwen/Qwen2.5-VL-7B-Instruct",
-        "mistralai/Pixtral-12B-2409",
-        "deepseek-ai/deepseek-vl2"
+        "gpt-4o-mini",
+        "claude-3-5-sonnet-20241022",
+        "gemini-2.0-flash-exp"
     ]
     
     MODELS = models if models is not None else DEFAULT_MODELS
@@ -190,7 +155,7 @@ def main(num_samples=None, models=None, use_cache=True, use_enhanced=True, skip_
             return
     
     print("\n" + "="*60)
-    print("Starting Pointing Evaluation (Original Image Size)")
+    print("Starting Pointing Evaluation")
     print("="*60)
     print(f"Models to evaluate: {', '.join(MODELS)}")
     
@@ -198,10 +163,6 @@ def main(num_samples=None, models=None, use_cache=True, use_enhanced=True, skip_
     print("\n📊 Loading CholecSeg8k dataset...")
     dataset = load_dataset("minwoosun/CholecSeg8k")
     print(f"✓ Dataset loaded")
-    
-    # Get original image dimensions
-    original_width, original_height = get_original_image_size(dataset, split="train", sample_idx=0)
-    print(f"✓ Using original image dimensions: {original_width}x{original_height}")
     
     # Load test indices
     test_indices = load_balanced_indices(test_indices_file)
@@ -223,37 +184,30 @@ def main(num_samples=None, models=None, use_cache=True, use_enhanced=True, skip_
     
     # Create output directory with timestamp
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    output_dir = Path(ROOT_DIR) / "results" / f"pointing_original_{timestamp}"
+    output_dir = Path(ROOT_DIR) / "results" / f"pointing_{timestamp}"
     
-    # Initialize evaluator with original image dimensions
+    # Initialize evaluator
     evaluator = EnhancedPointingEvaluator(
         models=MODELS,
         dataset=dataset,
         dataset_adapter=CholecSeg8kAdapter(),
-        canvas_width=original_width,    # Use original width
-        canvas_height=original_height,  # Use original height
+        canvas_width=768,
+        canvas_height=768,
         output_dir=output_dir,
         use_cache=use_cache,
     )
-    
-    # Conditionally include evaluation types based on skip flags
-    eval_fewshot_plans = {}
-    if not skip_few_shot:
-        eval_fewshot_plans = fewshot_plans
     
     # Run evaluation with enhanced metrics
     if use_enhanced:
         results = evaluator.run_full_evaluation_enhanced(
             test_indices=test_indices,
-            fewshot_plans=eval_fewshot_plans,
+            fewshot_plans=fewshot_plans,
             split="train",  # Using train split for test indices
-            skip_zero_shot=skip_zero_shot,
         )
     else:
         results = evaluator.run_full_evaluation(
             test_indices=test_indices,
-            fewshot_plans=eval_fewshot_plans,
-            skip_zero_shot=skip_zero_shot,
+            fewshot_plans=fewshot_plans,
         )
     
     print("\n✨ Evaluation complete!")
@@ -314,39 +268,29 @@ if __name__ == "__main__":
     QUICK_TEST = os.environ.get('EVAL_QUICK_TEST', '').lower() == 'true'
     USE_CACHE = os.environ.get('EVAL_USE_CACHE', 'true').lower() != 'false'
     USE_ENHANCED = os.environ.get('EVAL_USE_ENHANCED', 'true').lower() != 'false'
-    SKIP_ZERO_SHOT = os.environ.get('EVAL_SKIP_ZERO_SHOT', '').lower() == 'true'
-    SKIP_FEW_SHOT = os.environ.get('EVAL_SKIP_FEW_SHOT', '').lower() == 'true'
     
     if QUICK_TEST:
-        # Use MODELS if set, otherwise default to gpt-5-mini for quick test
-        quick_models = MODELS if MODELS else ["gpt-5-mini"]
-        print(f"🚀 Running in quick test mode (5 samples, models: {', '.join(quick_models)})")
-        main(num_samples=5, models=quick_models, use_cache=USE_CACHE, use_enhanced=USE_ENHANCED,
-             skip_zero_shot=SKIP_ZERO_SHOT, skip_few_shot=SKIP_FEW_SHOT)
+        print("🚀 Running in quick test mode (5 samples, gpt-4o-mini only)")
+        main(num_samples=5, models=["gpt-4o-mini"], use_cache=USE_CACHE, use_enhanced=USE_ENHANCED)
     else:
         # Show configuration
         print("\n" + "="*60)
-        print("Pointing Evaluation Configuration (Original Image Size)")
+        print("Pointing Evaluation Configuration")
         print("="*60)
         print(f"Samples: {NUM_SAMPLES if NUM_SAMPLES else 'all'}")
         print(f"Models: {', '.join(MODELS) if MODELS else 'all default models'}")
         print(f"Cache: {'enabled' if USE_CACHE else 'disabled'}")
         print(f"Enhanced metrics: {'enabled' if USE_ENHANCED else 'disabled'}")
-        print(f"Skip zero-shot: {SKIP_ZERO_SHOT}")
-        print(f"Skip few-shot: {SKIP_FEW_SHOT}")
         print("\nTo customize, either:")
         print("1. In notebooks: Call main() directly with parameters")
         print("2. Set environment variables before running:")
         print("   export EVAL_NUM_SAMPLES=10")
-        print("   export EVAL_MODELS='gpt-5-mini,claude-4-sonnet'")
+        print("   export EVAL_MODELS='gpt-4o-mini,claude-3-5-sonnet-20241022'")
         print("   export EVAL_USE_CACHE=false  # to disable cache")
         print("   export EVAL_USE_ENHANCED=false  # to disable enhanced metrics")
-        print("   export EVAL_SKIP_ZERO_SHOT=true  # to skip zero-shot")
-        print("   export EVAL_SKIP_FEW_SHOT=true  # to skip few-shot")
         print("   export EVAL_QUICK_TEST=true")
-        print("3. Or run inline: EVAL_SKIP_ZERO_SHOT=true python3 eval_pointing_original_size.py")
+        print("3. Or run inline: EVAL_USE_CACHE=false python3 eval_pointing.py")
         print("="*60 + "\n")
         
         # Run evaluation
-        main(num_samples=NUM_SAMPLES, models=MODELS, use_cache=USE_CACHE, use_enhanced=USE_ENHANCED,
-             skip_zero_shot=SKIP_ZERO_SHOT, skip_few_shot=SKIP_FEW_SHOT)
+        main(num_samples=NUM_SAMPLES, models=MODELS, use_cache=USE_CACHE, use_enhanced=USE_ENHANCED)

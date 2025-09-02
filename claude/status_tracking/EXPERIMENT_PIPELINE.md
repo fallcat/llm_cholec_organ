@@ -115,7 +115,7 @@ EVAL_QUICK_TEST=true python3 notebooks_py/eval_pointing_original_size.py
 
 ### Specific Model
 ```bash
-EVAL_MODELS='gpt-4o-mini' python3 notebooks_py/eval_pointing_original_size.py
+EVAL_MODELS='gpt-5-mini' python3 notebooks_py/eval_pointing_original_size.py
 ```
 
 ### Skip Zero-shot
