@@ -14,6 +14,7 @@ Development history and command documentation from Claude AI sessions:
 - `05-llms-integration.md` - LLM integration documentation
 - `06-llava-integration.md` - LLaVA model integration
 - `07-json-metrics-and-fixes.md` - JSON metrics and VLM fixes
+- `08-archive-unused-files.md` - Codebase cleanup and file archival
 
 ### `status_tracking/`
 Project status and tracking documents:

@@ -75,3 +75,21 @@ EVAL_SKIP_ZERO_SHOT=true python3 notebooks_py/eval_pointing_original_size.py
 - Organized all test files into `tests/` directory
 - Created analysis tools for JSON metrics
 - See `claude_code_commands/07-json-metrics-and-fixes.md` for full details
+
+## Latest Updates (2025-09-02)
+
+### Codebase Cleanup and Archival
+- Archived unused files based on analysis in `claude/status_tracking/UNUSED_FILES.md`
+- Organized files into clear categories:
+  - **Kept**: Core pipeline files (eval_pointing_original_size.py, endopoint package, data_info/)
+  - **Archived**: Legacy implementations, alternative scripts, debug tools, unused modules
+- Created organized archive structure in `archived/` directory:
+  - `legacy_src/` - Old implementation files replaced by endopoint
+  - `alternative_eval/` - Various evaluation script versions
+  - `debug_scripts/` - Debug and diagnostic utilities
+  - `vlm_tests/` - VLM testing scripts
+  - `unused_endopoint/` - Deprecated endopoint modules
+  - `cli_tools/` - Unused CLI utilities
+- Benefits: Cleaner codebase, clear main pipeline, preserved history
+- See `claude_code_commands/08-archive-unused-files.md` for full details
+- See `ARCHIVE_SUMMARY.md` for restoration guide
