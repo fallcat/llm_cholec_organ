@@ -55,3 +55,17 @@ def file_hash(path: Union[str, Path]) -> str:
     """
     path = Path(path)
     return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def ensure_dir(path: Union[str, Path]) -> Path:
+    """Ensure directory exists, creating it if necessary.
+    
+    Args:
+        path: Directory path
+        
+    Returns:
+        Path object for the directory
+    """
+    path = Path(path)
+    path.mkdir(parents=True, exist_ok=True)
+    return path

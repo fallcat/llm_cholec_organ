@@ -16,6 +16,7 @@ from tqdm import tqdm
 import torch
 
 from ..datasets.cholecseg8k import CholecSeg8kAdapter, ID2LABEL, LABEL_IDS
+# Comment out missing model imports
 from ..models import OpenAIAdapter, AnthropicAdapter, GoogleAdapter
 from .pointing import run_pointing_on_canvas
 from ..prompts.builders import (

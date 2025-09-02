@@ -115,6 +115,7 @@ The codebase is being refactored into a modular package called `endopoint`. Prog
 - ✅ JSON parser with fallbacks
 - ✅ Presence cache implementation
 - ✅ Basic CLI structure
+- ✅ **Cell selection implementation** for grid-based localization (alternative to pointing)
 
 ### In Progress
 - 🔄 Evaluation runner
@@ -122,6 +123,13 @@ The codebase is being refactored into a modular package called `endopoint`. Prog
 - 🔄 Few-shot learning
 - 🔄 Metrics implementation
 - 🔄 Complete CLI suite
+
+### Cell Selection (New Feature)
+Cell selection provides a discrete alternative to exact (x,y) pointing:
+- **Module**: `src/endopoint/eval/cell_selection.py` - ground truth and metrics
+- **Evaluation**: `notebooks_py/eval_cell_selection_original_size.py` - full pipeline
+- **Configuration**: Supports G∈{3,4} grids and K∈{1,3} top cells
+- **Documentation**: See `notebooks_py/CELL_SELECTION_README.md` for usage
 
 ### Usage
 The new package can be installed with:

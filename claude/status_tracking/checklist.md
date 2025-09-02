@@ -44,6 +44,11 @@
 - [x] **Tasks**
   - [ ] Presence-only (baseline).
   - [x] Presence+Pointing (main) - implemented in `notebooks_py/eval_pointing_original_size.py`.
+  - [x] **Presence+Cell Selection** (alternative localization) - implemented in `notebooks_py/eval_cell_selection_original_size.py`:
+    - [x] Grid G=3 (3×3 grid, 9 cells total)
+    - [x] Grid G=4 (4×4 grid, 16 cells total)  
+    - [x] Top-K=1 (single cell prediction)
+    - [x] Top-K=3 (up to 3 cells for larger organs)
 - [x] **Shot regimes**
   - [x] Zero-shot.
   - [x] Few-shot (1 pos / 1 neg) using saved plan.
@@ -59,7 +64,7 @@
     - LLaVA-v1.6-Mistral-7B (via vLLM)
     - Qwen2.5-VL-7B-Instruct (via transformers)
     - Pixtral-12B-2409 (via vLLM)
-    - DeepSeek-VL2-tiny (via transformers)
+    - DeepSeek-VL2 (via transformers)
 - [x] **Canvas**
   - [x] `original` size (224x224) as primary in `eval_pointing_original_size.py`.
 
@@ -69,10 +74,39 @@
 - [ ] Run **only**: best config (few-shot + hard-neg + chosen reasoning) **and** zero-shot baseline.
 - [ ] Optional: replicate **one** small ablation (e.g., shots) on a smaller subset.
 
+## Cell Selection Implementation ✅
+- [x] **Prompt builders** (`src/endopoint/prompts/builders.py`):
+  - [x] `build_cell_selection_system_prompt(canvas_w, canvas_h, grid_size, top_k)`
+  - [x] `build_cell_selection_user_prompt(organ_name)` 
+  - [x] Cell labeling: A1-C3 (G=3) or A1-D4 (G=4) format
+- [x] **Ground truth computation** (`src/endopoint/eval/cell_selection.py`):
+  - [x] `compute_cell_ground_truth(mask, grid_size, min_pixels)` → cell set S_k
+  - [x] `compute_dominant_cell(mask, grid_size)` → single cell d_k  
+  - [x] Handle canvas coordinates (respecting letterbox if used)
+- [x] **Parser updates** (`src/endopoint/eval/parser.py`):
+  - [x] `parse_cell_selection_json()` with validation
+  - [x] Enforce: present=0 → cells=[], present=1 → 1≤|cells|≤K
+  - [x] Cell label validation (e.g., A1-C3 for G=3)
+- [x] **Metrics** (`src/endopoint/eval/cell_selection.py`):
+  - [x] Cell@1 accuracy (hit if pred_cells ∩ S_k ≠ ∅)
+  - [x] Cell@K accuracy for K>1
+  - [x] Cell Precision/Recall/F1 
+  - [x] Penalize non-empty cells when GT absent
+- [x] **Evaluation script** (`notebooks_py/eval_cell_selection_original_size.py`):
+  - [x] Based on `eval_pointing_original_size.py` structure
+  - [x] Config for G∈{3,4}, K∈{1,3}
+  - [x] Run on same balanced subset as pointing experiments
+  - [x] **Fixed cache key collision** between zero-shot and few-shot
+  - [x] **Added persistent directory support** with `EVAL_PERSISTENT_DIR=true`
+- [x] **Batch evaluation scripts**:
+  - [x] `eval_both_persistent.sh` - Simple script for both tasks
+  - [x] `eval_both_advanced.sh` - Advanced script with CLI options
+
 ## Evaluation & logging
 - [x] **Per-image JSON** cache with:  
   `{sample_idx,y_true,y_pred,hits,rows,prompt}` saved to `results/pointing_original_*/[prompt]/[model]/cholecseg8k_pointing/train_*.json`.
 - [x] **Metrics** per organ and macro: PresenceAcc, Hit@Point|Present, **GatedAcc**, Precision, Recall, F1.
+- [x] **Cell Selection metrics**: Cell@1, Cell@3, Cell Precision/Recall, stored in `results/cell_selection_*/`.
 - [x] **Tables**: `print_metrics_table` produces paper-ready text tables; stored as `metrics_comparison.txt`.
 - [x] **JSON metrics**: saved as `metrics_comparison.json` for programmatic analysis.
 - [ ] **Curves (optional)**: presence ROC/AUPRC per organ for presence-only.
@@ -85,6 +119,11 @@
 
 ## Ablation matrix (scope control)
 - [ ] On **CholecSeg8k** only: shots (0 / few / few+hard-neg), vanilla vs 1 reasoning prompt, canvas sensitivity (original vs 768) *once*.
+- [ ] **Cell Selection vs Pointing comparison**:
+  - [ ] Same models, same test set
+  - [ ] Compare Hit@Point|Present vs Cell@1 and Cell@3
+  - [ ] Analyze robustness: which approach handles small organs better?
+  - [ ] Table showing precision/robustness trade-off
 - [ ] On **EndoScape**: best config + zero-shot baseline (and at most one extra small ablation).
 
 ## Reproducibility
@@ -104,5 +143,34 @@
 ## Packaging for the paper
 - [ ] **Main table**: best config on both datasets + zero-shot baseline.
 - [ ] **Ablation table**: CholecSeg8k only (compact).
+- [ ] **Cell Selection vs Pointing comparison table**: showing trade-offs.
 - [ ] **Appendix**: prompt strings, few-shot policy, selection algorithm box, dataset balance plots.
 - [ ] **Release artifacts**: indices, plans, and scripts to reproduce evaluation.
+
+## Cell Selection Implementation Notes
+### Integration with existing code:
+1. **Reuse existing infrastructure**: 
+   - Use same `ModelAdapter` classes for API calls
+   - Leverage existing caching system in `src/endopoint/models/base.py`
+   - Use same balanced indices and few-shot plans
+   
+2. **Minimal changes needed**:
+   - New prompt builders in `src/endopoint/prompts/builders.py`
+   - New module `src/endopoint/eval/cell_selection.py` for GT computation
+   - Update parser in `src/endopoint/eval/parser.py` 
+   - New evaluation script based on `eval_pointing_original_size.py`
+
+3. **Grid coordinate mapping** (for 224×224 canvas):
+   - G=3: cell_width=74, cell_height=74 (last col/row slightly larger)
+   - G=4: cell_width=56, cell_height=56
+   - Cell (r,c) → label: chr(65+r) + str(c+1) (e.g., A1, B2, C3)
+
+4. **JSON response format**:
+   ```json
+   {"name": "Liver", "present": 1, "cells": ["B2", "B3"]}
+   ```
+
+5. **Metrics computation**:
+   - Reuse confusion matrix logic from `enhanced_evaluator.py`
+   - Add Cell@K as parallel to Hit@Point|Present
+   - Track cell-level TP/FP/FN for precision/recall

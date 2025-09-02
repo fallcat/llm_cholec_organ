@@ -54,6 +54,15 @@ class EnhancedPointingEvaluator(PointingEvaluator):
         records = []
         
         for idx in tqdm(test_indices, desc=f"{model_name} zero-shot"):
+            # Check if result already exists
+            sample_file = eval_dir / f"{split}_{idx:05d}.json"
+            if save_per_sample and sample_file.exists():
+                # Load existing result
+                with open(sample_file, "r") as f:
+                    record = json.load(f)
+                records.append(record)
+                continue  # Skip to next sample
+            
             example = self.dataset[split][idx]
             img_t, lab_t = self.adapter.example_to_tensors(example)
             
@@ -182,6 +191,15 @@ class EnhancedPointingEvaluator(PointingEvaluator):
         records = []
         
         for idx in tqdm(test_indices, desc=f"{model_name} {plan_name}"):
+            # Check if result already exists
+            sample_file = eval_dir / f"{split}_{idx:05d}.json"
+            if save_per_sample and sample_file.exists():
+                # Load existing result
+                with open(sample_file, "r") as f:
+                    record = json.load(f)
+                records.append(record)
+                continue  # Skip to next sample
+            
             example = self.dataset[split][idx]
             img_t, lab_t = self.adapter.example_to_tensors(example)
             

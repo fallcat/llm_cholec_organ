@@ -221,9 +221,16 @@ def main(num_samples=None, models=None, use_cache=True, use_enhanced=True, skip_
         fewshot_plans[plan_name] = load_fewshot_plan(plan_file)
         print(f"✓ Loaded few-shot plan: {plan_name}")
     
-    # Create output directory with timestamp
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    output_dir = Path(ROOT_DIR) / "results" / f"pointing_original_{timestamp}"
+    # Create output directory
+    use_persistent_dir = os.environ.get('EVAL_PERSISTENT_DIR', '').lower() == 'true'
+    if use_persistent_dir:
+        # Use a persistent directory without timestamp
+        output_dir = Path(ROOT_DIR) / "results" / "pointing_original"
+        print(f"✓ Using persistent directory: {output_dir}")
+    else:
+        # Use timestamped directory
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        output_dir = Path(ROOT_DIR) / "results" / f"pointing_original_{timestamp}"
     
     # Initialize evaluator with original image dimensions
     evaluator = EnhancedPointingEvaluator(

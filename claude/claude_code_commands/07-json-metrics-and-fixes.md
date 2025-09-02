@@ -140,7 +140,7 @@ EVAL_QUICK_TEST=true EVAL_NUM_SAMPLES=3 EVAL_MODELS='mistralai/Pixtral-12B-2409'
 
 #### DeepSeek-VL2 (transformers backend)
 ```bash
-EVAL_QUICK_TEST=true EVAL_NUM_SAMPLES=3 EVAL_MODELS='deepseek-ai/deepseek-vl2-tiny' python3 notebooks_py/eval_pointing_original_size.py
+EVAL_QUICK_TEST=true EVAL_NUM_SAMPLES=3 EVAL_MODELS='deepseek-ai/deepseek-vl2' python3 notebooks_py/eval_pointing_original_size.py
 ```
 
 ## Benefits

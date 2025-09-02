@@ -10,8 +10,12 @@ from ..models.base import ModelAdapter
 from ..prompts.builders import (
     build_pointing_system_prompt,
     build_pointing_user_prompt,
+    build_cell_selection_system_prompt,
+    build_cell_selection_system_prompt_strict,
+    build_cell_selection_user_prompt,
 )
-from .parser import parse_pointing_json
+from .parser import parse_pointing_json, parse_cell_selection_json
+from .cell_selection import compute_cell_ground_truth, compute_cell_metrics
 
 
 def run_pointing_on_canvas(
@@ -262,4 +266,140 @@ def calculate_pointing_metrics(
     return {
         "overall_accuracy": overall_accuracy,
         "organ_metrics": organ_metrics,
+    }
+
+
+def run_cell_selection_on_canvas(
+    model: ModelAdapter,
+    img_t: torch.Tensor,
+    lab_t: torch.Tensor,
+    organ_name: str,
+    grid_size: int = 3,
+    top_k: int = 1,
+    canvas_width: int = 768,
+    canvas_height: int = 768,
+    prompt_style: str = "standard",
+    few_shot_examples: Optional[List[Tuple[torch.Tensor, Dict]]] = None,
+    min_pixels: int = 50,
+) -> Dict:
+    """Run cell selection task on a single organ.
+    
+    Args:
+        model: Model adapter instance
+        img_t: Image tensor [3,H,W]
+        lab_t: Label tensor [H,W]
+        organ_name: Name of organ to detect
+        grid_size: Grid size (3 or 4)
+        top_k: Maximum number of cells to return
+        canvas_width: Canvas width in pixels
+        canvas_height: Canvas height in pixels
+        prompt_style: "standard" or "strict"
+        few_shot_examples: Optional list of (image_tensor, response_dict) for few-shot
+        min_pixels: Minimum pixels for presence detection
+        
+    Returns:
+        Dictionary with:
+            - organ: organ name
+            - present: 0 or 1
+            - cells: List of cell labels
+            - gt_cells: Ground truth cell labels
+            - gt_present: Ground truth presence
+            - metrics: Cell selection metrics
+            - raw: Raw model response
+    """
+    # Build prompts
+    if prompt_style == "strict":
+        system_prompt = build_cell_selection_system_prompt_strict(
+            canvas_width, canvas_height, grid_size, top_k
+        )
+    else:
+        system_prompt = build_cell_selection_system_prompt(
+            canvas_width, canvas_height, grid_size, top_k
+        )
+    
+    user_prompt = build_cell_selection_user_prompt(organ_name, grid_size)
+    
+    # Convert current image to PIL
+    img_pil = tensor_to_pil(img_t)
+    
+    # Query model - use the adapter's __call__ method with batch format
+    # This follows the same pattern as run_pointing_on_canvas
+    if few_shot_examples:
+        # Build a single tuple with all few-shot examples and the current query
+        # Format: (text1, image1, text2, image2, ..., current_text, current_image)
+        prompt_parts = []
+        
+        # Add few-shot examples
+        prompt_parts.append("Here are some examples:\n")
+        
+        for i, (ex_img, ex_response) in enumerate(few_shot_examples, 1):
+            # Convert example image to PIL
+            ex_pil = tensor_to_pil(ex_img)
+            
+            # Build the example prompt
+            ex_prompt = f"\nExample {i}: {build_cell_selection_user_prompt(ex_response['name'], grid_size)}"
+            prompt_parts.append(ex_prompt)
+            prompt_parts.append(ex_pil)
+            
+            # Build the expected response
+            response_json = {
+                "name": ex_response['name'],
+                "present": ex_response.get('present', 0),
+                "cells": ex_response.get('cells', [])
+            }
+            ex_response_text = f"\nResponse: {json.dumps(response_json)}\n"
+            prompt_parts.append(ex_response_text)
+        
+        # Add the current query
+        prompt_parts.append(f"\nNow for the actual query: {user_prompt}")
+        prompt_parts.append(img_pil)
+        
+        # Convert to tuple and call model with batch format
+        raw_response = model([tuple(prompt_parts)], system_prompt=system_prompt)[0]
+    else:
+        # Zero-shot with batch format
+        raw_response = model([(user_prompt, img_pil)], system_prompt=system_prompt)[0]
+    
+    # Parse response
+    parsed = parse_cell_selection_json(raw_response, grid_size, top_k)
+    
+    # Get organ ID from name (assuming CholecSeg8k)
+    from ..datasets.cholecseg8k import LABEL2ID
+    organ_id = LABEL2ID.get(organ_name, 0)
+    
+    # Compute ground truth
+    if organ_id > 0:
+        organ_mask = (lab_t == organ_id).numpy().astype(np.uint8)
+        gt_info = compute_cell_ground_truth(organ_mask, grid_size, min_pixels)
+        
+        # Compute metrics
+        metrics = compute_cell_metrics(
+            parsed['cells'],
+            gt_info['cells'],
+            gt_info['present'],
+            parsed['present'],
+            top_k
+        )
+    else:
+        # Unknown organ - assume absent
+        gt_info = {'present': False, 'cells': set(), 'dominant_cell': None}
+        metrics = compute_cell_metrics(
+            parsed['cells'],
+            set(),
+            False,
+            parsed['present'],
+            top_k
+        )
+    
+    return {
+        "organ": organ_name,
+        "present": parsed["present"],
+        "cells": parsed["cells"],
+        "gt_present": gt_info["present"],
+        "gt_cells": list(gt_info["cells"]),
+        "gt_dominant_cell": gt_info.get("dominant_cell"),
+        "metrics": metrics,
+        "raw": raw_response,
+        "grid_size": grid_size,
+        "top_k": top_k,
     }
