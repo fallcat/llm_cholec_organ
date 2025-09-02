@@ -16,6 +16,15 @@ USAGE:
     # Use specific models
     EVAL_MODELS='gpt-4o-mini,claude-3-5-sonnet-20241022' python3 eval_pointing_original_size.py
     
+    # Test with LLaVA only
+    EVAL_MODELS='llava-hf/llava-v1.6-mistral-7b-hf' python3 eval_pointing_original_size.py
+    
+    # Run only few-shot evaluation (skip zero-shot)
+    EVAL_SKIP_ZERO_SHOT=true python3 eval_pointing_original_size.py
+    
+    # Run only zero-shot evaluation (skip few-shot)
+    EVAL_SKIP_FEW_SHOT=true python3 eval_pointing_original_size.py
+    
     # Disable cache for fresh API calls
     EVAL_USE_CACHE=false python3 eval_pointing_original_size.py
     
@@ -27,10 +36,12 @@ USAGE:
 
 ENVIRONMENT VARIABLES:
     EVAL_NUM_SAMPLES    - Number of samples to evaluate (default: all)
-    EVAL_MODELS         - Comma-separated list of models (default: gpt-4o-mini, claude-3-5-sonnet-20241022, gemini-2.0-flash-exp)
+    EVAL_MODELS         - Comma-separated list of models (default: gpt-4o-mini, claude-3-5-sonnet-20241022, gemini-2.0-flash-exp, llava-hf/llava-v1.6-mistral-7b-hf)
     EVAL_USE_CACHE      - Whether to use cached responses (default: true)
     EVAL_USE_ENHANCED   - Whether to use enhanced metrics (default: true)
     EVAL_QUICK_TEST     - Quick test mode with 5 samples (default: false)
+    EVAL_SKIP_ZERO_SHOT - Skip zero-shot evaluation (default: false)
+    EVAL_SKIP_FEW_SHOT  - Skip few-shot evaluation (default: false)
 
 OUTPUT:
     Results are saved to: results/pointing_original_YYYYMMDD_HHMMSS/
@@ -124,7 +135,7 @@ def get_original_image_size(dataset, split="train", sample_idx=0):
     return img.size  # Returns (width, height)
 
 
-def main(num_samples=None, models=None, use_cache=True, use_enhanced=True):
+def main(num_samples=None, models=None, use_cache=True, use_enhanced=True, skip_zero_shot=False, skip_few_shot=False):
     """Main evaluation function.
     
     Args:
@@ -135,13 +146,16 @@ def main(num_samples=None, models=None, use_cache=True, use_enhanced=True):
                   Set to False to bypass cache (useful for testing changes).
         use_enhanced: Whether to use enhanced metrics (default: True).
                      Enhanced metrics match the notebook's comprehensive output.
+        skip_zero_shot: Whether to skip zero-shot evaluation (default: False).
+        skip_few_shot: Whether to skip few-shot evaluation (default: False).
     """
     
     # Configuration
     DEFAULT_MODELS = [
         "gpt-4o-mini",
         "claude-3-5-sonnet-20241022",
-        "gemini-2.0-flash-exp"
+        "gemini-2.0-flash-exp",
+        "llava-hf/llava-v1.6-mistral-7b-hf"  # Added LLaVA model with vLLM
     ]
     
     MODELS = models if models is not None else DEFAULT_MODELS
@@ -217,17 +231,24 @@ def main(num_samples=None, models=None, use_cache=True, use_enhanced=True):
         use_cache=use_cache,
     )
     
+    # Conditionally include evaluation types based on skip flags
+    eval_fewshot_plans = {}
+    if not skip_few_shot:
+        eval_fewshot_plans = fewshot_plans
+    
     # Run evaluation with enhanced metrics
     if use_enhanced:
         results = evaluator.run_full_evaluation_enhanced(
             test_indices=test_indices,
-            fewshot_plans=fewshot_plans,
+            fewshot_plans=eval_fewshot_plans,
             split="train",  # Using train split for test indices
+            skip_zero_shot=skip_zero_shot,
         )
     else:
         results = evaluator.run_full_evaluation(
             test_indices=test_indices,
-            fewshot_plans=fewshot_plans,
+            fewshot_plans=eval_fewshot_plans,
+            skip_zero_shot=skip_zero_shot,
         )
     
     print("\n✨ Evaluation complete!")
@@ -288,10 +309,15 @@ if __name__ == "__main__":
     QUICK_TEST = os.environ.get('EVAL_QUICK_TEST', '').lower() == 'true'
     USE_CACHE = os.environ.get('EVAL_USE_CACHE', 'true').lower() != 'false'
     USE_ENHANCED = os.environ.get('EVAL_USE_ENHANCED', 'true').lower() != 'false'
+    SKIP_ZERO_SHOT = os.environ.get('EVAL_SKIP_ZERO_SHOT', '').lower() == 'true'
+    SKIP_FEW_SHOT = os.environ.get('EVAL_SKIP_FEW_SHOT', '').lower() == 'true'
     
     if QUICK_TEST:
-        print("🚀 Running in quick test mode (5 samples, gpt-4o-mini only)")
-        main(num_samples=5, models=["gpt-4o-mini"], use_cache=USE_CACHE, use_enhanced=USE_ENHANCED)
+        # Use MODELS if set, otherwise default to gpt-4o-mini for quick test
+        quick_models = MODELS if MODELS else ["gpt-4o-mini"]
+        print(f"🚀 Running in quick test mode (5 samples, models: {', '.join(quick_models)})")
+        main(num_samples=5, models=quick_models, use_cache=USE_CACHE, use_enhanced=USE_ENHANCED,
+             skip_zero_shot=SKIP_ZERO_SHOT, skip_few_shot=SKIP_FEW_SHOT)
     else:
         # Show configuration
         print("\n" + "="*60)
@@ -301,6 +327,8 @@ if __name__ == "__main__":
         print(f"Models: {', '.join(MODELS) if MODELS else 'all default models'}")
         print(f"Cache: {'enabled' if USE_CACHE else 'disabled'}")
         print(f"Enhanced metrics: {'enabled' if USE_ENHANCED else 'disabled'}")
+        print(f"Skip zero-shot: {SKIP_ZERO_SHOT}")
+        print(f"Skip few-shot: {SKIP_FEW_SHOT}")
         print("\nTo customize, either:")
         print("1. In notebooks: Call main() directly with parameters")
         print("2. Set environment variables before running:")
@@ -308,9 +336,12 @@ if __name__ == "__main__":
         print("   export EVAL_MODELS='gpt-4o-mini,claude-3-5-sonnet-20241022'")
         print("   export EVAL_USE_CACHE=false  # to disable cache")
         print("   export EVAL_USE_ENHANCED=false  # to disable enhanced metrics")
+        print("   export EVAL_SKIP_ZERO_SHOT=true  # to skip zero-shot")
+        print("   export EVAL_SKIP_FEW_SHOT=true  # to skip few-shot")
         print("   export EVAL_QUICK_TEST=true")
-        print("3. Or run inline: EVAL_USE_CACHE=false python3 eval_pointing_original_size.py")
+        print("3. Or run inline: EVAL_SKIP_ZERO_SHOT=true python3 eval_pointing_original_size.py")
         print("="*60 + "\n")
         
         # Run evaluation
-        main(num_samples=NUM_SAMPLES, models=MODELS, use_cache=USE_CACHE, use_enhanced=USE_ENHANCED)
+        main(num_samples=NUM_SAMPLES, models=MODELS, use_cache=USE_CACHE, use_enhanced=USE_ENHANCED,
+             skip_zero_shot=SKIP_ZERO_SHOT, skip_few_shot=SKIP_FEW_SHOT)

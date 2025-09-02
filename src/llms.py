@@ -2,10 +2,6 @@ import os
 import concurrent.futures
 import time
 from typing import Any, List, Optional, Union
-from openai import OpenAI
-import anthropic
-from google import genai
-from google.genai import types as genai_types
 import numpy as np
 import torch
 import torchvision.transforms.functional as tvtf
@@ -16,6 +12,26 @@ import diskcache
 import pickle
 import hashlib
 from pathlib import Path
+
+# Import API libraries with graceful fallback
+try:
+    from openai import OpenAI
+    OPENAI_AVAILABLE = True
+except ImportError:
+    OPENAI_AVAILABLE = False
+    
+try:
+    import anthropic
+    ANTHROPIC_AVAILABLE = True
+except ImportError:
+    ANTHROPIC_AVAILABLE = False
+    
+try:
+    from google import genai
+    from google.genai import types as genai_types
+    GOOGLE_AVAILABLE = True
+except ImportError:
+    GOOGLE_AVAILABLE = False
 
 # Create a cache in this directory
 cache = diskcache.Cache(Path(__file__).parent / ".llms.py.cache")
@@ -99,16 +115,108 @@ def to_pil_image(x: Any) -> PIL.Image.Image:
         raise ValueError(f"Invalid image type: {type(x)}")
 
 
-def load_model(model_name: str, api_key: Optional[str] = None):
-    """Attempt to load the model based on the name"""
-    if "gpt" in model_name or model_name.startswith("o"):
-        return MyOpenAIModel(model_name=model_name, api_key=api_key)
-    elif "claude" in model_name:
-        return MyAnthropicModel(model_name=model_name, api_key=api_key)
-    elif "gemini" in model_name:
-        return MyGoogleModel(model_name=model_name, api_key=api_key)
-    else:
-        raise ValueError(f"Invalid model name: {model_name}")
+def load_model(model_name: str, api_key: Optional[str] = None, use_endopoint: bool = True, **kwargs):
+    """Attempt to load the model based on the name
+    
+    Args:
+        model_name: Name of the model to load
+        api_key: Optional API key for API-based models
+        use_endopoint: If True, load models from endopoint package when available
+        **kwargs: Additional arguments passed to model constructors
+    """
+    model_name_lower = model_name.lower()
+    
+    # If use_endopoint is True, try to load from endopoint package first
+    if use_endopoint:
+        try:
+            import sys
+            from pathlib import Path
+            sys.path.insert(0, str(Path(__file__).parent))
+            
+            # API-based models from endopoint
+            if "gpt" in model_name_lower or model_name.startswith("o"):
+                from endopoint.models import OpenAIAdapter
+                # Create a wrapper to match the existing interface
+                adapter = OpenAIAdapter(model_name=model_name, api_key=api_key, **kwargs)
+                return _create_adapter_wrapper(adapter)
+                
+            elif "claude" in model_name_lower:
+                from endopoint.models import AnthropicAdapter
+                adapter = AnthropicAdapter(model_name=model_name, api_key=api_key, **kwargs)
+                return _create_adapter_wrapper(adapter)
+                
+            elif "gemini" in model_name_lower:
+                from endopoint.models import GoogleAdapter
+                adapter = GoogleAdapter(model_name=model_name, api_key=api_key, **kwargs)
+                return _create_adapter_wrapper(adapter)
+            
+            # Open-source VLM models from endopoint
+            elif "llava" in model_name_lower:
+                from endopoint.models import LLaVAModel
+                return LLaVAModel(model_name=model_name, **kwargs)
+            
+            elif "qwen" in model_name_lower and "vl" in model_name_lower:
+                from endopoint.models import QwenVLModel
+                return QwenVLModel(model_name=model_name, **kwargs)
+            
+            elif "pixtral" in model_name_lower:
+                from endopoint.models import PixtralModel
+                return PixtralModel(model_name=model_name, **kwargs)
+            
+            elif "deepseek" in model_name_lower and "vl" in model_name_lower:
+                from endopoint.models import DeepSeekVL2Model
+                return DeepSeekVL2Model(model_name=model_name, **kwargs)
+                
+        except ImportError as e:
+            # Fall back to legacy models if endopoint import fails
+            if kwargs.get('verbose', False):
+                print(f"Could not load from endopoint, falling back to legacy: {e}")
+            use_endopoint = False
+    
+    # Legacy model loading (fallback or if use_endopoint=False)
+    if not use_endopoint:
+        if "gpt" in model_name_lower or model_name.startswith("o"):
+            return MyOpenAIModel(model_name=model_name, api_key=api_key, **kwargs)
+        elif "claude" in model_name_lower:
+            return MyAnthropicModel(model_name=model_name, api_key=api_key, **kwargs)
+        elif "gemini" in model_name_lower:
+            return MyGoogleModel(model_name=model_name, api_key=api_key, **kwargs)
+    
+    raise ValueError(f"Unknown model name: {model_name}. Supported models: gpt, claude, gemini, llava, qwen-vl, pixtral, deepseek-vl")
+
+
+def _create_adapter_wrapper(adapter):
+    """Create a wrapper around endopoint adapters to match the legacy interface."""
+    
+    class AdapterWrapper:
+        """Wrapper to make endopoint adapters compatible with legacy interface."""
+        
+        def __init__(self, adapter):
+            self.adapter = adapter
+            # Copy relevant attributes
+            self.model_name = adapter.model_name
+            self.use_cache = adapter.use_cache
+            self.verbose = adapter.verbose
+        
+        def __call__(self, prompts: Union[str, List[Union[str, tuple]]], system_prompt: Optional[str] = None):
+            """Process prompts with optional system prompt."""
+            # Use a default system prompt if none provided
+            if system_prompt is None:
+                system_prompt = "You are a helpful assistant."
+            
+            # Convert single prompt to list
+            if isinstance(prompts, (str, tuple)):
+                prompts = [prompts]
+            
+            # Call the adapter
+            return self.adapter(prompts, system_prompt=system_prompt)
+        
+        def one_call(self, prompt, system_prompt: Optional[str] = None):
+            """Single call for compatibility."""
+            results = self([prompt], system_prompt=system_prompt)
+            return results[0] if results else ""
+    
+    return AdapterWrapper(adapter)
 
 
 class MyOpenAIModel:
@@ -123,6 +231,9 @@ class MyOpenAIModel:
         use_cache: bool = True,
         verbose: bool = False,
     ):
+        if not OPENAI_AVAILABLE:
+            raise ImportError("OpenAI library not available. Install with: pip install openai")
+            
         self.model_name = model_name
         self.num_tries_per_request = num_tries_per_request
         self.max_tokens = max_tokens
@@ -209,6 +320,9 @@ class MyAnthropicModel:
         batch_size: int = 24,
         verbose: bool = False,
     ):
+        if not ANTHROPIC_AVAILABLE:
+            raise ImportError("Anthropic library not available. Install with: pip install anthropic")
+            
         self.model_name = model_name
         self.num_tries_per_request = num_tries_per_request
         self.temperature = temperature
@@ -298,6 +412,9 @@ class MyGoogleModel:
         batch_size: int = 24,
         verbose: bool = False,
     ):
+        if not GOOGLE_AVAILABLE:
+            raise ImportError("Google Generative AI library not available. Install with: pip install google-generativeai")
+            
         self.model_name = model_name
         self.num_tries_per_request = num_tries_per_request
         self.temperature = temperature

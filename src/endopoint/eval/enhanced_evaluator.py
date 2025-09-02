@@ -282,6 +282,7 @@ class EnhancedPointingEvaluator(PointingEvaluator):
         test_indices: List[int],
         fewshot_plans: Dict[str, Dict],
         split: str = "train",
+        skip_zero_shot: bool = False,
     ) -> Dict:
         """Run complete evaluation with enhanced metrics.
         
@@ -289,6 +290,7 @@ class EnhancedPointingEvaluator(PointingEvaluator):
             test_indices: List of test sample indices
             fewshot_plans: Dictionary mapping plan names to plan data
             split: Dataset split
+            skip_zero_shot: Whether to skip zero-shot evaluation
             
         Returns:
             All results with enhanced metrics
@@ -304,11 +306,12 @@ class EnhancedPointingEvaluator(PointingEvaluator):
             
             model_results = {}
             
-            # Zero-shot evaluation
-            zero_shot_results = self.run_zero_shot_enhanced(
-                model_name, test_indices, split
-            )
-            model_results["zero_shot"] = zero_shot_results
+            # Zero-shot evaluation (if not skipped)
+            if not skip_zero_shot:
+                zero_shot_results = self.run_zero_shot_enhanced(
+                    model_name, test_indices, split
+                )
+                model_results["zero_shot"] = zero_shot_results
             
             # Few-shot evaluations
             for plan_name, plan_data in fewshot_plans.items():
@@ -327,10 +330,13 @@ class EnhancedPointingEvaluator(PointingEvaluator):
     def save_comparison_table(self, all_results: Dict):
         """Save a comparison table across all models and prompts.
         
+        Also saves a JSON version for easy loading and plotting.
+        
         Args:
             all_results: Complete results dictionary
         """
-        comparison_file = self.output_dir / "metrics_comparison.txt"
+        # Save text version for human reading
+        comparison_file_txt = self.output_dir / "metrics_comparison.txt"
         
         lines = []
         lines.append("="*80)
@@ -344,7 +350,74 @@ class EnhancedPointingEvaluator(PointingEvaluator):
                 if "table_output" in results:
                     lines.append(results["table_output"])
         
-        with open(comparison_file, "w") as f:
+        with open(comparison_file_txt, "w") as f:
             f.write("\n".join(lines))
         
-        print(f"\n💾 Saved comparison table to {comparison_file}")
+        print(f"\n💾 Saved comparison table to {comparison_file_txt}")
+        
+        # Save JSON version for easy loading and analysis
+        comparison_file_json = self.output_dir / "metrics_comparison.json"
+        
+        # Extract key metrics for JSON output
+        json_data = {
+            "metadata": {
+                "timestamp": str(self.output_dir.name),
+                "canvas_width": self.canvas_width,
+                "canvas_height": self.canvas_height,
+                "organ_names": self.organ_names,
+                "models": list(all_results.keys())
+            },
+            "results": {}
+        }
+        
+        for model_name, model_results in all_results.items():
+            json_data["results"][model_name] = {}
+            
+            for eval_type, results in model_results.items():
+                json_data["results"][model_name][eval_type] = {
+                    "n_examples": results.get("n_examples", 0)
+                }
+                
+                # Add metrics rows if available
+                if "metrics_rows" in results:
+                    json_data["results"][model_name][eval_type]["per_organ"] = []
+                    for row in results["metrics_rows"]:
+                        json_data["results"][model_name][eval_type]["per_organ"].append({
+                            "id": row.get("ID"),
+                            "label": row.get("Label"),
+                            "TP": row.get("TP"),
+                            "FN": row.get("FN"),
+                            "TN": row.get("TN"),
+                            "FP": row.get("FP"),
+                            "PresenceAcc": row.get("PresenceAcc"),
+                            "Hit@Point|Present": row.get("Hit@Point|Present"),
+                            "GatedAcc": row.get("GatedAcc"),
+                            "Precision": row.get("Precision"),
+                            "Recall": row.get("Recall"),
+                            "F1": row.get("F1")
+                        })
+                
+                # Add aggregate metrics if available
+                if "metrics_totals" in results:
+                    totals = results["metrics_totals"]
+                    json_data["results"][model_name][eval_type]["aggregate"] = {
+                        "total_TP": totals.get("total_tp", 0),
+                        "total_FN": totals.get("total_fn", 0),
+                        "total_TN": totals.get("total_tn", 0),
+                        "total_FP": totals.get("total_fp", 0),
+                        "macro_presence_acc": totals.get("macro_presence_acc"),
+                        "macro_hit_rate": totals.get("macro_hit_rate"),
+                        "macro_gated_acc": totals.get("macro_gated_acc"),
+                        "macro_precision": totals.get("macro_precision"),
+                        "macro_recall": totals.get("macro_recall"),
+                        "macro_f1": totals.get("macro_f1"),
+                        "micro_precision": totals.get("micro_precision"),
+                        "micro_recall": totals.get("micro_recall"),
+                        "micro_f1": totals.get("micro_f1")
+                    }
+        
+        # Save JSON with proper formatting
+        with open(comparison_file_json, "w") as f:
+            json.dump(json_data, f, indent=2)
+        
+        print(f"💾 Saved metrics JSON to {comparison_file_json}")

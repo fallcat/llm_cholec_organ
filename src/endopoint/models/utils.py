@@ -61,6 +61,26 @@ def image_to_base64(
         raise ValueError(f"Failed to convert image to base64: {str(e)}")
 
 
+def to_pil_image(x: Any) -> Image.Image:
+    """Convert an image to a PIL Image object.
+    
+    Args:
+        x: Input image (PIL Image, torch.Tensor, or numpy array)
+        
+    Returns:
+        PIL Image object
+        
+    Raises:
+        ValueError: If the input type is not supported
+    """
+    if isinstance(x, Image.Image):
+        return x
+    elif isinstance(x, (torch.Tensor, np.ndarray)):
+        return tvtf.to_pil_image(x)
+    else:
+        raise ValueError(f"Invalid image type: {type(x)}")
+
+
 def get_cache_key(model_name: str, prompt: Any, system_prompt: Optional[str] = None) -> str:
     """Convert a (system_prompt, prompt) into a stable hash string."""
     sys_part = system_prompt or ""

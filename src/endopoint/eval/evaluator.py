@@ -104,6 +104,51 @@ class PointingEvaluator:
                 max_tokens=100,
                 use_cache=use_cache,
             )
+        elif "llava" in model_name.lower():
+            # Import LLaVA model from vllm module
+            from ..models.vllm import LLaVAModel
+            return LLaVAModel(
+                model_name=model_name,
+                use_vllm=True,  # Use vLLM for faster inference
+                max_tokens=100,
+                temperature=0.0,
+                use_cache=use_cache,
+                verbose=True  # Enable verbose for debugging
+            )
+        elif "qwen" in model_name.lower():
+            # Import Qwen-VL model from vllm module
+            from ..models.vllm import QwenVLModel
+            # Note: Qwen vLLM integration has issues with image tokens
+            # Using transformers backend for now
+            return QwenVLModel(
+                model_name=model_name,
+                use_vllm=False,  # Use transformers due to vLLM image token issues
+                max_tokens=100,
+                temperature=0.0,
+                use_cache=use_cache,
+                verbose=True  # Enable verbose for debugging
+            )
+        elif "pixtral" in model_name.lower():
+            # Import Pixtral model from vllm module
+            from ..models.vllm import PixtralModel
+            # PixtralModel always uses vLLM, no need for use_vllm parameter
+            return PixtralModel(
+                model_name=model_name,
+                max_tokens=100,
+                temperature=0.0,
+                use_cache=use_cache,
+                verbose=True  # Enable verbose for debugging
+            )
+        elif "deepseek" in model_name.lower():
+            # Import DeepSeek-VL2 model from vllm module
+            from ..models.vllm import DeepSeekVL2Model
+            return DeepSeekVL2Model(
+                model_name=model_name,
+                max_tokens=100,
+                temperature=0.0,
+                use_cache=use_cache,
+                verbose=True  # Enable verbose for debugging
+            )
         else:
             raise ValueError(f"Unknown model: {model_name}")
     
@@ -403,12 +448,14 @@ class PointingEvaluator:
         self,
         test_indices: List[int],
         fewshot_plans: Dict[str, Dict],
+        skip_zero_shot: bool = False,
     ) -> Dict:
         """Run complete evaluation pipeline.
         
         Args:
             test_indices: List of test sample indices
             fewshot_plans: Dictionary mapping plan names to plan data
+            skip_zero_shot: Whether to skip zero-shot evaluation
             
         Returns:
             All results dictionary
@@ -424,9 +471,10 @@ class PointingEvaluator:
             
             model_results = {}
             
-            # Zero-shot evaluation
-            zero_shot_results = self.run_zero_shot(model_name, test_indices)
-            model_results["zero_shot"] = zero_shot_results
+            # Zero-shot evaluation (if not skipped)
+            if not skip_zero_shot:
+                zero_shot_results = self.run_zero_shot(model_name, test_indices)
+                model_results["zero_shot"] = zero_shot_results
             
             # Few-shot evaluations
             for plan_name, plan_data in fewshot_plans.items():
