@@ -58,7 +58,7 @@ EVAL_GRID_SIZE=3 EVAL_TOP_K=1 python3 eval_cell_selection_original_size.py
 EVAL_GRID_SIZE=4 EVAL_TOP_K=3 python3 eval_cell_selection_original_size.py
 
 # Specific models only
-EVAL_MODELS='gpt-5-mini,claude-4-sonnet' EVAL_GRID_SIZE=3 EVAL_TOP_K=1 python3 eval_cell_selection_original_size.py
+EVAL_MODELS='gpt-5-mini,claude-sonnet-4-20250514' EVAL_GRID_SIZE=3 EVAL_TOP_K=1 python3 eval_cell_selection_original_size.py
 
 # Skip zero-shot (only few-shot)
 EVAL_SKIP_ZERO_SHOT=true python3 eval_cell_selection_original_size.py

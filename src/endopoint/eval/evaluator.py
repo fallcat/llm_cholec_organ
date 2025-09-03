@@ -148,6 +148,7 @@ class PointingEvaluator:
                 max_tokens=100,
                 temperature=0.0,
                 use_cache=use_cache,
+                use_vllm=True,  # Explicitly use vLLM
                 verbose=True  # Enable verbose for debugging
             )
         else:

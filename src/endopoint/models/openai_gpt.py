@@ -22,7 +22,7 @@ class OpenAIAdapter:
         max_tokens: int = 2048,
         batch_size: int = 24,
         use_cache: bool = True,
-        verbose: bool = False,
+        verbose: bool = True,
     ):
         """Initialize OpenAI adapter.
         
@@ -111,8 +111,14 @@ class OpenAIAdapter:
                     break
             except Exception as e:
                 if self.verbose:
-                    print(f"Error calling OpenAI API: {e}")
+                    print(f"❌ Error calling OpenAI API for {self.model_name}: {e}")
+                    print(f"   Attempt {_ + 1}/{self.num_tries_per_request}")
                 time.sleep(3)
+        
+        if not response_text and self.verbose:
+            print(f"⚠️  Warning: Empty response from {self.model_name} after {self.num_tries_per_request} attempts")
+            print(f"   System prompt length: {len(system_prompt)} chars")
+            print(f"   User content items: {len(user_content)}")
         
         if self.use_cache and response_text:
             cache.set(get_cache_key(self.model_name, prompt, system_prompt), response_text)

@@ -26,7 +26,7 @@ while [[ $# -gt 0 ]]; do
             shift 2
             ;;
         --all-models)
-            MODELS='gpt-5-mini,claude-4-sonnet,gemini-2.5-flash,llava-hf/llava-v1.6-mistral-7b-hf,Qwen/Qwen2.5-VL-7B-Instruct,mistralai/Pixtral-12B-2409,deepseek-ai/deepseek-vl2'
+            MODELS='gpt-5-mini,claude-sonnet-4-20250514,gemini-2.5-flash,llava-hf/llava-v1.6-mistral-7b-hf,Qwen/Qwen2.5-VL-7B-Instruct,mistralai/Pixtral-12B-2409,deepseek-ai/deepseek-vl2'
             shift
             ;;
         --grid)

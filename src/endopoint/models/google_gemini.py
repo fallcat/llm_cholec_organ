@@ -9,7 +9,7 @@ from google import genai
 from google.genai import types as genai_types
 
 from .base import Batch, OneQuery
-from .utils import cache, get_cache_key, image_to_base64, is_image
+from .utils import cache, get_cache_key, image_to_base64, is_image, to_pil_image
 
 
 class GoogleAdapter:
@@ -24,7 +24,7 @@ class GoogleAdapter:
         max_tokens: int = 2048,
         batch_size: int = 24,
         use_cache: bool = True,
-        verbose: bool = False,
+        verbose: bool = True,
     ):
         """Initialize Google adapter.
         
@@ -86,24 +86,28 @@ class GoogleAdapter:
         
         # Build content parts from tuple
         content_parts = []
+        
+        # Add system prompt first
+        if system_prompt:
+            content_parts.append(system_prompt)
+        
+        # Process user prompt parts
         for p in prompt:
             if isinstance(p, str):
                 content_parts.append(p)
             elif is_image(p):
-                # For Google, we add images directly as PIL objects
-                content_parts.append(p)
+                # Convert to PIL if needed
+                pil_image = to_pil_image(p)
+                content_parts.append(pil_image)
             else:
                 raise ValueError(f"Invalid prompt type: {type(p)}")
-        
-        # Combine system and user prompts
-        full_content = [system_prompt] + content_parts
         
         response_text = ""
         for _ in range(self.num_tries_per_request):
             try:
                 response = self.client.models.generate_content(
                     model=self.model_name,
-                    contents=full_content,
+                    contents=content_parts,
                     config=genai_types.GenerateContentConfig(
                         temperature=self.temperature,
                         max_output_tokens=self.max_tokens,
@@ -115,8 +119,14 @@ class GoogleAdapter:
                     break
             except Exception as e:
                 if self.verbose:
-                    print(f"Error calling Google API: {e}")
+                    print(f"❌ Error calling Google API for {self.model_name}: {e}")
+                    print(f"   Attempt {_ + 1}/{self.num_tries_per_request}")
                 time.sleep(3)
+        
+        if not response_text and self.verbose:
+            print(f"⚠️  Warning: Empty response from {self.model_name} after {self.num_tries_per_request} attempts")
+            print(f"   System prompt length: {len(system_prompt) if system_prompt else 0} chars")
+            print(f"   Content parts: {len(content_parts)}")
         
         if self.use_cache and response_text:
             cache.set(get_cache_key(self.model_name, prompt, system_prompt), response_text)

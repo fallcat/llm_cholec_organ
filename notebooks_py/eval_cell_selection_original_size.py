@@ -17,7 +17,7 @@ USAGE:
     EVAL_GRID_SIZE=4 EVAL_TOP_K=3 python3 eval_cell_selection_original_size.py
     
     # Use specific models
-    EVAL_MODELS='gpt-5-mini,claude-4-sonnet' python3 eval_cell_selection_original_size.py
+    EVAL_MODELS='gpt-5-mini,claude-sonnet-4-20250514' python3 eval_cell_selection_original_size.py
     
     # Combine options
     EVAL_NUM_SAMPLES=10 EVAL_GRID_SIZE=3 EVAL_TOP_K=1 python3 eval_cell_selection_original_size.py
@@ -102,9 +102,9 @@ logger = get_logger(__name__)
 
 # Default models to evaluate
 DEFAULT_MODELS = [
-    "gpt-5-mini",
-    "claude-4-sonnet", 
-    "gemini-2.5-flash",
+    "gpt-4.1",
+    "claude-sonnet-4-20250514", 
+    "gemini-2.0-flash",
     "llava-hf/llava-v1.6-mistral-7b-hf",
     "Qwen/Qwen2.5-VL-7B-Instruct",
     "mistralai/Pixtral-12B-2409",

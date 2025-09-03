@@ -4,7 +4,7 @@
 
 # Configuration
 NUM_SAMPLES=20
-MODELS='gpt-5-mini,claude-4-sonnet,gemini-2.5-flash'  # Specify models to evaluate
+MODELS='gpt-5-mini,claude-sonnet-4-20250514,gemini-2.5-flash'  # Specify models to evaluate
 USE_CACHE=false  # Disable API cache to avoid collision issues
 USE_PERSISTENT=true  # Use persistent directories
 

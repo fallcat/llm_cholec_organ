@@ -60,7 +60,8 @@ def run_pointing_on_canvas(
     user_prompt = user_prompt_builder(organ_name)
     
     # Convert current image to PIL
-    img_pil = tensor_to_pil(img_t)
+    # img_pil = tensor_to_pil(img_t) # currently this is causing issues with the model, try just using tensor directly
+    img_pil = img_t
     
     # Query model - use the adapter's __call__ method
     # Format for the batch API

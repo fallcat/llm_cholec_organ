@@ -13,7 +13,7 @@ Updated model names across the entire codebase to use hypothetical newer version
 | Old Model Name | New Model Name |
 |----------------|----------------|
 | `gpt-4o-mini` | `gpt-5-mini` |
-| `claude-3-5-sonnet-20241022` / `claude-3.5-sonnet` | `claude-4-sonnet` |
+| `claude-3-5-sonnet-20241022` / `claude-3.5-sonnet` | `claude-sonnet-4-20250514` |
 | `gemini-2.0-flash-exp` / `gemini-2.0-flash` | `gemini-2.5-pro` |
 
 ### Open Source VLMs (No changes, but now all included by default)
@@ -40,7 +40,7 @@ Updated model names across the entire codebase to use hypothetical newer version
    DEFAULT_MODELS = [
        # Commercial APIs
        "gpt-5-mini",
-       "claude-4-sonnet",
+       "claude-sonnet-4-20250514",
        "gemini-2.5-pro",
        # Open Source VLMs
        "llava-hf/llava-v1.6-mistral-7b-hf",
@@ -73,7 +73,7 @@ Added comprehensive documentation of:
 
 ### Evaluation Coverage
 The default evaluation now tests **7 models** instead of 4:
-- 3 commercial APIs (GPT-5-mini, Claude-4-sonnet, Gemini-2.5-pro)
+- 3 commercial APIs (GPT-5-mini, Claude-sonnet-4-20250514, Gemini-2.5-pro)
 - 4 open-source VLMs (LLaVA, Qwen2.5-VL, Pixtral, DeepSeek-VL2)
 
 ### Resource Requirements
@@ -96,7 +96,7 @@ python3 notebooks_py/eval_pointing_original_size.py
 
 ### Run only commercial APIs
 ```bash
-EVAL_MODELS='gpt-5-mini,claude-4-sonnet,gemini-2.5-pro' python3 notebooks_py/eval_pointing_original_size.py
+EVAL_MODELS='gpt-5-mini,claude-sonnet-4-20250514,gemini-2.5-pro' python3 notebooks_py/eval_pointing_original_size.py
 ```
 
 ### Run only open-source VLMs
@@ -112,7 +112,7 @@ EVAL_QUICK_TEST=true python3 notebooks_py/eval_pointing_original_size.py
 
 ## Notes
 
-1. **Model Naming Convention:** The hypothetical newer model versions (GPT-5-mini, Claude-4-sonnet, Gemini-2.5-pro) follow expected naming patterns but are placeholders for future releases.
+1. **Model Naming Convention:** The hypothetical newer model versions (GPT-5-mini, Claude-sonnet-4-20250514, Gemini-2.5-pro) follow expected naming patterns but are placeholders for future releases.
 
 2. **Open Source Model Paths:** The full HuggingFace model paths are used to ensure correct model loading through the vLLM backend.
 

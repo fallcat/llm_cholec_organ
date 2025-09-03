@@ -8,7 +8,12 @@ from typing import List, Optional, Union
 import concurrent.futures
 
 import torch
-import PIL.Image
+try:
+    import PIL.Image
+    from PIL import Image as PILImage
+except ImportError:
+    PIL = None
+    PILImage = None
 
 # Import shared utilities from utils module
 from .utils import (
@@ -31,7 +36,7 @@ class LLaVAModel:
         max_tokens: int = 2048,
         use_cache: bool = True,
         batch_size: int = 8,
-        verbose: bool = False,
+        verbose: bool = True,
         use_vllm: bool = True,
         device: str = "cuda",
     ):
@@ -189,9 +194,11 @@ class LLaVAModel:
                     
             except Exception as e:
                 if self.verbose:
-                    print(f"Error in LLaVA generation (attempt {attempt + 1}): {e}")
+                    print(f"❌ Error in LLaVA generation for {self.model_name} (attempt {attempt + 1}/{self.num_tries_per_request}): {e}")
                 if attempt == self.num_tries_per_request - 1:
                     # On last attempt, return empty string rather than crashing
+                    if self.verbose:
+                        print(f"⚠️  Warning: Empty response from {self.model_name} after {self.num_tries_per_request} attempts")
                     print(f"Failed after {self.num_tries_per_request} attempts: {e}")
                     return ""
                 time.sleep(3)
@@ -315,7 +322,7 @@ class QwenVLModel:
         max_tokens: int = 2048,
         use_cache: bool = True,
         batch_size: int = 8,
-        verbose: bool = False,
+        verbose: bool = True,
         use_vllm: bool = True,
         device: str = "cuda",
     ):
@@ -422,20 +429,28 @@ class QwenVLModel:
             if cached_result is not None and cached_result != "":
                 return cached_result
         
-        # Prepare inputs
+        # Prepare inputs with proper interleaving for few-shot
         if isinstance(prompt, str):
             text_prompt = prompt
             images = []
+            structured_content = [("text", prompt)]
         elif isinstance(prompt, tuple):
+            # Track interleaved structure for few-shot
+            structured_content = []
             texts = []
             images = []
+            
             for p in prompt:
                 if isinstance(p, str):
                     texts.append(p)
+                    structured_content.append(("text", p))
                 elif is_image(p):
-                    images.append(to_pil_image(p))
+                    img = to_pil_image(p)
+                    images.append(img)
+                    structured_content.append(("image", img))
                 else:
                     raise ValueError(f"Invalid prompt type: {type(p)}")
+            
             text_prompt = " ".join(texts)
         else:
             raise ValueError(f"Invalid prompt type: {type(prompt)}")
@@ -445,11 +460,25 @@ class QwenVLModel:
         if system_prompt:
             messages.append({"role": "system", "content": system_prompt})
         
-        # Build user message with images
+        # Build user message with proper interleaving
         user_content = []
-        for img in images:
-            user_content.append({"type": "image", "image": img})
-        user_content.append({"type": "text", "text": text_prompt})
+        
+        # Check if this is a few-shot scenario (multiple images with text between them)
+        has_multiple_images = len(images) > 1
+        
+        if has_multiple_images and isinstance(prompt, tuple):
+            # Few-shot case: preserve the interleaved structure
+            for content_type, content in structured_content:
+                if content_type == "text" and content.strip():
+                    user_content.append({"type": "text", "text": content})
+                elif content_type == "image":
+                    user_content.append({"type": "image", "image": content})
+        else:
+            # Simple case: all images then text (backward compatible)
+            for img in images:
+                user_content.append({"type": "image", "image": img})
+            if text_prompt.strip():
+                user_content.append({"type": "text", "text": text_prompt})
         
         messages.append({"role": "user", "content": user_content})
         
@@ -466,8 +495,13 @@ class QwenVLModel:
                     
             except Exception as e:
                 if self.verbose:
-                    print(f"Error in Qwen-VL generation (attempt {attempt + 1}): {e}")
+                    print(f"❌ Error in Qwen-VL generation for {self.model_name} (attempt {attempt + 1}/{self.num_tries_per_request}): {e}")
                 time.sleep(3)
+        
+        if not response_text and self.verbose:
+            print(f"⚠️  Warning: Empty response from {self.model_name}")
+            print(f"   System prompt length: {len(system_prompt)} chars")
+            print(f"   Prompt items: {len(prompt)}")
         
         if self.use_cache and response_text:
             cache.set(cache_key, response_text)
@@ -605,7 +639,7 @@ class PixtralModel:
         max_tokens: int = 2048,
         use_cache: bool = True,
         batch_size: int = 8,
-        verbose: bool = False,
+        verbose: bool = True,
         device: str = "cuda",
     ):
         self.model_name = model_name
@@ -655,20 +689,28 @@ class PixtralModel:
             if cached_result is not None and cached_result != "":
                 return cached_result
         
-        # Prepare inputs
+        # Prepare inputs with proper interleaving for few-shot
         if isinstance(prompt, str):
             text_prompt = prompt
             images = []
+            structured_content = [("text", prompt)]
         elif isinstance(prompt, tuple):
+            # Track interleaved structure for few-shot
+            structured_content = []
             texts = []
             images = []
+            
             for p in prompt:
                 if isinstance(p, str):
                     texts.append(p)
+                    structured_content.append(("text", p))
                 elif is_image(p):
-                    images.append(to_pil_image(p))
+                    img = to_pil_image(p)
+                    images.append(img)
+                    structured_content.append(("image", img))
                 else:
                     raise ValueError(f"Invalid prompt type: {type(p)}")
+            
             text_prompt = " ".join(texts)
         else:
             raise ValueError(f"Invalid prompt type: {type(prompt)}")
@@ -678,16 +720,34 @@ class PixtralModel:
         if system_prompt:
             messages.append({"role": "system", "content": system_prompt})
         
-        # Build user message
+        # Build user message with proper interleaving
         user_content = []
-        for img in images:
-            # Convert PIL image to base64 for vLLM
-            img_base64 = image_to_base64(img)
-            user_content.append({
-                "type": "image_url",
-                "image_url": {"url": f"data:image/png;base64,{img_base64}"}
-            })
-        user_content.append({"type": "text", "text": text_prompt})
+        
+        # Check if this is a few-shot scenario
+        has_multiple_images = len(images) > 1
+        
+        if has_multiple_images and isinstance(prompt, tuple):
+            # Few-shot case: preserve the interleaved structure
+            for content_type, content in structured_content:
+                if content_type == "text" and content.strip():
+                    user_content.append({"type": "text", "text": content})
+                elif content_type == "image":
+                    # Convert PIL image to base64 for vLLM
+                    img_base64 = image_to_base64(content)
+                    user_content.append({
+                        "type": "image_url",
+                        "image_url": {"url": f"data:image/png;base64,{img_base64}"}
+                    })
+        else:
+            # Simple case: all images then text (backward compatible)
+            for img in images:
+                img_base64 = image_to_base64(img)
+                user_content.append({
+                    "type": "image_url",
+                    "image_url": {"url": f"data:image/png;base64,{img_base64}"}
+                })
+            if text_prompt.strip():
+                user_content.append({"type": "text", "text": text_prompt})
         
         messages.append({"role": "user", "content": user_content})
         
@@ -702,8 +762,13 @@ class PixtralModel:
                     
             except Exception as e:
                 if self.verbose:
-                    print(f"Error in Pixtral generation (attempt {attempt + 1}): {e}")
+                    print(f"❌ Error in Pixtral generation for {self.model_name} (attempt {attempt + 1}/{self.num_tries_per_request}): {e}")
                 time.sleep(3)
+        
+        if not response_text and self.verbose:
+            print(f"⚠️  Warning: Empty response from {self.model_name}")
+            print(f"   System prompt length: {len(system_prompt)} chars")
+            print(f"   Prompt items: {len(prompt)}")
         
         if self.use_cache and response_text:
             cache.set(cache_key, response_text)
@@ -712,7 +777,7 @@ class PixtralModel:
 
 
 class DeepSeekVL2Model:
-    """DeepSeek-VL2 model implementation."""
+    """DeepSeek-VL2 model implementation with vLLM support."""
     
     def __init__(
         self,
@@ -722,8 +787,9 @@ class DeepSeekVL2Model:
         max_tokens: int = 2048,
         use_cache: bool = True,
         batch_size: int = 8,
-        verbose: bool = False,
+        verbose: bool = True,
         device: str = "cuda",
+        use_vllm: bool = True,
     ):
         self.model_name = model_name
         self.num_tries_per_request = num_tries_per_request
@@ -733,15 +799,88 @@ class DeepSeekVL2Model:
         self.use_cache = use_cache
         self.verbose = verbose
         self.device = device
+        self.use_vllm = use_vllm
+        
+        # Set model_id for compatibility
+        self.model_id = model_name
         
         self._load_model()
     
     def _load_model(self):
-        """Load DeepSeek-VL2 model."""
+        """Load DeepSeek-VL2 model using vLLM or HuggingFace transformers."""
+        if self.use_vllm:
+            try:
+                from vllm import LLM, SamplingParams
+                
+                if self.verbose:
+                    print(f"Loading DeepSeek-VL2 model with vLLM: {self.model_name}")
+                
+                # Try to use smaller variant if main model fails
+                model_to_load = self.model_name
+                
+                # Check if we should try the tiny variant for better compatibility
+                if "deepseek-vl2" in self.model_name and not "tiny" in self.model_name and not "small" in self.model_name:
+                    # Try the tiny variant first as it has fewer dependencies
+                    if self.verbose:
+                        print("Note: DeepSeek-VL2 full model may have vision model dependencies.")
+                        print("Consider using 'deepseek-ai/deepseek-vl2-tiny' for better compatibility.")
+                
+                # vLLM configuration for DeepSeek-VL2 with required architecture override
+                self.model = LLM(
+                    model=model_to_load,
+                    trust_remote_code=True,
+                    max_model_len=4096,  # Match model's max_position_embeddings
+                    dtype="float16",
+                    gpu_memory_utilization=0.9,
+                    # Required architecture override for DeepSeek-VL2
+                    hf_overrides={"architectures": ["DeepseekVLV2ForCausalLM"]},
+                    # Disable custom vision processor if it's causing issues
+                    disable_mm_preprocessor_cache=True,
+                )
+                self.sampling_params = SamplingParams(
+                    temperature=self.temperature,
+                    max_tokens=self.max_tokens,
+                    stop_token_ids=None,
+                )
+                
+                # When using vLLM, we don't need the processor
+                self.processor = None
+                
+                if self.verbose:
+                    print("DeepSeek-VL2 model loaded successfully with vLLM")
+                
+                # Success - return early to avoid loading transformers
+                return
+                
+            except RuntimeError as e:
+                if "Unknown model" in str(e) and "vit_so400m" in str(e):
+                    if self.verbose:
+                        print(f"vLLM loading failed due to missing vision model: {e}")
+                        print("This is a known issue with DeepSeek-VL2 full model.")
+                        print("Try using 'deepseek-ai/deepseek-vl2-tiny' instead.")
+                        print("Falling back to HuggingFace transformers (requires deepseek_vl2 package)")
+                else:
+                    if self.verbose:
+                        print(f"vLLM loading failed: {e}")
+                        print("Falling back to HuggingFace transformers")
+                self.use_vllm = False
+                # Fall through to load transformers model
+            except Exception as e:
+                if self.verbose:
+                    print(f"vLLM loading failed: {e}")
+                    print("Falling back to HuggingFace transformers")
+                self.use_vllm = False
+                # Fall through to load transformers model
+        
+        # Load with transformers (fallback or explicit choice)
+        self._load_transformers_model()
+    
+    def _load_transformers_model(self):
+        """Fallback to HuggingFace transformers if vLLM is not available."""
         from transformers import AutoModelForCausalLM
         
         if self.verbose:
-            print(f"Loading DeepSeek-VL2 model: {self.model_name}")
+            print(f"Loading DeepSeek-VL2 model with HuggingFace: {self.model_name}")
         
         # Import DeepSeek-specific modules
         try:
@@ -784,6 +923,95 @@ class DeepSeekVL2Model:
             if cached_result is not None and cached_result != "":
                 return cached_result
         
+        if self.use_vllm:
+            response_text = self._generate_vllm(prompt, system_prompt)
+        else:
+            response_text = self._generate_transformers(prompt, system_prompt)
+        
+        if self.use_cache and response_text:
+            cache_key = get_cache_key(self.model_name, prompt, system_prompt)
+            cache.set(cache_key, response_text)
+        
+        return response_text
+    
+    def _generate_vllm(self, prompt, system_prompt: Optional[str] = None) -> str:
+        """Generate response using vLLM."""
+        # Prepare inputs with proper interleaving
+        if isinstance(prompt, str):
+            text_prompt = prompt
+            images = []
+            structured_content = [("text", prompt)]
+        elif isinstance(prompt, tuple):
+            # Track interleaved structure for few-shot
+            structured_content = []
+            texts = []
+            images = []
+            
+            for p in prompt:
+                if isinstance(p, str):
+                    texts.append(p)
+                    structured_content.append(("text", p))
+                elif is_image(p):
+                    img = to_pil_image(p)
+                    images.append(img)
+                    structured_content.append(("image", img))
+                else:
+                    raise ValueError(f"Invalid prompt type: {type(p)}")
+            
+            text_prompt = " ".join(texts)
+        else:
+            raise ValueError(f"Invalid prompt type: {type(prompt)}")
+        
+        # Build conversation format for DeepSeek-VL2 with vLLM
+        if system_prompt:
+            content = f"System: {system_prompt}\n\n"
+        else:
+            content = ""
+        
+        # Check if this is a few-shot scenario
+        has_multiple_images = len(images) > 1
+        
+        if has_multiple_images and isinstance(prompt, tuple):
+            # Few-shot case: properly interleave text and images
+            for content_type, item in structured_content:
+                if content_type == "text" and item.strip():
+                    content += item + " "
+                elif content_type == "image":
+                    content += "<image>\n"
+        else:
+            # Simple case: all images then text (backward compatible)
+            content += '<image>\n' * len(images) + text_prompt
+        
+        response_text = ""
+        for attempt in range(self.num_tries_per_request):
+            try:
+                # vLLM generates with inputs as a list (positional argument)
+                inputs = [{
+                    "prompt": content,
+                    "multi_modal_data": {"image": images} if images else {}
+                }]
+                outputs = self.model.generate(
+                    inputs,  # Pass as positional argument, not keyword
+                    sampling_params=self.sampling_params,
+                )
+                
+                if outputs and len(outputs) > 0:
+                    response_text = outputs[0].outputs[0].text.strip()
+                    if response_text:
+                        break
+                
+            except Exception as e:
+                if self.verbose:
+                    print(f"❌ Error in DeepSeek-VL2 vLLM generation for {self.model_name} (attempt {attempt + 1}/{self.num_tries_per_request}): {e}")
+                if attempt == self.num_tries_per_request - 1:
+                    response_text = ""
+                    if self.verbose:
+                        print(f"⚠️  Warning: Empty response from {self.model_name} after {self.num_tries_per_request} attempts")
+        
+        return response_text
+    
+    def _generate_transformers(self, prompt, system_prompt: Optional[str] = None) -> str:
+        """Generate response using HuggingFace transformers (fallback)."""
         # Prepare inputs
         if isinstance(prompt, str):
             text_prompt = prompt
@@ -857,11 +1085,8 @@ class DeepSeekVL2Model:
                     
             except Exception as e:
                 if self.verbose:
-                    print(f"Error in DeepSeek-VL2 generation (attempt {attempt + 1}): {e}")
+                    print(f"❌ Error in DeepSeek-VL2 generation for {self.model_name} (attempt {attempt + 1}/{self.num_tries_per_request}): {e}")
                 time.sleep(3)
-        
-        if self.use_cache and response_text:
-            cache.set(cache_key, response_text)
         
         return response_text
 

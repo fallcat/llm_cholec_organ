@@ -14,7 +14,7 @@ USAGE:
     EVAL_NUM_SAMPLES=20 python3 eval_pointing_original_size.py
     
     # Use specific models
-    EVAL_MODELS='gpt-5-mini,claude-4-sonnet' python3 eval_pointing_original_size.py
+    EVAL_MODELS='gpt-5-mini,claude-sonnet-4-20250514' python3 eval_pointing_original_size.py
     
     # Test with LLaVA only
     EVAL_MODELS='llava-hf/llava-v1.6-mistral-7b-hf' python3 eval_pointing_original_size.py
@@ -153,9 +153,9 @@ def main(num_samples=None, models=None, use_cache=True, use_enhanced=True, skip_
     # Configuration
     DEFAULT_MODELS = [
         # Commercial APIs
-        "gpt-5-mini",
-        "claude-4-sonnet",
-        "gemini-2.5-pro",
+        "gpt-4.1",
+        "claude-sonnet-4-20250514",
+        "gemini-2.0-flash",
         # Open Source VLMs
         "llava-hf/llava-v1.6-mistral-7b-hf",
         "Qwen/Qwen2.5-VL-7B-Instruct",
@@ -345,7 +345,7 @@ if __name__ == "__main__":
         print("1. In notebooks: Call main() directly with parameters")
         print("2. Set environment variables before running:")
         print("   export EVAL_NUM_SAMPLES=10")
-        print("   export EVAL_MODELS='gpt-5-mini,claude-4-sonnet'")
+        print("   export EVAL_MODELS='gpt-5-mini,claude-sonnet-4-20250514'")
         print("   export EVAL_USE_CACHE=false  # to disable cache")
         print("   export EVAL_USE_ENHANCED=false  # to disable enhanced metrics")
         print("   export EVAL_SKIP_ZERO_SHOT=true  # to skip zero-shot")
