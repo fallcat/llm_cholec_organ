@@ -13,12 +13,12 @@
 # echo "Evaluating deepseek-ai/deepseek-vl2 Cell Selection"
 # SKIP_POINTING=true ./eval_both_advanced.sh --samples 1 --no-persistent --models deepseek-ai/deepseek-vl2
 
-echo "Evaluating gpt-4.1 Pointing"
-./eval_both_advanced.sh --samples 100 --models gpt-4.1 --skip-cell
+# echo "Evaluating gpt-4.1 Pointing"
+# ./eval_both_advanced.sh --samples 100 --models gpt-4.1 --skip-cell
 echo "Evaluating claude-sonnet-4-20250514 Pointing"
 ./eval_both_advanced.sh --samples 100 --models claude-sonnet-4-20250514 --skip-cell
-echo "Evaluating gemini-2.0-flash Pointing"
-./eval_both_advanced.sh --samples 100 --models gemini-2.0-flash --skip-cell
+# echo "Evaluating gemini-2.0-flash Pointing"
+# ./eval_both_advanced.sh --samples 100 --models gemini-2.0-flash --skip-cell
 # echo "Evaluating llava-hf/llava-v1.6-mistral-7b-hf Pointing"
 # ./eval_both_advanced.sh --samples 1 --models llava-hf/llava-v1.6-mistral-7b-hf --skip-cell
 # echo "Evaluating Qwen/Qwen2.5-VL-7B-Instruct Pointing"

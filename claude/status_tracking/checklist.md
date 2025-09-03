@@ -5,10 +5,12 @@
 ## Current Status Summary
 - ✅ **Core infrastructure**: Modular `endopoint` package with dataset adapters, evaluation pipeline, prompt builders
 - ✅ **Data preparation**: Balanced subsets, few-shot plans with hard negatives, visualizations
-- ✅ **Models integrated**: GPT-4o-mini, Claude-3.5-Sonnet, Gemini-2.0-Flash, + 4 open VLMs (LLaVA, Qwen2.5-VL, Pixtral, DeepSeek-VL2)
+- ✅ **Models integrated**: GPT-4.1, Claude-Sonnet-4, Gemini-2.0, + 3 open VLMs (LLaVA, Qwen2.5-VL, Pixtral)
 - ✅ **Evaluation modes**: Zero-shot, few-shot, few-shot with hard negatives
 - ✅ **Metrics**: Comprehensive metrics with JSON output for analysis
-- ⏳ **TODO**: Config system, environment file, EndoScape dataset, reasoning prompts
+- ✅ **Visualization**: Complete LaTeX table and PDF figure generation pipeline
+- ✅ **Documentation**: Comprehensive guidelines for formatting and visualization
+- ⏳ **TODO**: Config system, environment file, SSG-VQA dataset, reasoning prompts
 
 ## Prep & repo hygiene
 - [ ] **Pin env**: Python + torch/transformers/VLM deps; write `environment.yml` or `requirements.txt`.
@@ -82,12 +84,6 @@
   - [ ] Compare performance on spatial vs. simple presence questions
 - [ ] Optional: replicate **one** small ablation (e.g., shots) on a smaller subset
 
-## Confirmatory experiments (EndoScape) [DEPRECATED - replaced by SSG-VQA]
-- [ ] ~~Add dataset class with the same API: `example_to_tensors`, `ID2LABEL`, `LABEL_IDS`.~~
-- [ ] ~~Recompute **presence cache** and **balanced selection** (same knobs).~~
-- [ ] ~~Run **only**: best config (few-shot + hard-neg + chosen reasoning) **and** zero-shot baseline.~~
-- [ ] ~~Optional: replicate **one** small ablation (e.g., shots) on a smaller subset.~~
-
 ## Cell Selection Implementation ✅
 - [x] **Prompt builders** (`src/endopoint/prompts/builders.py`):
   - [x] `build_cell_selection_system_prompt(canvas_w, canvas_h, grid_size, top_k)`
@@ -115,6 +111,7 @@
 - [x] **Batch evaluation scripts**:
   - [x] `eval_both_persistent.sh` - Simple script for both tasks
   - [x] `eval_both_advanced.sh` - Advanced script with CLI options
+- [ ] There might be some bugs with few-shot outputting the same thing as zero-shot. Need to check.
 
 ## Evaluation & logging
 - [x] **Per-image JSON** cache with:  
@@ -123,12 +120,30 @@
 - [x] **Cell Selection metrics**: Cell@1, Cell@3, Cell Precision/Recall, stored in `results/cell_selection_*/`.
 - [x] **Tables**: `print_metrics_table` produces paper-ready text tables; stored as `metrics_comparison.txt`.
 - [x] **JSON metrics**: saved as `metrics_comparison.json` for programmatic analysis.
+- [x] **Metrics regeneration script**: `notebooks_py/regenerate_metrics_comparison.py`
+  - [x] Handles LLaVA coordinate normalization issue with `--fix-llava` flag
+  - [x] Regenerates metrics from saved results
 - [ ] **Curves (optional)**: presence ROC/AUPRC per organ for presence-only.
 - [ ] **Failure mining**: thumbnails for FP (pred=1, miss-hit), FN (missed presence), and off-organ clicks.
 
 ## Figures for the paper
+- [x] **Visualization pipeline**: Complete LaTeX table and PDF figure generation system
+  - [x] LaTeX tables with bold/italic formatting for best/second-best values
+  - [x] Bar charts with black stars marking highest performance
+  - [x] Consistent model ordering (APIs first, then open-source)
+  - [x] Proper two-column paper formatting (table*, figure*, [t] placement)
+- [x] **Figure generation script**: `src/endopoint/vis/generate_paper_figures.py`
+  - [x] Generates comprehensive metrics table with column grouping
+  - [x] Creates individual model performance charts
+  - [x] Produces metric comparison charts across models
+  - [x] Generates 2x2 grid overall comparison
+- [x] **Documentation**: Created comprehensive guidelines in `/guidelines/` folder
+  - [x] `latex_formatting.md` - LaTeX best practices
+  - [x] `figure_generation.md` - Matplotlib configuration
+  - [x] `package_requirements.md` - Dependencies
+  - [x] `visualization_best_practices.md` - Design principles
 - [ ] **Balanced selection**: stacked present/absent bars (pool vs selected).
-- [ ] **Per-class pointing**: bar of Hit@Point|Present by model (main).
+- [x] **Per-class pointing**: bar of Hit@Point|Present by model (implemented in bar_charts.py).
 - [ ] **Qualitative**: 6–8 examples with predicted point (✓/✗), GT mask outline, per-organ rows.
 
 ## Ablation matrix (scope control)
