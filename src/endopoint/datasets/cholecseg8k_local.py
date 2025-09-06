@@ -230,6 +230,25 @@ class CholecSeg8kLocalAdapter:
         """Get the video IDs assigned to each split."""
         return self._video_splits.copy()
     
+    def get_frame_counts_by_video(self, split: str) -> Dict[str, int]:
+        """Get frame counts for each video in a split without loading images.
+        
+        Args:
+            split: Split name ('train', 'validation', or 'test')
+            
+        Returns:
+            Dictionary mapping video_id to frame count
+        """
+        if split not in self._splits:
+            raise ValueError(f"Unknown split: {split}")
+        
+        frame_counts = {}
+        for idx in self._splits[split]:
+            video_id = self._examples[idx]['video_id']
+            frame_counts[video_id] = frame_counts.get(video_id, 0) + 1
+        
+        return frame_counts
+    
     def get_example(self, split: str, index: int) -> Any:
         if split not in self._splits:
             raise ValueError(f"Unknown split: {split}")
