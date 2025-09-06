@@ -151,6 +151,16 @@ class PointingEvaluator:
                 use_vllm=True,  # Explicitly use vLLM
                 verbose=True  # Enable verbose for debugging
             )
+        elif "llama" in model_name.lower():
+            # Import Llama Vision model
+            from ..models.llama import LlamaAdapter
+            return LlamaAdapter(
+                model_name=model_name,
+                max_tokens=100,
+                temperature=0.0,
+                use_cache=use_cache,
+                verbose=True  # Enable verbose for debugging
+            )
         else:
             raise ValueError(f"Unknown model: {model_name}")
     

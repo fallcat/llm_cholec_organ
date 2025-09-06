@@ -12,6 +12,8 @@
 # SKIP_POINTING=true ./eval_both_advanced.sh --samples 1 --no-persistent --models mistralai/Pixtral-12B-2409
 # echo "Evaluating deepseek-ai/deepseek-vl2 Cell Selection"
 # SKIP_POINTING=true ./eval_both_advanced.sh --samples 1 --no-persistent --models deepseek-ai/deepseek-vl2
+# echo "Evaluating nvidia/Llama-3.2-11B-Vision-Surgical-CholecT50 Cell Selection"
+# SKIP_POINTING=true ./eval_both_advanced.sh --samples 1 --no-persistent --models nvidia/Llama-3.2-11B-Vision-Surgical-CholecT50
 
 # echo "Evaluating gpt-4.1 Pointing"
 # ./eval_both_advanced.sh --samples 1 --models gpt-4.1 --skip-cell
@@ -27,3 +29,5 @@ echo "Evaluuating mistralai/Pixtral-12B-2409 Pointing"
 ./eval_both_advanced.sh --samples 100 --models mistralai/Pixtral-12B-2409 --skip-cell
 # echo "Evaluating deepseek-ai/deepseek-vl2 Pointing"
 # SKIP_CELL=true ./eval_both_advanced.sh --samples 1 --no-persistent --models deepseek-ai/deepseek-vl2
+echo "Evaluating nvidia/Llama-3.2-11B-Vision-Surgical-CholecT50 Pointing"
+./eval_both_advanced.sh --samples 100 --models nvidia/Llama-3.2-11B-Vision-Surgical-CholecT50 --skip-cell

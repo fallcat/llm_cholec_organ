@@ -160,7 +160,8 @@ def main(num_samples=None, models=None, use_cache=True, use_enhanced=True, skip_
         "llava-hf/llava-v1.6-mistral-7b-hf",
         "Qwen/Qwen2.5-VL-7B-Instruct",
         "mistralai/Pixtral-12B-2409",
-        "deepseek-ai/deepseek-vl2"
+        "deepseek-ai/deepseek-vl2",
+        "nvidia/Llama-3.2-11B-Vision-Surgical-CholecT50"
     ]
     
     MODELS = models if models is not None else DEFAULT_MODELS

@@ -51,6 +51,10 @@
     - [x] Grid G=4 (4×4 grid, 16 cells total)  
     - [x] Top-K=1 (single cell prediction)
     - [x] Top-K=3 (up to 3 cells for larger organs)
+  - [ ] **Presence+Bounding Box** (new localization method):
+    - [ ] Convert `notebooks_py/eval_pointing_original_size.py` to generate bounding boxes
+    - [ ] Add baselines that generate bounding boxes
+    - [ ] Evaluate bounding boxes using IoU (Intersection over Union) metric
 - [x] **Shot regimes**
   - [x] Zero-shot.
   - [x] Few-shot (1 pos / 1 neg) using saved plan.
@@ -148,11 +152,15 @@
 
 ## Ablation matrix (scope control)
 - [ ] On **CholecSeg8k** only: shots (0 / few / few+hard-neg), vanilla vs 1 reasoning prompt, canvas sensitivity (original vs 768) *once*.
-- [ ] **Cell Selection vs Pointing comparison**:
+- [ ] **Cell Selection vs Pointing vs Bounding Box comparison**:
   - [ ] Same models, same test set
-  - [ ] Compare Hit@Point|Present vs Cell@1 and Cell@3
+  - [ ] Compare Hit@Point|Present vs Cell@1/Cell@3 vs IoU@0.5/IoU@0.75
   - [ ] Analyze robustness: which approach handles small organs better?
-  - [ ] Table showing precision/robustness trade-off
+  - [ ] Table showing precision/robustness/computational trade-offs
+  - [ ] **Bounding Box specific analysis**:
+    - [ ] IoU distribution per organ class
+    - [ ] Failure modes: over-prediction vs under-prediction
+    - [ ] Correlation between organ size and IoU performance
 - [ ] On **EndoScape**: best config + zero-shot baseline (and at most one extra small ablation).
 
 ## Reproducibility
@@ -172,9 +180,39 @@
 ## Packaging for the paper
 - [ ] **Main table**: best config on both datasets + zero-shot baseline.
 - [ ] **Ablation table**: CholecSeg8k only (compact).
-- [ ] **Cell Selection vs Pointing comparison table**: showing trade-offs.
+- [ ] **Localization comparison table**: Pointing vs Cell Selection vs Bounding Box
+  - [ ] Metrics: Hit@Point, Cell@K, IoU@thresholds
+  - [ ] Computational cost analysis
+  - [ ] Qualitative comparison of outputs
 - [ ] **Appendix**: prompt strings, few-shot policy, selection algorithm box, dataset balance plots.
 - [ ] **Release artifacts**: indices, plans, and scripts to reproduce evaluation.
+
+## Bounding Box Implementation (TODO)
+- [ ] **Script conversion** (`notebooks_py/eval_bbox_original_size.py`):
+  - [ ] Adapt from `eval_pointing_original_size.py` 
+  - [ ] Modify prompts to request bounding box coordinates [x1, y1, x2, y2]
+  - [ ] Update JSON response format: `{"name": "Liver", "present": 1, "bbox": [x1, y1, x2, y2]}`
+  
+- [ ] **Baseline methods**:
+  - [ ] Point-to-box conversion: Convert point predictions to fixed-size boxes
+  - [ ] Cell-to-box conversion: Convert cell selection to bounding boxes
+  - [ ] MedSAM integration: Use MedSAM to generate region proposals as baseline
+  
+- [ ] **Ground truth computation**:
+  - [ ] Extract tight bounding box from binary masks
+  - [ ] Handle multiple connected components (use largest or union)
+  - [ ] Store GT boxes in evaluation cache
+  
+- [ ] **IoU metrics**:
+  - [ ] IoU@0.5 (standard detection threshold)
+  - [ ] IoU@0.75 (strict threshold)
+  - [ ] Mean IoU across all predictions
+  - [ ] IoU histogram for error analysis
+  
+- [ ] **Comparison framework**:
+  - [ ] Compare bbox vs pointing vs cell selection
+  - [ ] Analyze trade-offs: precision vs computational cost
+  - [ ] Visualize predictions with GT overlays
 
 ## Cell Selection Implementation Notes
 ### Integration with existing code:

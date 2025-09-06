@@ -108,7 +108,8 @@ DEFAULT_MODELS = [
     "llava-hf/llava-v1.6-mistral-7b-hf",
     "Qwen/Qwen2.5-VL-7B-Instruct",
     "mistralai/Pixtral-12B-2409",
-    "deepseek-ai/deepseek-vl2"
+    "deepseek-ai/deepseek-vl2",
+    "nvidia/Llama-3.2-11B-Vision-Surgical-CholecT50"
 ]
 
 
