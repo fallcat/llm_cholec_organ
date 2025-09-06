@@ -101,6 +101,20 @@ When making changes:
 4. Use type hints for new code
 5. Document any new prompt strategies or model configurations
 
+## Important Conventions
+
+### Global Index Convention
+**The codebase uses global indices throughout for reproducibility.** See `INDEX_CONVENTION.md` for details.
+- Test indices in JSON files are global (0 to N-1 for full dataset)
+- Use `adapter.get_example_by_global_index(idx)` not `get_example(split, idx)`
+- This ensures results are reproducible regardless of split changes
+
+### Storage Structure
+**Results are organized to prevent overwrites between different evaluation modes.** See `STORAGE_STRUCTURE.md` for details.
+- Each mode (zero/few-shot × separate/combined) has its own directory
+- Cache keys include mode information to prevent collisions
+- Allows incremental evaluation without data loss
+
 ## Refactoring Status
 
 The codebase is being refactored into a modular package called `endopoint`. Progress:

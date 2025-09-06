@@ -2,7 +2,10 @@
 
 import json
 from typing import Dict, List, Optional, Tuple, Union
-import torch
+try:
+    import torch
+except ImportError:
+    torch = None  # Optional dependency
 import numpy as np
 from PIL import Image
 

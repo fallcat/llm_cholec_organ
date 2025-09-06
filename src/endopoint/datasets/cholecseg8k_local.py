@@ -250,6 +250,7 @@ class CholecSeg8kLocalAdapter:
         return frame_counts
     
     def get_example(self, split: str, index: int) -> Any:
+        """Get example by split-relative index."""
         if split not in self._splits:
             raise ValueError(f"Unknown split: {split}")
         
@@ -269,6 +270,45 @@ class CholecSeg8kLocalAdapter:
             "video_id": example_data["video_id"],
             "frame_id": example_data["frame_id"],
         }
+    
+    def get_example_by_global_index(self, global_index: int) -> Any:
+        """Get example by global index (0 to total-1).
+        
+        This is the preferred method for reproducibility as global indices
+        remain consistent regardless of split changes.
+        
+        Args:
+            global_index: Global index in the full dataset
+            
+        Returns:
+            Example dictionary with image and metadata
+        """
+        if global_index < 0 or global_index >= len(self._examples):
+            raise IndexError(f"Global index {global_index} out of range [0, {len(self._examples)-1}]")
+        
+        example_data = self._examples[global_index]
+        
+        # Load images
+        image = Image.open(example_data["image_path"]).convert("RGB")
+        color_mask = Image.open(example_data["color_mask_path"])
+        
+        # Return in same format as HuggingFace version
+        return {
+            "image": image,
+            "color_mask": color_mask,
+            "mask_path": example_data["mask_path"],
+            "watershed_mask_path": example_data["watershed_mask_path"],
+            "video_id": example_data["video_id"],
+            "frame_id": example_data["frame_id"],
+        }
+    
+    def get_test_indices(self) -> List[int]:
+        """Get all global indices that belong to the test split.
+        
+        Returns:
+            List of global indices for test samples
+        """
+        return self._splits.get('test', [])
     
     def example_to_tensors(self, example: Any) -> Tuple[torch.Tensor, torch.Tensor]:
         """Convert example to tensors.
