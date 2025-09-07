@@ -18,8 +18,8 @@ from .base import register_dataset
 # Class mappings for GoNoGo (matches the original notebook)
 ID2LABEL: Dict[int, str] = {
     0: "Background",
-    1: "Go",
-    2: "NoGo"
+    1: "Go (Safe to Incise)",
+    2: "NoGo (Unsafe to Incise)"
 }
 
 LABEL2ID: Dict[str, int] = {v: k for k, v in ID2LABEL.items()}
@@ -228,6 +228,37 @@ class CholecGoNoGoAdapter:
         
         example_idx = self._splits[split][index]
         example_data = self._examples[example_idx]
+        
+        # Load images
+        image = Image.open(example_data["image_path"]).convert("RGB")
+        label = Image.open(example_data["label_path"]).convert("L")
+        
+        # Resize to target dimensions
+        image = image.resize((self.image_width, self.image_height), Image.BILINEAR)
+        label = label.resize((self.image_width, self.image_height), Image.NEAREST)
+        
+        return {
+            "image": image,
+            "gonogo_label": label,
+            "filename": example_data["filename"],
+        }
+    
+    def get_example_by_global_index(self, global_index: int) -> Any:
+        """Get example by global index (0 to total-1).
+        
+        This is the preferred method for reproducibility as global indices
+        remain consistent regardless of split changes.
+        
+        Args:
+            global_index: Global index in the full dataset
+            
+        Returns:
+            Example dictionary with image and metadata
+        """
+        if global_index < 0 or global_index >= len(self._examples):
+            raise ValueError(f"Global index {global_index} out of range [0, {len(self._examples)})")
+        
+        example_data = self._examples[global_index]
         
         # Load images
         image = Image.open(example_data["image_path"]).convert("RGB")

@@ -34,14 +34,39 @@ def get_combined_bbox_prompt(
         examples_text = "Here are examples of correct organ detection:\n\n"
         for i, ex in enumerate(examples[:3], 1):  # Use up to 3 examples
             examples_text += f"Example {i}:\n"
+            examples_text += "{\n"
+            
+            # Handle both formats: 'detections' or direct 'bboxes' format
             if 'detections' in ex:
-                examples_text += "Detected organs with bounding boxes:\n"
+                # Old format
                 for organ, data in ex['detections'].items():
-                    if data.get('present'):
-                        bbox = data.get('bbox', [])
-                        if bbox:
-                            examples_text += f"  - {organ}: [{bbox[0]}, {bbox[1]}, {bbox[2]}, {bbox[3]}]\n"
-                examples_text += "\n"
+                    present = data.get('present', False)
+                    bbox = data.get('bbox', [])
+                    examples_text += f'  "{organ}": {{\n'
+                    examples_text += f'    "present": {str(present).lower()},\n'
+                    if present and bbox:
+                        examples_text += f'    "bbox": [{bbox[0]}, {bbox[1]}, {bbox[2]}, {bbox[3]}]\n'
+                    examples_text += f'  }},\n'
+            elif 'bboxes' in ex:
+                # New combined format
+                for organ in organ_names:
+                    if organ in ex.get('organs_present', []):
+                        # Organ is present - get bboxes
+                        organ_bboxes = ex['bboxes'].get(organ, {}).get('bboxes', [])
+                        examples_text += f'  "{organ}": {{\n'
+                        examples_text += f'    "present": true'
+                        if organ_bboxes:
+                            # Use first bbox if multiple
+                            bbox = organ_bboxes[0]
+                            examples_text += f',\n    "bbox": [{bbox[0]}, {bbox[1]}, {bbox[2]}, {bbox[3]}]'
+                        examples_text += f'\n  }},\n'
+                    else:
+                        # Organ is not present
+                        examples_text += f'  "{organ}": {{\n'
+                        examples_text += f'    "present": false\n'
+                        examples_text += f'  }},\n'
+            
+            examples_text = examples_text.rstrip(',\n') + '\n}\n\n'
         
         prompt = f"""{examples_text}
 Now analyze the current image and detect these organs:

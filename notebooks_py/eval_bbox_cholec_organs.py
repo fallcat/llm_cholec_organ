@@ -1,46 +1,7 @@
 #!/usr/bin/env python3
 """
-Quick Bounding Box Evaluation Script - Single Model, Single Configuration
-
-This script evaluates a single model on bounding box detection with one specific configuration.
-The configuration is controlled via environment variables to avoid model reloading.
-
-USAGE:
-    # Zero-shot combined (default)
-    python3 eval_bbox_quick_test.py
-    
-    # Few-shot combined
-    EVAL_USE_FEWSHOT=true python3 eval_bbox_quick_test.py
-    
-    # Zero-shot separate
-    EVAL_DETECTION_MODE=separate python3 eval_bbox_quick_test.py
-    
-    # Few-shot separate
-    EVAL_DETECTION_MODE=separate EVAL_USE_FEWSHOT=true python3 eval_bbox_quick_test.py
-    
-    # With specific model and samples
-    EVAL_MODEL='claude-sonnet-4-20250514' EVAL_NUM_SAMPLES=5 python3 eval_bbox_quick_test.py
-    
-    # Run all 4 configurations (use shell script)
-    ./eval_bbox_all_models.sh
-
-ENVIRONMENT VARIABLES:
-    EVAL_MODEL          - Model to evaluate (default: gpt-4.1)
-    EVAL_NUM_SAMPLES    - Number of samples to evaluate (default: 2)
-    EVAL_DETECTION_MODE - Detection mode: 'combined' or 'separate' (default: combined)
-    EVAL_USE_FEWSHOT    - Use few-shot examples: true/false (default: false)
-    EVAL_USE_CACHE      - Whether to use cached responses (default: true)
-    EVAL_PERSISTENT_DIR - Use persistent output dir without timestamp (default: false)
-
-OUTPUT:
-    Results are saved to: results/bbox_cholecseg8k_local_YYYYMMDD_HHMMSS/
-    - {detection_mode}_{zeroshot|fewshot}/MODEL/*.json
-    - summary_{detection_mode}_{zeroshot|fewshot}.json
-
-NOTES:
-    This script is designed for single model + single configuration evaluation,
-    compatible with vLLM which doesn't support multiple model loading.
-    Use the shell script to run all 4 configurations sequentially.
+Quick Bounding Box Evaluation Script - Cholec Organs Dataset
+This is a variant of eval_bbox_quick_test.py for the cholec_organs dataset.
 """
 
 import os
@@ -63,24 +24,24 @@ if api_keys_file.exists():
     os.environ['ANTHROPIC_API_KEY'] = api_keys.get('ANTHROPIC_API_KEY', '')
     os.environ['GOOGLE_API_KEY'] = api_keys.get('GOOGLE_API_KEY', '')
 
-from endopoint.datasets.cholecseg8k_local import CholecSeg8kLocalAdapter
+from endopoint.datasets.cholec_organs import CholecOrgansAdapter
 from endopoint.eval.bbox_evaluator import BoundingBoxEvaluator
 
 
 def main():
-    """Run bbox evaluation for a single model with all 4 ablations."""
+    """Run bbox evaluation for cholec_organs dataset."""
     
     # Configuration from environment variables
     MODEL = os.environ.get('EVAL_MODEL', 'gpt-4.1')
     NUM_SAMPLES = int(os.environ.get('EVAL_NUM_SAMPLES', '2'))
     USE_CACHE = os.environ.get('EVAL_USE_CACHE', 'true').lower() != 'false'
-    USE_PERSISTENT_DIR = os.environ.get('EVAL_PERSISTENT_DIR', '').lower() == 'true'
+    USE_PERSISTENT_DIR = os.environ.get('EVAL_PERSISTENT_DIR', 'true').lower() == 'true'
     
     # Dataset configuration
-    DATASET_NAME = "cholecseg8k_local"
+    DATASET_NAME = "cholec_organs"
     
     print("=" * 80)
-    print("BOUNDING BOX QUICK TEST - SINGLE MODEL")
+    print("BOUNDING BOX QUICK TEST - CHOLEC ORGANS")
     print("=" * 80)
     print(f"Model: {MODEL}")
     print(f"Samples: {NUM_SAMPLES}")
@@ -88,9 +49,8 @@ def main():
     print(f"Output: {'persistent' if USE_PERSISTENT_DIR else 'timestamped'}")
     print()
     
-    # Load dataset
-    data_dir = "/shared_data0/weiqiuy/datasets/cholecseg8k"
-    dataset_adapter = CholecSeg8kLocalAdapter(data_dir=data_dir)
+    # Load dataset - use default data directory
+    dataset_adapter = CholecOrgansAdapter()  # Uses default: /shared_data0/weiqiuy/real_drs/data/abdomen_exlib
     
     # Load test indices
     indices_dir = Path(f"/shared_data0/weiqiuy/llm_cholec_organ/data_info/{DATASET_NAME}_balanced_200")
@@ -111,15 +71,25 @@ def main():
     if USE_FEWSHOT:
         if DETECTION_MODE == 'combined':
             # Load combined few-shot examples
-            with open(indices_dir / "fewshot_plan_bbox_combined_greedy.json", 'r') as f:
-                combined_plan = json.load(f)
-            fewshot_examples = combined_plan.get('examples', [])
-            print(f"Loaded {len(fewshot_examples)} combined few-shot examples")
+            combined_file = indices_dir / "fewshot_plan_bbox_combined_greedy.json"
+            if combined_file.exists():
+                with open(combined_file, 'r') as f:
+                    combined_plan = json.load(f)
+                fewshot_examples = combined_plan.get('examples', [])
+                print(f"Loaded {len(fewshot_examples)} combined few-shot examples")
+            else:
+                print(f"Warning: Combined few-shot file not found, using zero-shot")
+                USE_FEWSHOT = False
         else:
             # Load separate few-shot plan
-            with open(indices_dir / "fewshot_plan_bbox_200.json", 'r') as f:
-                fewshot_plan = json.load(f)
-            print(f"Loaded separate few-shot plan")
+            separate_file = indices_dir / "fewshot_plan_bbox_200.json"
+            if separate_file.exists():
+                with open(separate_file, 'r') as f:
+                    fewshot_plan = json.load(f)
+                print(f"Loaded separate few-shot plan")
+            else:
+                print(f"Warning: Separate few-shot file not found, using zero-shot")
+                USE_FEWSHOT = False
     
     # Get image dimensions
     example = dataset_adapter.get_example('train', 0)
@@ -179,6 +149,7 @@ def main():
         # Store results
         results_summary = {
             "model": MODEL,
+            "dataset": DATASET_NAME,
             "num_samples": NUM_SAMPLES,
             "detection_mode": DETECTION_MODE,
             "use_fewshot": USE_FEWSHOT,
@@ -201,6 +172,7 @@ def main():
         print(f"✗ Error: {str(e)}")
         results_summary = {
             "model": MODEL,
+            "dataset": DATASET_NAME,
             "num_samples": NUM_SAMPLES,
             "detection_mode": DETECTION_MODE,
             "use_fewshot": USE_FEWSHOT,
@@ -220,6 +192,7 @@ def main():
     print("EVALUATION COMPLETE")
     print("=" * 80)
     print(f"Model: {MODEL}")
+    print(f"Dataset: {DATASET_NAME}")
     print(f"Evaluation: {eval_name}")
     print(f"Samples evaluated: {NUM_SAMPLES}")
     print(f"Results saved to: {evaluator.output_dir}")
@@ -237,17 +210,6 @@ def main():
         print("-" * 60)
     else:
         print(f"❌ Evaluation failed: {results_summary['error']}")
-    
-    # Print usage hint
-    print("\n💡 To run different configurations:")
-    print("   # Zero-shot combined")
-    print("   EVAL_DETECTION_MODE=combined EVAL_USE_FEWSHOT=false python3 eval_bbox_quick_test.py")
-    print("   # Few-shot combined")
-    print("   EVAL_DETECTION_MODE=combined EVAL_USE_FEWSHOT=true python3 eval_bbox_quick_test.py")
-    print("   # Zero-shot separate")
-    print("   EVAL_DETECTION_MODE=separate EVAL_USE_FEWSHOT=false python3 eval_bbox_quick_test.py")
-    print("   # Few-shot separate")
-    print("   EVAL_DETECTION_MODE=separate EVAL_USE_FEWSHOT=true python3 eval_bbox_quick_test.py")
 
 
 if __name__ == "__main__":

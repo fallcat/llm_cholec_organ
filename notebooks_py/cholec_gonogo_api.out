@@ -1,0 +1,52 @@
+==========================================================================
+UNIFIED ZERO-SHOT COMBINED EVALUATION
+==========================================================================
+
+Configuration:
+  Dataset: cholec_gonogo
+  Samples: 200
+  Model type: api
+  Scenario: Zero-shot Combined ONLY
+
+
+==================== API MODELS ====================
+
+--- Model: gpt-4.1 ---
+================================================================================
+BOUNDING BOX EVALUATION - CHOLEC GONOGO
+================================================================================
+Dataset: cholec_gonogo
+Model: gpt-4.1
+Samples: 200
+Cache: enabled
+Output: persistent
+
+Indexing training videos...
+  Train videos:   0%|          | 0/96 [00:00<?, ?it/s]  Train videos:  57%|█████▋    | 55/96 [00:00<00:00, 548.55it/s]  Train videos: 100%|██████████| 96/96 [00:00<00:00, 540.71it/s]
+Indexing test videos...
+  Test videos:   0%|          | 0/25 [00:00<?, ?it/s]  Test videos: 100%|██████████| 25/25 [00:00<00:00, 535.86it/s]
+Building examples list...
+  Checking files:   0%|          | 0/1015 [00:00<?, ?it/s]  Checking files:  39%|███▉      | 398/1015 [00:00<00:00, 3976.15it/s]  Checking files:  82%|████████▏ | 830/1015 [00:00<00:00, 4173.79it/s]  Checking files: 100%|██████████| 1015/1015 [00:00<00:00, 4138.61it/s]
+CholecGoNoGo dataset indexed:
+  Total examples: 1015
+  Train: 716 examples
+  Validation: 80 examples
+  Test: 219 examples
+✓ Loaded cholec_gonogo dataset adapter
+cholec_gonogo dataset indexed:
+  Total examples: 1015
+  Train: 716 examples
+  Validation: 80 examples
+  Test: 219 examples
+Selected test indices: [63, 558, 470, 313, 307]...
+Image dimensions: 640x384
+
+Output directory: /shared_data0/weiqiuy/llm_cholec_organ/results/bbox_cholec_gonogo_quick
+
+================================================================================
+RUNNING EVALUATION: Zero-shot Combined
+================================================================================
+Detection mode: combined
+Few-shot: disabled
+
+Evaluating gpt-4.1 (combined):   0%|          | 0/151 [00:00<?, ?it/s]Evaluating gpt-4.1 (combined):   2%|▏         | 3/151 [00:03<03:07,  1.27s/it]Evaluating gpt-4.1 (combined):   3%|▎         | 4/151 [00:08<05:43,  2.33s/it]Evaluating gpt-4.1 (combined):   3%|▎         | 5/151 [00:14<08:18,  3.41s/it]Evaluating gpt-4.1 (combined):   4%|▍         | 6/151 [00:17<08:32,  3.53s/it]Evaluating gpt-4.1 (combined):   5%|▍         | 7/151 [00:22<08:52,  3.70s/it]Evaluating gpt-4.1 (combined):   5%|▌         | 8/151 [00:25<08:44,  3.67s/it]Evaluating gpt-4.1 (combined):   6%|▌         | 9/151 [00:32<11:07,  4.70s/it]Evaluating gpt-4.1 (combined):   7%|▋         | 10/151 [00:37<10:58,  4.67s/it]Evaluating gpt-4.1 (combined):   7%|▋         | 11/151 [00:40<09:50,  4.22s/it]Evaluating gpt-4.1 (combined):   8%|▊         | 12/151 [00:47<11:30,  4.97s/it]Evaluating gpt-4.1 (combined):   9%|▊         | 13/151 [00:54<12:44,  5.54s/it]Evaluating gpt-4.1 (combined):   9%|▉         | 14/151 [00:57<11:21,  4.97s/it]Evaluating gpt-4.1 (combined):  10%|▉         | 15/151 [01:04<12:39,  5.58s/it]Evaluating gpt-4.1 (combined):  11%|█         | 16/151 [01:07<10:47,  4.79s/it]Evaluating gpt-4.1 (combined):  11%|█▏        | 17/151 [01:10<09:26,  4.23s/it]Evaluating gpt-4.1 (combined):  12%|█▏        | 18/151 [01:14<08:58,  4.05s/it]Evaluating gpt-4.1 (combined):  13%|█▎        | 19/151 [01:17<08:10,  3.72s/it]Evaluating gpt-4.1 (combined):  13%|█▎        | 20/151 [01:23<09:54,  4.54s/it]Evaluating gpt-4.1 (combined):  14%|█▍        | 21/151 [01:29<11:02,  5.10s/it]Evaluating gpt-4.1 (combined):  15%|█▍        | 22/151 [01:35<10:58,  5.11s/it]Evaluating gpt-4.1 (combined):  15%|█▌        | 23/151 [01:38<09:53,  4.63s/it]Evaluating gpt-4.1 (combined):  16%|█▌        | 24/151 [01:43<09:46,  4.62s/it]Evaluating gpt-4.1 (combined):  17%|█▋        | 25/151 [01:47<09:13,  4.39s/it]Evaluating gpt-4.1 (combined):  17%|█▋        | 26/151 [01:51<09:01,  4.33s/it]Evaluating gpt-4.1 (combined):  18%|█▊        | 27/151 [01:54<08:32,  4.13s/it]Evaluating gpt-4.1 (combined):  19%|█▊        | 28/151 [01:58<08:12,  4.00s/it]Evaluating gpt-4.1 (combined):  19%|█▉        | 29/151 [02:02<07:54,  3.89s/it]Evaluating gpt-4.1 (combined):  20%|█▉        | 30/151 [02:06<07:59,  3.97s/it]Evaluating gpt-4.1 (combined):  21%|██        | 31/151 [02:09<07:26,  3.72s/it]Evaluating gpt-4.1 (combined):  21%|██        | 32/151 [02:13<07:46,  3.92s/it]Evaluating gpt-4.1 (combined):  22%|██▏       | 33/151 [02:17<07:38,  3.88s/it]Evaluating gpt-4.1 (combined):  23%|██▎       | 34/151 [02:22<08:01,  4.12s/it]Evaluating gpt-4.1 (combined):  23%|██▎       | 35/151 [02:25<07:20,  3.79s/it]Evaluating gpt-4.1 (combined):  24%|██▍       | 36/151 [02:29<07:33,  3.94s/it]Evaluating gpt-4.1 (combined):  25%|██▍       | 37/151 [02:35<08:37,  4.54s/it]Evaluating gpt-4.1 (combined):  25%|██▌       | 38/151 [02:40<08:31,  4.53s/it]Evaluating gpt-4.1 (combined):  26%|██▌       | 39/151 [02:44<08:07,  4.35s/it]Evaluating gpt-4.1 (combined):  26%|██▋       | 40/151 [02:53<11:05,  5.99s/it]Evaluating gpt-4.1 (combined):  27%|██▋       | 41/151 [02:57<09:51,  5.38s/it]Evaluating gpt-4.1 (combined):  28%|██▊       | 42/151 [03:01<09:03,  4.99s/it]Evaluating gpt-4.1 (combined):  28%|██▊       | 43/151 [03:06<08:37,  4.79s/it]Evaluating gpt-4.1 (combined):  29%|██▉       | 44/151 [03:11<08:52,  4.98s/it]Evaluating gpt-4.1 (combined):  30%|██▉       | 45/151 [03:15<08:21,  4.73s/it]Evaluating gpt-4.1 (combined):  30%|███       | 46/151 [03:20<08:23,  4.80s/it]Evaluating gpt-4.1 (combined):  31%|███       | 47/151 [03:25<08:01,  4.63s/it]Evaluating gpt-4.1 (combined):  32%|███▏      | 48/151 [03:29<08:05,  4.71s/it]Evaluating gpt-4.1 (combined):  32%|███▏      | 49/151 [03:33<07:13,  4.25s/it]Evaluating gpt-4.1 (combined):  33%|███▎      | 50/151 [03:37<07:21,  4.38s/it]Evaluating gpt-4.1 (combined):  34%|███▍      | 51/151 [03:42<07:33,  4.53s/it]Evaluating gpt-4.1 (combined):  34%|███▍      | 52/151 [03:46<06:59,  4.24s/it]Evaluating gpt-4.1 (combined):  35%|███▌      | 53/151 [03:49<06:26,  3.95s/it]Evaluating gpt-4.1 (combined):  36%|███▌      | 54/151 [03:53<06:19,  3.92s/it]Evaluating gpt-4.1 (combined):  36%|███▋      | 55/151 [03:59<07:08,  4.47s/it]Evaluating gpt-4.1 (combined):  37%|███▋      | 56/151 [04:02<06:28,  4.09s/it]Evaluating gpt-4.1 (combined):  38%|███▊      | 57/151 [04:06<06:40,  4.26s/it]Evaluating gpt-4.1 (combined):  38%|███▊      | 58/151 [04:11<06:40,  4.30s/it]Evaluating gpt-4.1 (combined):  39%|███▉      | 59/151 [04:20<08:39,  5.65s/it]Evaluating gpt-4.1 (combined):  40%|███▉      | 60/151 [04:23<07:27,  4.92s/it]Evaluating gpt-4.1 (combined):  40%|████      | 61/151 [04:27<06:56,  4.63s/it]Evaluating gpt-4.1 (combined):  41%|████      | 62/151 [04:31<06:44,  4.55s/it]Evaluating gpt-4.1 (combined):  42%|████▏     | 63/151 [04:35<06:20,  4.32s/it]Evaluating gpt-4.1 (combined):  42%|████▏     | 64/151 [04:39<05:58,  4.12s/it]Evaluating gpt-4.1 (combined):  43%|████▎     | 65/151 [04:44<06:27,  4.51s/it]Evaluating gpt-4.1 (combined):  44%|████▎     | 66/151 [04:48<06:06,  4.31s/it]Evaluating gpt-4.1 (combined):  44%|████▍     | 67/151 [04:53<06:16,  4.48s/it]Evaluating gpt-4.1 (combined):  45%|████▌     | 68/151 [04:57<05:59,  4.33s/it]Evaluating gpt-4.1 (combined):  46%|████▌     | 69/151 [05:02<06:06,  4.47s/it]Evaluating gpt-4.1 (combined):  46%|████▋     | 70/151 [05:06<06:05,  4.51s/it]Evaluating gpt-4.1 (combined):  47%|████▋     | 71/151 [05:10<05:36,  4.20s/it]Evaluating gpt-4.1 (combined):  48%|████▊     | 72/151 [05:13<05:16,  4.00s/it]Evaluating gpt-4.1 (combined):  48%|████▊     | 73/151 [05:16<04:51,  3.74s/it]Evaluating gpt-4.1 (combined):  49%|████▉     | 74/151 [05:19<04:35,  3.58s/it]Evaluating gpt-4.1 (combined):  50%|████▉     | 75/151 [05:25<05:08,  4.06s/it]Evaluating gpt-4.1 (combined):  50%|█████     | 76/151 [05:28<04:55,  3.94s/it]Evaluating gpt-4.1 (combined):  51%|█████     | 77/151 [05:33<05:01,  4.07s/it]Evaluating gpt-4.1 (combined):  52%|█████▏    | 78/151 [05:37<04:59,  4.11s/it]Evaluating gpt-4.1 (combined):  52%|█████▏    | 79/151 [05:42<05:26,  4.53s/it]Evaluating gpt-4.1 (combined):  53%|█████▎    | 80/151 [05:47<05:15,  4.45s/it]Evaluating gpt-4.1 (combined):  54%|█████▎    | 81/151 [05:51<05:07,  4.40s/it]

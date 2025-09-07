@@ -1,0 +1,249 @@
+
+================================================================================
+Running naive baseline for cholecseg8k
+================================================================================
+
+================================================================================
+NAIVE BASELINE - CHOLECSEG8K
+================================================================================
+Strategy: Always predict entire image as bounding box
+Presence mode: perfect
+Samples: 200
+
+Video-based split created:
+  Total videos: 17
+  Train: 13 videos, 5760 frames
+  Validation: 1 videos, 560 frames
+  Test: 3 videos, 1760 frames
+  Train videos: video01, video09, video20, video52, video35, video48, video26, video43, video12, video27, video55, video18, video25
+  Val videos: video28
+  Test videos: video37, video17, video24
+Selected test indices: [0, 1, 2, 3, 4]...
+Evaluating naive baseline:   0%|          | 0/200 [00:00<?, ?it/s]Evaluating naive baseline:   2%|▏         | 3/200 [00:00<00:08, 22.18it/s]Evaluating naive baseline:   3%|▎         | 6/200 [00:00<00:08, 23.99it/s]Evaluating naive baseline:   4%|▍         | 9/200 [00:00<00:07, 24.33it/s]Evaluating naive baseline:   6%|▌         | 12/200 [00:00<00:07, 24.72it/s]Evaluating naive baseline:   8%|▊         | 15/200 [00:00<00:07, 24.57it/s]Evaluating naive baseline:   9%|▉         | 18/200 [00:00<00:07, 25.09it/s]Evaluating naive baseline:  10%|█         | 21/200 [00:00<00:07, 25.20it/s]Evaluating naive baseline:  12%|█▏        | 24/200 [00:00<00:07, 23.94it/s]Evaluating naive baseline:  14%|█▎        | 27/200 [00:01<00:07, 23.42it/s]Evaluating naive baseline:  15%|█▌        | 30/200 [00:01<00:07, 23.31it/s]Evaluating naive baseline:  16%|█▋        | 33/200 [00:01<00:06, 24.04it/s]Evaluating naive baseline:  18%|█▊        | 36/200 [00:01<00:06, 24.54it/s]Evaluating naive baseline:  20%|█▉        | 39/200 [00:01<00:06, 24.49it/s]Evaluating naive baseline:  21%|██        | 42/200 [00:01<00:06, 24.65it/s]Evaluating naive baseline:  22%|██▎       | 45/200 [00:01<00:06, 25.05it/s]Evaluating naive baseline:  24%|██▍       | 48/200 [00:01<00:06, 25.28it/s]Evaluating naive baseline:  26%|██▌       | 51/200 [00:02<00:05, 25.33it/s]Evaluating naive baseline:  27%|██▋       | 54/200 [00:02<00:05, 25.27it/s]Evaluating naive baseline:  28%|██▊       | 57/200 [00:02<00:05, 25.50it/s]Evaluating naive baseline:  30%|███       | 60/200 [00:02<00:05, 25.32it/s]Evaluating naive baseline:  32%|███▏      | 63/200 [00:02<00:05, 25.72it/s]Evaluating naive baseline:  33%|███▎      | 66/200 [00:02<00:05, 26.11it/s]Evaluating naive baseline:  34%|███▍      | 69/200 [00:02<00:05, 25.89it/s]Evaluating naive baseline:  36%|███▌      | 72/200 [00:02<00:04, 26.04it/s]Evaluating naive baseline:  38%|███▊      | 75/200 [00:02<00:04, 26.25it/s]Evaluating naive baseline:  39%|███▉      | 78/200 [00:03<00:04, 26.28it/s]Evaluating naive baseline:  40%|████      | 81/200 [00:03<00:04, 25.77it/s]Evaluating naive baseline:  42%|████▏     | 84/200 [00:03<00:04, 25.68it/s]Evaluating naive baseline:  44%|████▎     | 87/200 [00:03<00:04, 25.57it/s]Evaluating naive baseline:  45%|████▌     | 90/200 [00:03<00:04, 24.73it/s]Evaluating naive baseline:  46%|████▋     | 93/200 [00:03<00:04, 24.54it/s]Evaluating naive baseline:  48%|████▊     | 96/200 [00:03<00:04, 24.51it/s]Evaluating naive baseline:  50%|████▉     | 99/200 [00:03<00:04, 24.57it/s]Evaluating naive baseline:  51%|█████     | 102/200 [00:04<00:03, 24.64it/s]Evaluating naive baseline:  52%|█████▎    | 105/200 [00:04<00:03, 24.89it/s]Evaluating naive baseline:  54%|█████▍    | 108/200 [00:04<00:03, 24.84it/s]Evaluating naive baseline:  56%|█████▌    | 111/200 [00:04<00:03, 24.99it/s]Evaluating naive baseline:  57%|█████▋    | 114/200 [00:04<00:03, 25.04it/s]Evaluating naive baseline:  58%|█████▊    | 117/200 [00:04<00:03, 24.86it/s]Evaluating naive baseline:  60%|██████    | 120/200 [00:04<00:03, 24.63it/s]Evaluating naive baseline:  62%|██████▏   | 123/200 [00:04<00:03, 24.57it/s]Evaluating naive baseline:  63%|██████▎   | 126/200 [00:05<00:02, 24.75it/s]Evaluating naive baseline:  64%|██████▍   | 129/200 [00:05<00:02, 24.81it/s]Evaluating naive baseline:  66%|██████▌   | 132/200 [00:05<00:02, 24.45it/s]Evaluating naive baseline:  68%|██████▊   | 135/200 [00:05<00:02, 24.45it/s]Evaluating naive baseline:  69%|██████▉   | 138/200 [00:05<00:02, 24.30it/s]Evaluating naive baseline:  70%|███████   | 141/200 [00:05<00:02, 24.13it/s]Evaluating naive baseline:  72%|███████▏  | 144/200 [00:05<00:02, 24.03it/s]Evaluating naive baseline:  74%|███████▎  | 147/200 [00:05<00:02, 24.22it/s]Evaluating naive baseline:  75%|███████▌  | 150/200 [00:06<00:02, 24.64it/s]Evaluating naive baseline:  76%|███████▋  | 153/200 [00:06<00:01, 24.42it/s]Evaluating naive baseline:  78%|███████▊  | 156/200 [00:06<00:01, 23.96it/s]Evaluating naive baseline:  80%|███████▉  | 159/200 [00:06<00:01, 24.22it/s]Evaluating naive baseline:  81%|████████  | 162/200 [00:06<00:01, 23.92it/s]Evaluating naive baseline:  82%|████████▎ | 165/200 [00:06<00:01, 23.89it/s]Evaluating naive baseline:  84%|████████▍ | 168/200 [00:06<00:01, 24.07it/s]Evaluating naive baseline:  86%|████████▌ | 171/200 [00:06<00:01, 23.98it/s]Evaluating naive baseline:  87%|████████▋ | 174/200 [00:07<00:01, 22.75it/s]Evaluating naive baseline:  88%|████████▊ | 177/200 [00:07<00:01, 22.45it/s]Evaluating naive baseline:  90%|█████████ | 180/200 [00:07<00:00, 22.81it/s]Evaluating naive baseline:  92%|█████████▏| 183/200 [00:07<00:00, 23.14it/s]Evaluating naive baseline:  93%|█████████▎| 186/200 [00:07<00:00, 23.15it/s]Evaluating naive baseline:  94%|█████████▍| 189/200 [00:07<00:00, 23.18it/s]Evaluating naive baseline:  96%|█████████▌| 192/200 [00:07<00:00, 23.38it/s]Evaluating naive baseline:  98%|█████████▊| 195/200 [00:07<00:00, 23.82it/s]Evaluating naive baseline:  99%|█████████▉| 198/200 [00:08<00:00, 24.20it/s]Evaluating naive baseline: 100%|██████████| 200/200 [00:08<00:00, 24.49it/s]
+
+================================================================================
+NAIVE BASELINE RESULTS
+================================================================================
+Dataset: cholecseg8k
+Presence mode: perfect
+Samples evaluated: 200
+Results saved to: /shared_data0/weiqiuy/llm_cholec_organ/results/naive_baseline_cholecseg8k_20250907_224734
+
+📊 METRICS:
+------------------------------------------------------------
+Presence Accuracy: 100.0%
+Bbox-to-Bbox IoU:  0.295
+Bbox-to-Mask IoU:  0.161
+IoU@0.5 (BBox):    19.7%
+IoU@0.5 (Mask):    16.3%
+Total predictions: 1016
+------------------------------------------------------------
+
+================================================================================
+Running naive baseline for cholecseg8k
+================================================================================
+
+================================================================================
+NAIVE BASELINE - CHOLECSEG8K
+================================================================================
+Strategy: Always predict entire image as bounding box
+Presence mode: all
+Samples: 200
+
+Video-based split created:
+  Total videos: 17
+  Train: 13 videos, 5760 frames
+  Validation: 1 videos, 560 frames
+  Test: 3 videos, 1760 frames
+  Train videos: video01, video09, video20, video52, video35, video48, video26, video43, video12, video27, video55, video18, video25
+  Val videos: video28
+  Test videos: video37, video17, video24
+Selected test indices: [0, 1, 2, 3, 4]...
+Evaluating naive baseline:   0%|          | 0/200 [00:00<?, ?it/s]Evaluating naive baseline:   2%|▏         | 3/200 [00:00<00:08, 23.44it/s]Evaluating naive baseline:   3%|▎         | 6/200 [00:00<00:07, 25.19it/s]Evaluating naive baseline:   4%|▍         | 9/200 [00:00<00:07, 25.82it/s]Evaluating naive baseline:   6%|▌         | 12/200 [00:00<00:07, 25.85it/s]Evaluating naive baseline:   8%|▊         | 15/200 [00:00<00:07, 26.02it/s]Evaluating naive baseline:   9%|▉         | 18/200 [00:00<00:06, 26.34it/s]Evaluating naive baseline:  10%|█         | 21/200 [00:00<00:06, 26.16it/s]Evaluating naive baseline:  12%|█▏        | 24/200 [00:00<00:06, 26.23it/s]Evaluating naive baseline:  14%|█▎        | 27/200 [00:01<00:06, 26.26it/s]Evaluating naive baseline:  15%|█▌        | 30/200 [00:01<00:06, 26.26it/s]Evaluating naive baseline:  16%|█▋        | 33/200 [00:01<00:06, 26.18it/s]Evaluating naive baseline:  18%|█▊        | 36/200 [00:01<00:06, 25.95it/s]Evaluating naive baseline:  20%|█▉        | 39/200 [00:01<00:06, 26.09it/s]Evaluating naive baseline:  21%|██        | 42/200 [00:01<00:06, 26.20it/s]Evaluating naive baseline:  22%|██▎       | 45/200 [00:01<00:05, 25.96it/s]Evaluating naive baseline:  24%|██▍       | 48/200 [00:01<00:05, 26.10it/s]Evaluating naive baseline:  26%|██▌       | 51/200 [00:01<00:05, 26.28it/s]Evaluating naive baseline:  27%|██▋       | 54/200 [00:02<00:05, 26.26it/s]Evaluating naive baseline:  28%|██▊       | 57/200 [00:02<00:05, 26.18it/s]Evaluating naive baseline:  30%|███       | 60/200 [00:02<00:05, 25.12it/s]Evaluating naive baseline:  32%|███▏      | 63/200 [00:02<00:05, 25.40it/s]Evaluating naive baseline:  33%|███▎      | 66/200 [00:02<00:05, 25.57it/s]Evaluating naive baseline:  34%|███▍      | 69/200 [00:02<00:05, 25.42it/s]Evaluating naive baseline:  36%|███▌      | 72/200 [00:02<00:05, 24.85it/s]Evaluating naive baseline:  38%|███▊      | 75/200 [00:02<00:04, 25.58it/s]Evaluating naive baseline:  39%|███▉      | 78/200 [00:03<00:04, 25.82it/s]Evaluating naive baseline:  40%|████      | 81/200 [00:03<00:04, 25.87it/s]Evaluating naive baseline:  42%|████▏     | 84/200 [00:03<00:04, 24.34it/s]Evaluating naive baseline:  44%|████▎     | 87/200 [00:03<00:04, 24.82it/s]Evaluating naive baseline:  45%|████▌     | 90/200 [00:03<00:04, 25.17it/s]Evaluating naive baseline:  46%|████▋     | 93/200 [00:03<00:04, 25.33it/s]Evaluating naive baseline:  48%|████▊     | 96/200 [00:03<00:04, 25.60it/s]Evaluating naive baseline:  50%|████▉     | 99/200 [00:03<00:03, 25.43it/s]Evaluating naive baseline:  51%|█████     | 102/200 [00:03<00:03, 25.66it/s]Evaluating naive baseline:  52%|█████▎    | 105/200 [00:04<00:03, 25.76it/s]Evaluating naive baseline:  54%|█████▍    | 108/200 [00:04<00:03, 25.95it/s]Evaluating naive baseline:  56%|█████▌    | 111/200 [00:04<00:03, 26.01it/s]Evaluating naive baseline:  57%|█████▋    | 114/200 [00:04<00:03, 25.84it/s]Evaluating naive baseline:  58%|█████▊    | 117/200 [00:04<00:03, 25.79it/s]Evaluating naive baseline:  60%|██████    | 120/200 [00:04<00:03, 25.95it/s]Evaluating naive baseline:  62%|██████▏   | 123/200 [00:04<00:02, 26.02it/s]Evaluating naive baseline:  63%|██████▎   | 126/200 [00:04<00:02, 26.01it/s]Evaluating naive baseline:  64%|██████▍   | 129/200 [00:05<00:02, 25.66it/s]Evaluating naive baseline:  66%|██████▌   | 132/200 [00:05<00:02, 26.12it/s]Evaluating naive baseline:  68%|██████▊   | 135/200 [00:05<00:02, 26.43it/s]Evaluating naive baseline:  69%|██████▉   | 138/200 [00:05<00:02, 26.44it/s]Evaluating naive baseline:  70%|███████   | 141/200 [00:05<00:02, 26.31it/s]Evaluating naive baseline:  72%|███████▏  | 144/200 [00:05<00:02, 26.37it/s]Evaluating naive baseline:  74%|███████▎  | 147/200 [00:05<00:01, 26.71it/s]Evaluating naive baseline:  75%|███████▌  | 150/200 [00:05<00:01, 26.61it/s]Evaluating naive baseline:  76%|███████▋  | 153/200 [00:05<00:01, 26.60it/s]Evaluating naive baseline:  78%|███████▊  | 156/200 [00:06<00:01, 26.32it/s]Evaluating naive baseline:  80%|███████▉  | 159/200 [00:06<00:01, 25.96it/s]Evaluating naive baseline:  81%|████████  | 162/200 [00:06<00:01, 25.87it/s]Evaluating naive baseline:  82%|████████▎ | 165/200 [00:06<00:01, 25.48it/s]Evaluating naive baseline:  84%|████████▍ | 168/200 [00:06<00:01, 25.40it/s]Evaluating naive baseline:  86%|████████▌ | 171/200 [00:06<00:01, 25.75it/s]Evaluating naive baseline:  87%|████████▋ | 174/200 [00:06<00:01, 24.98it/s]Evaluating naive baseline:  88%|████████▊ | 177/200 [00:06<00:00, 25.15it/s]Evaluating naive baseline:  90%|█████████ | 180/200 [00:06<00:00, 25.05it/s]Evaluating naive baseline:  92%|█████████▏| 183/200 [00:07<00:00, 25.18it/s]Evaluating naive baseline:  93%|█████████▎| 186/200 [00:07<00:00, 25.00it/s]Evaluating naive baseline:  94%|█████████▍| 189/200 [00:07<00:00, 24.75it/s]Evaluating naive baseline:  96%|█████████▌| 192/200 [00:07<00:00, 24.98it/s]Evaluating naive baseline:  98%|█████████▊| 195/200 [00:07<00:00, 25.26it/s]Evaluating naive baseline:  99%|█████████▉| 198/200 [00:07<00:00, 25.39it/s]Evaluating naive baseline: 100%|██████████| 200/200 [00:07<00:00, 25.71it/s]
+
+================================================================================
+NAIVE BASELINE RESULTS
+================================================================================
+Dataset: cholecseg8k
+Presence mode: all
+Samples evaluated: 200
+Results saved to: /shared_data0/weiqiuy/llm_cholec_organ/results/naive_baseline_cholecseg8k_20250907_224751
+
+📊 METRICS:
+------------------------------------------------------------
+Presence Accuracy: 42.3%
+Bbox-to-Bbox IoU:  0.295
+Bbox-to-Mask IoU:  0.161
+IoU@0.5 (BBox):    19.7%
+IoU@0.5 (Mask):    16.3%
+Total predictions: 1016
+------------------------------------------------------------
+
+================================================================================
+Running naive baseline for cholecseg8k
+================================================================================
+
+================================================================================
+NAIVE BASELINE - CHOLECSEG8K
+================================================================================
+Strategy: Always predict entire image as bounding box
+Presence mode: random
+Samples: 200
+
+Video-based split created:
+  Total videos: 17
+  Train: 13 videos, 5760 frames
+  Validation: 1 videos, 560 frames
+  Test: 3 videos, 1760 frames
+  Train videos: video01, video09, video20, video52, video35, video48, video26, video43, video12, video27, video55, video18, video25
+  Val videos: video28
+  Test videos: video37, video17, video24
+Selected test indices: [0, 1, 2, 3, 4]...
+Evaluating naive baseline:   0%|          | 0/200 [00:00<?, ?it/s]Evaluating naive baseline:   2%|▏         | 3/200 [00:00<00:08, 22.91it/s]Evaluating naive baseline:   3%|▎         | 6/200 [00:00<00:07, 25.28it/s]Evaluating naive baseline:   4%|▍         | 9/200 [00:00<00:07, 26.57it/s]Evaluating naive baseline:   6%|▌         | 12/200 [00:00<00:07, 26.53it/s]Evaluating naive baseline:   8%|▊         | 15/200 [00:00<00:06, 26.91it/s]Evaluating naive baseline:   9%|▉         | 18/200 [00:00<00:06, 26.79it/s]Evaluating naive baseline:  10%|█         | 21/200 [00:00<00:06, 26.51it/s]Evaluating naive baseline:  12%|█▏        | 24/200 [00:00<00:06, 26.51it/s]Evaluating naive baseline:  14%|█▎        | 27/200 [00:01<00:06, 26.40it/s]Evaluating naive baseline:  15%|█▌        | 30/200 [00:01<00:06, 26.55it/s]Evaluating naive baseline:  16%|█▋        | 33/200 [00:01<00:06, 25.87it/s]Evaluating naive baseline:  18%|█▊        | 36/200 [00:01<00:06, 26.23it/s]Evaluating naive baseline:  20%|█▉        | 39/200 [00:01<00:06, 26.49it/s]Evaluating naive baseline:  21%|██        | 42/200 [00:01<00:05, 26.69it/s]Evaluating naive baseline:  22%|██▎       | 45/200 [00:01<00:05, 26.67it/s]Evaluating naive baseline:  24%|██▍       | 48/200 [00:01<00:05, 26.31it/s]Evaluating naive baseline:  26%|██▌       | 51/200 [00:01<00:05, 26.58it/s]Evaluating naive baseline:  27%|██▋       | 54/200 [00:02<00:05, 26.51it/s]Evaluating naive baseline:  28%|██▊       | 57/200 [00:02<00:05, 26.40it/s]Evaluating naive baseline:  30%|███       | 60/200 [00:02<00:05, 26.13it/s]Evaluating naive baseline:  32%|███▏      | 63/200 [00:02<00:05, 26.17it/s]Evaluating naive baseline:  33%|███▎      | 66/200 [00:02<00:05, 26.36it/s]Evaluating naive baseline:  34%|███▍      | 69/200 [00:02<00:04, 26.42it/s]Evaluating naive baseline:  36%|███▌      | 72/200 [00:02<00:04, 26.81it/s]Evaluating naive baseline:  38%|███▊      | 75/200 [00:02<00:04, 26.62it/s]Evaluating naive baseline:  39%|███▉      | 78/200 [00:02<00:04, 26.95it/s]Evaluating naive baseline:  40%|████      | 81/200 [00:03<00:04, 24.15it/s]Evaluating naive baseline:  42%|████▏     | 84/200 [00:03<00:04, 23.64it/s]Evaluating naive baseline:  44%|████▎     | 87/200 [00:03<00:04, 24.10it/s]Evaluating naive baseline:  45%|████▌     | 90/200 [00:03<00:04, 24.32it/s]Evaluating naive baseline:  46%|████▋     | 93/200 [00:03<00:04, 24.94it/s]Evaluating naive baseline:  48%|████▊     | 96/200 [00:03<00:04, 25.31it/s]Evaluating naive baseline:  50%|████▉     | 99/200 [00:03<00:03, 25.68it/s]Evaluating naive baseline:  51%|█████     | 102/200 [00:03<00:03, 25.70it/s]Evaluating naive baseline:  52%|█████▎    | 105/200 [00:04<00:03, 25.78it/s]Evaluating naive baseline:  54%|█████▍    | 108/200 [00:04<00:03, 25.45it/s]Evaluating naive baseline:  56%|█████▌    | 111/200 [00:04<00:03, 25.35it/s]Evaluating naive baseline:  57%|█████▋    | 114/200 [00:04<00:03, 25.62it/s]Evaluating naive baseline:  58%|█████▊    | 117/200 [00:04<00:03, 25.62it/s]Evaluating naive baseline:  60%|██████    | 120/200 [00:04<00:03, 25.60it/s]Evaluating naive baseline:  62%|██████▏   | 123/200 [00:04<00:03, 25.52it/s]Evaluating naive baseline:  63%|██████▎   | 126/200 [00:04<00:02, 25.39it/s]Evaluating naive baseline:  64%|██████▍   | 129/200 [00:04<00:02, 25.41it/s]Evaluating naive baseline:  66%|██████▌   | 132/200 [00:05<00:02, 25.53it/s]Evaluating naive baseline:  68%|██████▊   | 135/200 [00:05<00:02, 25.69it/s]Evaluating naive baseline:  69%|██████▉   | 138/200 [00:05<00:02, 25.68it/s]Evaluating naive baseline:  70%|███████   | 141/200 [00:05<00:02, 25.86it/s]Evaluating naive baseline:  72%|███████▏  | 144/200 [00:05<00:02, 25.73it/s]Evaluating naive baseline:  74%|███████▎  | 147/200 [00:05<00:02, 26.17it/s]Evaluating naive baseline:  75%|███████▌  | 150/200 [00:05<00:01, 26.42it/s]Evaluating naive baseline:  76%|███████▋  | 153/200 [00:05<00:01, 26.61it/s]Evaluating naive baseline:  78%|███████▊  | 156/200 [00:06<00:01, 26.41it/s]Evaluating naive baseline:  80%|███████▉  | 159/200 [00:06<00:01, 26.02it/s]Evaluating naive baseline:  81%|████████  | 162/200 [00:06<00:01, 25.78it/s]Evaluating naive baseline:  82%|████████▎ | 165/200 [00:06<00:01, 25.95it/s]Evaluating naive baseline:  84%|████████▍ | 168/200 [00:06<00:01, 25.87it/s]Evaluating naive baseline:  86%|████████▌ | 171/200 [00:06<00:01, 25.57it/s]Evaluating naive baseline:  87%|████████▋ | 174/200 [00:06<00:01, 25.22it/s]Evaluating naive baseline:  88%|████████▊ | 177/200 [00:06<00:00, 25.18it/s]Evaluating naive baseline:  90%|█████████ | 180/200 [00:06<00:00, 25.02it/s]Evaluating naive baseline:  92%|█████████▏| 183/200 [00:07<00:00, 25.00it/s]Evaluating naive baseline:  93%|█████████▎| 186/200 [00:07<00:00, 24.78it/s]Evaluating naive baseline:  94%|█████████▍| 189/200 [00:07<00:00, 24.78it/s]Evaluating naive baseline:  96%|█████████▌| 192/200 [00:07<00:00, 24.83it/s]Evaluating naive baseline:  98%|█████████▊| 195/200 [00:07<00:00, 25.00it/s]Evaluating naive baseline:  99%|█████████▉| 198/200 [00:07<00:00, 25.23it/s]Evaluating naive baseline: 100%|██████████| 200/200 [00:07<00:00, 25.73it/s]
+
+================================================================================
+NAIVE BASELINE RESULTS
+================================================================================
+Dataset: cholecseg8k
+Presence mode: random
+Samples evaluated: 200
+Results saved to: /shared_data0/weiqiuy/llm_cholec_organ/results/naive_baseline_cholecseg8k_20250907_224809
+
+📊 METRICS:
+------------------------------------------------------------
+Presence Accuracy: 52.0%
+Bbox-to-Bbox IoU:  0.290
+Bbox-to-Mask IoU:  0.157
+IoU@0.5 (BBox):    18.8%
+IoU@0.5 (Mask):    15.7%
+Total predictions: 536
+------------------------------------------------------------
+
+================================================================================
+Running naive baseline for cholec_organs
+================================================================================
+
+================================================================================
+NAIVE BASELINE - CHOLEC_ORGANS
+================================================================================
+Strategy: Always predict entire image as bounding box
+Presence mode: perfect
+Samples: 200
+
+Indexing training videos...
+  Train videos:   0%|          | 0/96 [00:00<?, ?it/s]  Train videos:  59%|█████▉    | 57/96 [00:00<00:00, 562.49it/s]  Train videos: 100%|██████████| 96/96 [00:00<00:00, 555.23it/s]
+Indexing test videos...
+  Test videos:   0%|          | 0/25 [00:00<?, ?it/s]  Test videos: 100%|██████████| 25/25 [00:00<00:00, 543.61it/s]
+Building examples list...
+  Checking files:   0%|          | 0/1015 [00:00<?, ?it/s]  Checking files:  41%|████▏     | 421/1015 [00:00<00:00, 4206.14it/s]  Checking files:  84%|████████▍ | 853/1015 [00:00<00:00, 4267.05it/s]  Checking files: 100%|██████████| 1015/1015 [00:00<00:00, 4276.12it/s]
+CholecOrgans dataset indexed:
+  Total examples: 1015
+  Train: 716 examples
+  Validation: 80 examples
+  Test: 219 examples
+Selected test indices: [63, 554, 468, 314, 310]...
+Evaluating naive baseline:   0%|          | 0/140 [00:00<?, ?it/s]Evaluating naive baseline:   4%|▍         | 6/140 [00:00<00:02, 54.90it/s]Evaluating naive baseline:   9%|▉         | 13/140 [00:00<00:02, 59.27it/s]Evaluating naive baseline:  14%|█▍        | 20/140 [00:00<00:01, 61.94it/s]Evaluating naive baseline:  19%|█▉        | 27/140 [00:00<00:01, 63.13it/s]Evaluating naive baseline:  24%|██▍       | 34/140 [00:00<00:01, 64.29it/s]Evaluating naive baseline:  29%|██▉       | 41/140 [00:00<00:01, 64.70it/s]Evaluating naive baseline:  34%|███▍      | 48/140 [00:00<00:01, 66.07it/s]Evaluating naive baseline:  39%|███▉      | 55/140 [00:00<00:01, 66.66it/s]Evaluating naive baseline:  44%|████▍     | 62/140 [00:00<00:01, 66.72it/s]Evaluating naive baseline:  49%|████▉     | 69/140 [00:01<00:01, 67.19it/s]Evaluating naive baseline:  54%|█████▍    | 76/140 [00:01<00:00, 66.45it/s]Evaluating naive baseline:  59%|█████▉    | 83/140 [00:01<00:00, 66.45it/s]Evaluating naive baseline:  64%|██████▍   | 90/140 [00:01<00:00, 67.31it/s]Evaluating naive baseline:  69%|██████▉   | 97/140 [00:01<00:00, 67.22it/s]Evaluating naive baseline:  74%|███████▍  | 104/140 [00:01<00:00, 67.95it/s]Evaluating naive baseline:  80%|████████  | 112/140 [00:01<00:00, 68.48it/s]Evaluating naive baseline:  85%|████████▌ | 119/140 [00:01<00:00, 67.20it/s]Evaluating naive baseline:  90%|█████████ | 126/140 [00:01<00:00, 67.47it/s]Evaluating naive baseline:  95%|█████████▌| 133/140 [00:02<00:00, 67.32it/s]Evaluating naive baseline: 100%|██████████| 140/140 [00:02<00:00, 65.60it/s]Evaluating naive baseline: 100%|██████████| 140/140 [00:02<00:00, 65.91it/s]
+
+================================================================================
+NAIVE BASELINE RESULTS
+================================================================================
+Dataset: cholec_organs
+Presence mode: perfect
+Samples evaluated: 200
+Results saved to: /shared_data0/weiqiuy/llm_cholec_organ/results/naive_baseline_cholec_organs_20250907_224820
+
+📊 METRICS:
+------------------------------------------------------------
+Presence Accuracy: 100.0%
+Bbox-to-Bbox IoU:  0.411
+Bbox-to-Mask IoU:  0.185
+IoU@0.5 (BBox):    30.1%
+IoU@0.5 (Mask):    1.0%
+Total predictions: 419
+------------------------------------------------------------
+
+================================================================================
+Running naive baseline for cholec_organs
+================================================================================
+
+================================================================================
+NAIVE BASELINE - CHOLEC_ORGANS
+================================================================================
+Strategy: Always predict entire image as bounding box
+Presence mode: all
+Samples: 200
+
+Indexing training videos...
+  Train videos:   0%|          | 0/96 [00:00<?, ?it/s]  Train videos:  56%|█████▋    | 54/96 [00:00<00:00, 533.32it/s]  Train videos: 100%|██████████| 96/96 [00:00<00:00, 535.70it/s]
+Indexing test videos...
+  Test videos:   0%|          | 0/25 [00:00<?, ?it/s]  Test videos: 100%|██████████| 25/25 [00:00<00:00, 546.34it/s]
+Building examples list...
+  Checking files:   0%|          | 0/1015 [00:00<?, ?it/s]  Checking files: 100%|██████████| 1015/1015 [00:00<00:00, 40173.43it/s]
+CholecOrgans dataset indexed:
+  Total examples: 1015
+  Train: 716 examples
+  Validation: 80 examples
+  Test: 219 examples
+Selected test indices: [63, 554, 468, 314, 310]...
+Evaluating naive baseline:   0%|          | 0/140 [00:00<?, ?it/s]Evaluating naive baseline:   4%|▍         | 6/140 [00:00<00:02, 56.98it/s]Evaluating naive baseline:   9%|▉         | 13/140 [00:00<00:02, 63.04it/s]Evaluating naive baseline:  14%|█▍        | 20/140 [00:00<00:01, 66.01it/s]Evaluating naive baseline:  19%|█▉        | 27/140 [00:00<00:01, 67.31it/s]Evaluating naive baseline:  25%|██▌       | 35/140 [00:00<00:01, 68.38it/s]Evaluating naive baseline:  31%|███       | 43/140 [00:00<00:01, 69.33it/s]Evaluating naive baseline:  36%|███▌      | 50/140 [00:00<00:01, 69.52it/s]Evaluating naive baseline:  41%|████▏     | 58/140 [00:00<00:01, 70.50it/s]Evaluating naive baseline:  47%|████▋     | 66/140 [00:00<00:01, 70.25it/s]Evaluating naive baseline:  53%|█████▎    | 74/140 [00:01<00:00, 70.56it/s]Evaluating naive baseline:  59%|█████▊    | 82/140 [00:01<00:00, 69.71it/s]Evaluating naive baseline:  64%|██████▍   | 90/140 [00:01<00:00, 70.23it/s]Evaluating naive baseline:  70%|███████   | 98/140 [00:01<00:00, 69.35it/s]Evaluating naive baseline:  75%|███████▌  | 105/140 [00:01<00:00, 69.02it/s]Evaluating naive baseline:  80%|████████  | 112/140 [00:01<00:00, 68.50it/s]Evaluating naive baseline:  85%|████████▌ | 119/140 [00:01<00:00, 67.09it/s]Evaluating naive baseline:  90%|█████████ | 126/140 [00:01<00:00, 67.51it/s]Evaluating naive baseline:  95%|█████████▌| 133/140 [00:01<00:00, 66.86it/s]Evaluating naive baseline: 100%|██████████| 140/140 [00:02<00:00, 67.66it/s]Evaluating naive baseline: 100%|██████████| 140/140 [00:02<00:00, 68.31it/s]
+
+================================================================================
+NAIVE BASELINE RESULTS
+================================================================================
+Dataset: cholec_organs
+Presence mode: all
+Samples evaluated: 200
+Results saved to: /shared_data0/weiqiuy/llm_cholec_organ/results/naive_baseline_cholec_organs_20250907_224831
+
+📊 METRICS:
+------------------------------------------------------------
+Presence Accuracy: 99.8%
+Bbox-to-Bbox IoU:  0.411
+Bbox-to-Mask IoU:  0.185
+IoU@0.5 (BBox):    30.1%
+IoU@0.5 (Mask):    1.0%
+Total predictions: 419
+------------------------------------------------------------
+
+================================================================================
+Running naive baseline for cholec_organs
+================================================================================
+
+================================================================================
+NAIVE BASELINE - CHOLEC_ORGANS
+================================================================================
+Strategy: Always predict entire image as bounding box
+Presence mode: random
+Samples: 200
+
+Indexing training videos...
+  Train videos:   0%|          | 0/96 [00:00<?, ?it/s]  Train videos:  56%|█████▋    | 54/96 [00:00<00:00, 531.99it/s]  Train videos: 100%|██████████| 96/96 [00:00<00:00, 536.16it/s]
+Indexing test videos...
+  Test videos:   0%|          | 0/25 [00:00<?, ?it/s]  Test videos: 100%|██████████| 25/25 [00:00<00:00, 553.13it/s]
+Building examples list...
+  Checking files:   0%|          | 0/1015 [00:00<?, ?it/s]  Checking files: 100%|██████████| 1015/1015 [00:00<00:00, 40652.18it/s]
+CholecOrgans dataset indexed:
+  Total examples: 1015
+  Train: 716 examples
+  Validation: 80 examples
+  Test: 219 examples
+Selected test indices: [63, 554, 468, 314, 310]...
+Evaluating naive baseline:   0%|          | 0/140 [00:00<?, ?it/s]Evaluating naive baseline:   4%|▍         | 6/140 [00:00<00:02, 56.31it/s]Evaluating naive baseline:   9%|▉         | 13/140 [00:00<00:02, 59.47it/s]Evaluating naive baseline:  14%|█▍        | 20/140 [00:00<00:01, 62.54it/s]Evaluating naive baseline:  19%|█▉        | 27/140 [00:00<00:01, 63.81it/s]Evaluating naive baseline:  24%|██▍       | 34/140 [00:00<00:01, 64.26it/s]Evaluating naive baseline:  29%|██▉       | 41/140 [00:00<00:01, 66.00it/s]Evaluating naive baseline:  34%|███▍      | 48/140 [00:00<00:01, 67.23it/s]Evaluating naive baseline:  40%|████      | 56/140 [00:00<00:01, 69.29it/s]Evaluating naive baseline:  46%|████▌     | 64/140 [00:00<00:01, 70.93it/s]Evaluating naive baseline:  51%|█████▏    | 72/140 [00:01<00:00, 70.58it/s]Evaluating naive baseline:  57%|█████▋    | 80/140 [00:01<00:00, 70.83it/s]Evaluating naive baseline:  63%|██████▎   | 88/140 [00:01<00:00, 72.13it/s]Evaluating naive baseline:  69%|██████▊   | 96/140 [00:01<00:00, 72.84it/s]Evaluating naive baseline:  74%|███████▍  | 104/140 [00:01<00:00, 73.65it/s]Evaluating naive baseline:  80%|████████  | 112/140 [00:01<00:00, 70.58it/s]Evaluating naive baseline:  86%|████████▌ | 120/140 [00:01<00:00, 69.60it/s]Evaluating naive baseline:  91%|█████████▏| 128/140 [00:01<00:00, 70.19it/s]Evaluating naive baseline:  97%|█████████▋| 136/140 [00:01<00:00, 70.79it/s]Evaluating naive baseline: 100%|██████████| 140/140 [00:02<00:00, 69.18it/s]
+
+================================================================================
+NAIVE BASELINE RESULTS
+================================================================================
+Dataset: cholec_organs
+Presence mode: random
+Samples evaluated: 200
+Results saved to: /shared_data0/weiqiuy/llm_cholec_organ/results/naive_baseline_cholec_organs_20250907_224842
+
+📊 METRICS:
+------------------------------------------------------------
+Presence Accuracy: 51.9%
+Bbox-to-Bbox IoU:  0.436
+Bbox-to-Mask IoU:  0.194
+IoU@0.5 (BBox):    33.6%
+IoU@0.5 (Mask):    1.4%
+Total predictions: 217
+------------------------------------------------------------

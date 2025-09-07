@@ -148,6 +148,9 @@ def compute_bbox_to_mask_iou(pred_bboxes: List[List[int]], mask: np.ndarray) -> 
     for pred_bbox in pred_bboxes:
         x1, y1, x2, y2 = pred_bbox
         
+        # Convert to integers (in case they come as floats from JSON)
+        x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2)
+        
         # Ensure bbox is within image bounds
         h, w = mask.shape
         x1, y1 = max(0, x1), max(0, y1)
@@ -463,15 +466,8 @@ class BoundingBoxEvaluator:
             _, lab_tensor = self.adapter.example_to_tensors(example)
             
             # Build prompt (combined for all organs)
-            if use_fewshot:
-                # For combined mode, convert fewshot_plan to examples if needed
-                if fewshot_examples:
-                    prompt = self._build_fewshot_prompt(organ_classes, fewshot_examples, prompt_type)
-                else:
-                    # TODO: Implement proper fewshot_plan to fewshot_examples conversion
-                    # For now, use zero-shot prompt but mark as fewshot in cache
-                    prompt = self._build_combined_prompt(organ_classes, prompt_type)
-                    prompt += "\n\n# NOTE: This is a placeholder few-shot prompt - implementation needed"
+            if use_fewshot and fewshot_examples:
+                prompt = self._build_fewshot_prompt(organ_classes, fewshot_examples, prompt_type)
             else:
                 prompt = self._build_combined_prompt(organ_classes, prompt_type)
             
@@ -488,6 +484,7 @@ class BoundingBoxEvaluator:
                 self._save_cached_response(model_name, prompt + cache_key_suffix, response, test_idx)
             
             # Parse predictions for all organs
+            sample_predictions = []
             for organ_id, organ_name in organ_classes.items():
                 # Get ground truth
                 gt_bboxes = self._extract_ground_truth_bboxes(test_idx, organ_id, split)
@@ -510,7 +507,7 @@ class BoundingBoxEvaluator:
                     iou_bbox_to_mask = compute_bbox_to_mask_iou(pred.bboxes, organ_mask)
                 
                 # Store results with both IoU metrics
-                predictions.append({
+                pred_result = {
                     'test_idx': test_idx,
                     'organ_id': organ_id,
                     'organ_name': organ_name,
@@ -520,7 +517,19 @@ class BoundingBoxEvaluator:
                     'ground_truth_bboxes': gt_bboxes,
                     'iou_bbox_to_bbox': iou_bbox_to_bbox,
                     'iou_bbox_to_mask': iou_bbox_to_mask
-                })
+                }
+                predictions.append(pred_result)
+                sample_predictions.append(pred_result)
+            
+            # Save this sample's results immediately
+            model_dir.mkdir(parents=True, exist_ok=True)
+            sample_file = model_dir / f"test_{test_idx:05d}.json"
+            sample_output = {
+                'sample_idx': test_idx,
+                'organs': sample_predictions
+            }
+            with open(sample_file, 'w') as f:
+                json.dump(sample_output, f, indent=2)
             
             pbar.update(1)
         
