@@ -463,20 +463,29 @@ class BoundingBoxEvaluator:
             _, lab_tensor = self.adapter.example_to_tensors(example)
             
             # Build prompt (combined for all organs)
-            if use_fewshot and fewshot_examples:
-                prompt = self._build_fewshot_prompt(organ_classes, fewshot_examples, prompt_type)
+            if use_fewshot:
+                # For combined mode, convert fewshot_plan to examples if needed
+                if fewshot_examples:
+                    prompt = self._build_fewshot_prompt(organ_classes, fewshot_examples, prompt_type)
+                else:
+                    # TODO: Implement proper fewshot_plan to fewshot_examples conversion
+                    # For now, use zero-shot prompt but mark as fewshot in cache
+                    prompt = self._build_combined_prompt(organ_classes, prompt_type)
+                    prompt += "\n\n# NOTE: This is a placeholder few-shot prompt - implementation needed"
             else:
                 prompt = self._build_combined_prompt(organ_classes, prompt_type)
             
             # Check cache with detection mode and fewshot status
-            cached_response = self._get_cached_response(model_name, prompt, test_idx)
+            # Add fewshot flag to cache key to prevent zero-shot/few-shot collisions
+            cache_key_suffix = f"_fewshot_{use_fewshot}_combined"
+            cached_response = self._get_cached_response(model_name, prompt + cache_key_suffix, test_idx)
             
             if cached_response:
                 response = cached_response
             else:
                 # Query model - single call for all organs
                 response = model([(image, prompt)], system_prompt=system_prompt)[0]
-                self._save_cached_response(model_name, prompt, response, test_idx)
+                self._save_cached_response(model_name, prompt + cache_key_suffix, response, test_idx)
             
             # Parse predictions for all organs
             for organ_id, organ_name in organ_classes.items():
@@ -517,29 +526,31 @@ class BoundingBoxEvaluator:
         
         pbar.close()
         
-        # Load any existing predictions from files
+        # Load any existing predictions from files (ONLY for requested test_indices)
         eval_type = f"{'fewshot' if use_fewshot else 'zeroshot'}_combined"
         model_dir = self.output_dir / eval_type / model_name.replace("/", "_")
         
         if model_dir.exists():
-            # Load existing predictions to include in metrics
-            existing_files = sorted(model_dir.glob("test_*.json"))
-            for pred_file in existing_files:
-                with open(pred_file, 'r') as f:
-                    sample_data = json.load(f)
-                    # Add to predictions if not already there
-                    test_idx = sample_data['sample_idx']
+            # Load existing predictions ONLY for the requested test indices
+            test_indices_set = set(test_indices)  # Convert to set for fast lookup
+            
+            for test_idx in test_indices:
+                pred_file = model_dir / f"test_{test_idx:05d}.json"
+                if pred_file.exists():
+                    # Only load if this test_idx is in our requested list AND not already processed
                     if not any(p['test_idx'] == test_idx for p in predictions):
-                        for organ_data in sample_data['organs']:
-                            predictions.append({
-                                'test_idx': test_idx,
-                                'organ_id': organ_data['organ_id'],
-                                'organ_name': organ_data['organ_name'],
-                                'predicted_present': organ_data['predicted_present'],
-                                'predicted_bboxes': organ_data['predicted_bboxes'],
-                                'ground_truth_present': organ_data['ground_truth_present'],
-                                'ground_truth_bboxes': organ_data['ground_truth_bboxes']
-                            })
+                        with open(pred_file, 'r') as f:
+                            sample_data = json.load(f)
+                            for organ_data in sample_data['organs']:
+                                predictions.append({
+                                    'test_idx': test_idx,
+                                    'organ_id': organ_data['organ_id'],
+                                    'organ_name': organ_data['organ_name'],
+                                    'predicted_present': organ_data['predicted_present'],
+                                    'predicted_bboxes': organ_data['predicted_bboxes'],
+                                    'ground_truth_present': organ_data['ground_truth_present'],
+                                    'ground_truth_bboxes': organ_data['ground_truth_bboxes']
+                                })
         
         # Compute metrics and save
         metrics = self._compute_metrics(predictions)
@@ -565,7 +576,7 @@ class BoundingBoxEvaluator:
             
             if sample_file.exists() and self.use_cache:
                 # Skip if already processed
-                pbar.update(1)
+                pbar.update(len(organ_classes))
                 continue
             
             # Get example using global index
@@ -579,6 +590,10 @@ class BoundingBoxEvaluator:
             
             # Get segmentation mask for IoU calculations
             _, lab_tensor = self.adapter.example_to_tensors(example)
+            
+            # Prepare batched queries for all organs in this image
+            batch_queries = []
+            organ_info = []
             
             for organ_id, organ_name in organ_classes.items():
                 # Get ground truth
@@ -619,11 +634,51 @@ class BoundingBoxEvaluator:
                 cached_response = self._get_cached_response(model_name, prompt + cache_key)
                 
                 if cached_response:
-                    response = cached_response
+                    # Use cached response
+                    organ_info.append({
+                        'organ_id': organ_id,
+                        'organ_name': organ_name,
+                        'gt_bboxes': gt_bboxes,
+                        'gt_present': gt_present,
+                        'response': cached_response,
+                        'cache_key': cache_key,
+                        'cached': True
+                    })
                 else:
-                    # Query model
-                    response = model([(image, prompt)], system_prompt=system_prompt)[0]
-                    self._save_cached_response(model_name, prompt + cache_key, response)
+                    # Add to batch for model query
+                    batch_queries.append((image, prompt))
+                    organ_info.append({
+                        'organ_id': organ_id,
+                        'organ_name': organ_name,
+                        'gt_bboxes': gt_bboxes,
+                        'gt_present': gt_present,
+                        'cache_key': cache_key,
+                        'cached': False
+                    })
+            
+            # Execute batched model query for non-cached organs
+            if batch_queries:
+                batch_responses = model(batch_queries, system_prompt=system_prompt)
+            else:
+                batch_responses = []
+            
+            # Process responses and cache them
+            batch_idx = 0
+            for organ_data in organ_info:
+                if organ_data['cached']:
+                    response = organ_data['response']
+                else:
+                    response = batch_responses[batch_idx]
+                    batch_idx += 1
+                    # Save to cache
+                    self._save_cached_response(model_name, organ_data['cache_key'], response)
+                    # Store response in organ_data for saving
+                    organ_data['response'] = response
+                
+                organ_id = organ_data['organ_id']
+                organ_name = organ_data['organ_name']
+                gt_bboxes = organ_data['gt_bboxes']
+                gt_present = organ_data['gt_present']
                 
                 # Parse prediction
                 pred = BBoxPrediction.from_json(response, organ_name)
@@ -655,32 +710,37 @@ class BoundingBoxEvaluator:
                 })
                 
                 pbar.update(1)
+            
+            # Save results for this sample to individual file
+            self._save_sample_predictions(test_idx, organ_info, model_dir, lab_tensor)
         
         pbar.close()
         
-        # Load any existing predictions from files
+        # Load any existing predictions from files (ONLY for requested test_indices)
         eval_type = f"{'fewshot' if use_fewshot else 'zeroshot'}_separate"
         model_dir = self.output_dir / eval_type / model_name.replace("/", "_")
         
         if model_dir.exists():
-            # Load existing predictions to include in metrics
-            existing_files = sorted(model_dir.glob("test_*.json"))
-            for pred_file in existing_files:
-                with open(pred_file, 'r') as f:
-                    sample_data = json.load(f)
-                    # Add to predictions if not already there
-                    test_idx = sample_data['sample_idx']
+            # Load existing predictions ONLY for the requested test indices
+            test_indices_set = set(test_indices)  # Convert to set for fast lookup
+            
+            for test_idx in test_indices:
+                pred_file = model_dir / f"test_{test_idx:05d}.json"
+                if pred_file.exists():
+                    # Only load if this test_idx is in our requested list AND not already processed
                     if not any(p['test_idx'] == test_idx for p in predictions):
-                        for organ_data in sample_data['organs']:
-                            predictions.append({
-                                'test_idx': test_idx,
-                                'organ_id': organ_data['organ_id'],
-                                'organ_name': organ_data['organ_name'],
-                                'predicted_present': organ_data['predicted_present'],
-                                'predicted_bboxes': organ_data['predicted_bboxes'],
-                                'ground_truth_present': organ_data['ground_truth_present'],
-                                'ground_truth_bboxes': organ_data['ground_truth_bboxes']
-                            })
+                        with open(pred_file, 'r') as f:
+                            sample_data = json.load(f)
+                            for organ_data in sample_data['organs']:
+                                predictions.append({
+                                    'test_idx': test_idx,
+                                    'organ_id': organ_data['organ_id'],
+                                    'organ_name': organ_data['organ_name'],
+                                    'predicted_present': organ_data['predicted_present'],
+                                    'predicted_bboxes': organ_data['predicted_bboxes'],
+                                    'ground_truth_present': organ_data['ground_truth_present'],
+                                    'ground_truth_bboxes': organ_data['ground_truth_bboxes']
+                                })
         
         # Compute metrics and save
         metrics = self._compute_metrics(predictions)
@@ -908,32 +968,48 @@ class BoundingBoxEvaluator:
         print(f"    ✓ Saved {len(predictions_by_idx)} individual predictions to {model_dir}")
         print(f"    ✓ Saved aggregated metrics")
     
-    def load_and_compute_metrics(self, results_dir: Path) -> Dict:
+    def load_and_compute_metrics(self, results_dir: Path, test_indices: List[int] = None) -> Dict:
         """Load individual prediction files and compute metrics.
         
         Args:
             results_dir: Directory containing test_*.json files
+            test_indices: Optional list of test indices to filter by. If None, uses all files.
             
         Returns:
             Dictionary with computed metrics
         """
-        # Find all individual prediction files
-        prediction_files = sorted(results_dir.glob("test_*.json"))
+        if test_indices is not None:
+            # Load only specific prediction files
+            prediction_files = []
+            for test_idx in test_indices:
+                pred_file = results_dir / f"test_{test_idx:05d}.json"
+                if pred_file.exists():
+                    prediction_files.append(pred_file)
+            prediction_files = sorted(prediction_files)
+        else:
+            # Load all prediction files (legacy behavior)
+            prediction_files = sorted(results_dir.glob("test_*.json"))
         
         if not prediction_files:
-            print(f"No prediction files found in {results_dir}")
+            indices_info = f" for indices {test_indices}" if test_indices else ""
+            print(f"No prediction files found in {results_dir}{indices_info}")
             return {}
         
-        # Load all predictions
+        # Load specified predictions
         all_predictions = []
         for pred_file in prediction_files:
             with open(pred_file, 'r') as f:
                 sample_data = json.load(f)
                 
+                # Double-check the index is in our requested list (if specified)
+                sample_idx = sample_data['sample_idx']
+                if test_indices is not None and sample_idx not in test_indices:
+                    continue  # Skip this file
+                
                 # Convert to flat prediction format
                 for organ_data in sample_data['organs']:
                     all_predictions.append({
-                        'test_idx': sample_data['sample_idx'],
+                        'test_idx': sample_idx,
                         'organ_id': organ_data['organ_id'],
                         'organ_name': organ_data['organ_name'],
                         'predicted_present': organ_data['predicted_present'],
@@ -954,3 +1030,57 @@ class BoundingBoxEvaluator:
         print(f"    ✓ Saved metrics to {metrics_file}")
         
         return metrics
+    
+    def _save_sample_predictions(self, test_idx: int, organ_info: List[Dict], model_dir: Path, lab_tensor):
+        """Save predictions for a single sample to individual JSON file."""
+        model_dir.mkdir(parents=True, exist_ok=True)
+        sample_file = model_dir / f"test_{test_idx:05d}.json"
+        
+        # Build sample data with all organs
+        organs_data = []
+        for organ_data in organ_info:
+            organ_id = organ_data['organ_id']
+            organ_name = organ_data['organ_name']
+            gt_bboxes = organ_data['gt_bboxes']
+            gt_present = organ_data['gt_present']
+            
+            # Get response (either cached or from batch)
+            if 'response' in organ_data:
+                response = organ_data['response']
+            else:
+                # This should have been set in the batch processing
+                continue
+                
+            # Parse prediction
+            pred = BBoxPrediction.from_json(response, organ_name)
+            
+            # Compute both IoU types
+            iou_bbox_to_bbox = 0.0
+            iou_bbox_to_mask = 0.0
+            
+            if gt_present and pred.present and gt_bboxes and pred.bboxes:
+                # Bbox-to-Bbox IoU
+                iou_bbox_to_bbox = compute_best_iou(pred.bboxes, gt_bboxes)
+                
+                # Bbox-to-Mask IoU
+                organ_mask = (lab_tensor.numpy() == organ_id).astype(np.uint8)
+                iou_bbox_to_mask = compute_bbox_to_mask_iou(pred.bboxes, organ_mask)
+            
+            organs_data.append({
+                'organ_id': organ_id,
+                'organ_name': organ_name,
+                'ground_truth_present': gt_present,
+                'predicted_present': pred.present,
+                'ground_truth_bboxes': gt_bboxes,
+                'predicted_bboxes': pred.bboxes,
+                'iou_bbox_to_bbox': iou_bbox_to_bbox,
+                'iou_bbox_to_mask': iou_bbox_to_mask
+            })
+        
+        sample_data = {
+            'sample_idx': test_idx,
+            'organs': organs_data
+        }
+        
+        with open(sample_file, 'w') as f:
+            json.dump(sample_data, f, indent=2)

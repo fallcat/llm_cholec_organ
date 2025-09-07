@@ -57,6 +57,11 @@ Return your response as a JSON object with this format:
   ...
 }}
 
+IMPORTANT CONSTRAINTS:
+- x1, x2 must be integers between 0 and {canvas_width - 1}
+- y1, y2 must be integers between 0 and {canvas_height - 1}
+- x2 > x1 and y2 > y1 (bottom-right must be greater than top-left)
+
 Canvas dimensions: {canvas_width}x{canvas_height}"""
         
     elif prompt_type == "strict":
@@ -70,7 +75,10 @@ Organs to detect:
 CRITICAL INSTRUCTIONS:
 1. For each organ, determine if it is present (visible with at least 50 pixels)
 2. If present, provide bounding box in format [x1, y1, x2, y2]
-3. Coordinates must be within bounds: 0 ≤ x ≤ {canvas_width}, 0 ≤ y ≤ {canvas_height}
+3. COORDINATES MUST BE:
+   - x1, x2: integers between 0 and {canvas_width - 1}
+   - y1, y2: integers between 0 and {canvas_height - 1}
+   - x2 > x1 and y2 > y1 (bottom-right must be greater than top-left)
 4. Return ONLY valid JSON, no additional text
 
 OUTPUT FORMAT (strict JSON):
@@ -88,6 +96,11 @@ OUTPUT FORMAT (strict JSON):
 
 For each organ that is present (visible with at least 50 pixels), provide the bounding box in format [x1, y1, x2, y2] where (x1,y1) is top-left and (x2,y2) is bottom-right.
 
+COORDINATE REQUIREMENTS:
+- x1, x2 must be integers between 0 and {canvas_width - 1}
+- y1, y2 must be integers between 0 and {canvas_height - 1}
+- x2 > x1 and y2 > y1 (bottom-right must be greater than top-left)
+
 Return your response as a JSON object with this format:
 {{
   "Organ Name": {{
@@ -96,6 +109,11 @@ Return your response as a JSON object with this format:
   }},
   ...
 }}
+
+IMPORTANT CONSTRAINTS:
+- x1, x2 must be integers between 0 and {canvas_width - 1}
+- y1, y2 must be integers between 0 and {canvas_height - 1}
+- x2 > x1 and y2 > y1 (bottom-right must be greater than top-left)
 
 Canvas dimensions: {canvas_width}x{canvas_height}"""
     
@@ -133,7 +151,10 @@ TASK: Detect and localize the organ "{organ_name}" in this surgical image.
 CRITICAL INSTRUCTIONS:
 1. Determine if the organ is present (visible with at least 50 pixels)
 2. If present, provide bounding box(es) in format [x1, y1, x2, y2]
-3. Coordinates must be within canvas bounds: 0 ≤ x ≤ {canvas_width}, 0 ≤ y ≤ {canvas_height}
+3. COORDINATES MUST BE:
+   - x1, x2: integers between 0 and {canvas_width - 1}
+   - y1, y2: integers between 0 and {canvas_height - 1}
+   - x2 > x1 and y2 > y1 (bottom-right must be greater than top-left)
 4. Support up to 3 bounding boxes for disconnected segments
 5. Return ONLY valid JSON, no additional text
 
@@ -146,9 +167,11 @@ OUTPUT FORMAT (strict JSON):
 
 COORDINATE SYSTEM:
 - Origin (0,0) is at top-left corner
-- x increases rightward (0 to {canvas_width})
-- y increases downward (0 to {canvas_height})
+- x increases rightward (valid range: 0 to {canvas_width - 1})
+- y increases downward (valid range: 0 to {canvas_height - 1})
 - Bounding box format: [left, top, right, bottom]
+- All coordinates must be integers
+- Constraint: x2 > x1 and y2 > y1
 
 EXAMPLES:
 - Present with single box: {{"name": "{organ_name}", "present": 1, "bboxes": [[100, 150, 300, 350]]}}
@@ -162,6 +185,11 @@ Canvas size: {canvas_width}x{canvas_height} pixels (origin at top-left)
 
 If the organ is present (≥50 pixels visible), provide bounding box(es).
 Support up to 3 boxes for disconnected segments.
+
+COORDINATE REQUIREMENTS:
+- x1, x2: integers between 0 and {canvas_width - 1}
+- y1, y2: integers between 0 and {canvas_height - 1}
+- x2 > x1 and y2 > y1 (bottom-right must be greater than top-left)
 
 Return JSON:
 {{

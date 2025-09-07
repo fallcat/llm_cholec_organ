@@ -79,7 +79,7 @@ Create `API_KEYS2.json` in the root directory with:
 
 ### Refactoring Plans
 
-The project is planned to be refactored into a modular package called `endopoint` (see `claude_code_commands/01-refactor-code.md`). Key changes will include:
+The project is planned to be refactored into a modular package called `endopoint` (see `claude/claude_code_commands/01-refactor-code.md`). Key changes will include:
 - Protocol-based adapters for multiple datasets
 - Proper CLI tools
 - Testing infrastructure with pytest

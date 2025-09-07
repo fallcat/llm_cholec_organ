@@ -5,7 +5,11 @@ from .openai_gpt import OpenAIAdapter
 from .anthropic_claude import AnthropicAdapter
 from .google_gemini import GoogleAdapter
 from .vllm import LLaVAModel, QwenVLModel, PixtralModel, DeepSeekVL2Model
-from .llama import LlamaAdapter
+# Lazy/optional import
+try:
+    from .llama import LlamaAdapter  # only defined if transformers supports Mllama
+except Exception:
+    LlamaAdapter = None  # consumers must check before using
 
 
 def create_model(model_id: str, use_cache: bool = True, verbose: bool = True):
@@ -45,18 +49,34 @@ def create_model(model_id: str, use_cache: bool = True, verbose: bool = True):
     return adapter
 
 
-__all__ = [
-    "ModelAdapter",
-    "PromptPart",
-    "OneQuery", 
-    "Batch",
-    "OpenAIAdapter",
-    "AnthropicAdapter",
-    "GoogleAdapter",
-    "LlamaAdapter",
-    "LLaVAModel",
-    "QwenVLModel",
-    "PixtralModel",
-    "DeepSeekVL2Model",
-    "create_model",
-]
+if LlamaAdapter is not None:
+    __all__ = [
+        "ModelAdapter",
+        "PromptPart",
+        "OneQuery", 
+        "Batch",
+        "OpenAIAdapter",
+        "AnthropicAdapter",
+        "GoogleAdapter",
+        "LlamaAdapter",
+        "LLaVAModel",
+        "QwenVLModel",
+        "PixtralModel",
+        "DeepSeekVL2Model",
+        "create_model",
+    ]
+else:
+    __all__ = [
+        "ModelAdapter",
+        "PromptPart",
+        "OneQuery", 
+        "Batch",
+        "OpenAIAdapter",
+        "AnthropicAdapter",
+        "GoogleAdapter",
+        "LLaVAModel",
+        "QwenVLModel",
+        "PixtralModel",
+        "DeepSeekVL2Model",
+        "create_model",
+    ]

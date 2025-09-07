@@ -61,16 +61,17 @@ def main():
     print(f"Dataset: {DATASET_NAME}")
     print(f"Models: {MODELS}")
     print(f"Samples: {len(test_indices)} ({'QUICK TEST' if QUICK_TEST else 'FULL'})")
+    print(f"Evaluation modes: Combined + Separate × Zero-shot + Few-shot = 4 combinations each")
     print()
     
     # ========================================================================
-    # MODE 1: TIMESTAMPED OUTPUT (for experiments)
+    # TIMESTAMPED OUTPUT (All runs use unique timestamps)
     # ========================================================================
     
-    print("🕒 MODE 1: TIMESTAMPED OUTPUT (Experiments)")
+    print("🕒 TIMESTAMPED OUTPUT")
     print("-" * 50)
     
-    evaluator_timestamped = BoundingBoxEvaluator(
+    evaluator = BoundingBoxEvaluator(
         models=MODELS,
         dataset=None,
         dataset_adapter=dataset_adapter,
@@ -78,84 +79,58 @@ def main():
         canvas_height=img_height,
         use_cache=True,
         min_pixels=50,
-        use_timestamp=True  # Each run gets unique timestamp
+        use_timestamp=True  # Always use timestamp for unique directories
     )
     
-    print(f"Output directory: {evaluator_timestamped.output_dir}")
+    print(f"Output directory: {evaluator.output_dir}")
     
-    # Run zero-shot evaluation
-    print("Running zero-shot evaluation...")
-    zs_results = evaluator_timestamped.evaluate_model(
-        model_name=MODELS[0],
-        test_indices=test_indices,
-        detection_mode="combined",
-        use_fewshot=False,
-        split='test'
-    )
+    # Run all evaluation combinations
+    eval_configs = [
+        {"mode": "combined", "fewshot": False, "name": "Zero-shot Combined"},
+        {"mode": "combined", "fewshot": True, "name": "Few-shot Combined"},
+        {"mode": "separate", "fewshot": False, "name": "Zero-shot Separate"},
+        {"mode": "separate", "fewshot": True, "name": "Few-shot Separate"}
+    ]
     
-    print(f"✅ Timestamped results saved to: {evaluator_timestamped.output_dir}")
-    print(f"   Presence Accuracy: {zs_results['metrics']['presence_accuracy']:.1%}")
-    print()
-    
-    # ========================================================================  
-    # MODE 2: PERSISTENT OUTPUT (for production/consistent results)
-    # ========================================================================
-    
-    print("📁 MODE 2: PERSISTENT OUTPUT (Production/Consistent)")
-    print("-" * 50)
-    
-    evaluator_persistent = BoundingBoxEvaluator(
-        models=MODELS,
-        dataset=None,
-        dataset_adapter=dataset_adapter,
-        canvas_width=img_width,
-        canvas_height=img_height,
-        use_cache=True,
-        min_pixels=50,
-        use_timestamp=False  # Same directory across runs
-    )
-    
-    print(f"Output directory: {evaluator_persistent.output_dir}")
-    
-    # Check if results already exist
-    persistent_dir = evaluator_persistent.output_dir / "zeroshot_combined" / MODELS[0]
-    existing_files = list(persistent_dir.glob("test_*.json")) if persistent_dir.exists() else []
-    
-    if existing_files:
-        print(f"Found {len(existing_files)} existing prediction files - will reuse them")
-        # Load and compute metrics from existing files
-        metrics = evaluator_persistent.load_and_compute_metrics(persistent_dir)
-        print(f"✅ Loaded existing results from: {persistent_dir}")
-        print(f"   Presence Accuracy: {metrics['presence_accuracy']:.1%}")
-    else:
-        print("No existing results found - running fresh evaluation...")
-        # Run evaluation
-        persistent_results = evaluator_persistent.evaluate_model(
+    timestamped_results = {}
+    for config in eval_configs:
+        print(f"Running {config['name']} evaluation...")
+        results = evaluator.evaluate_model(
             model_name=MODELS[0],
             test_indices=test_indices,
-            detection_mode="combined",
-            use_fewshot=False,
+            detection_mode=config['mode'],
+            use_fewshot=config['fewshot'],
+            fewshot_plan=fewshot_plan if config['fewshot'] else None,
             split='test'
         )
-        
-        print(f"✅ Persistent results saved to: {evaluator_persistent.output_dir}")
-        print(f"   Presence Accuracy: {persistent_results['metrics']['presence_accuracy']:.1%}")
+        timestamped_results[config['name']] = results
+        print(f"   ✓ {config['name']} Presence Accuracy: {results['metrics']['presence_accuracy']:.1%}")
+    
+    print(f"\n✅ All results saved to: {evaluator.output_dir}")
+    for name, results in timestamped_results.items():
+        print(f"   {name}: {results['metrics']['presence_accuracy']:.1%}")
+    print()
+    
     
     print()
     print("="*80)
-    print("SUMMARY")
+    print("EVALUATION SUMMARY")
     print("="*80)
-    print("📈 Timestamped Mode:")
-    print(f"   • Use for: Experiments, comparisons, ablation studies")
-    print(f"   • Output: results/bbox_dataset_YYYYMMDD_HHMMSS/")
-    print(f"   • Behavior: Each run creates new directory")
-    print()
-    print("🏭 Persistent Mode:")
-    print(f"   • Use for: Production runs, consistent baselines")
-    print(f"   • Output: results/bbox_dataset/")
-    print(f"   • Behavior: Reuses existing predictions, avoids redundant API calls")
-    print()
-    print("Both modes save individual test_XXXXX.json files for granular analysis!")
+    
+    print("📈 RESULTS:")
+    for name, results in timestamped_results.items():
+        metrics = results['metrics']
+        print(f"   {name:20s}: {metrics['presence_accuracy']:.1%} presence, "
+              f"{metrics.get('mean_iou_bbox_to_bbox', 0):.3f} bbox IoU, "
+              f"{metrics.get('mean_iou_bbox_to_mask', 0):.3f} mask IoU")
+    
+    print(f"\n📊 COMPARISON INSIGHTS:")
+    print(f"   • Combined vs Separate: Shows API efficiency vs granular control")
+    print(f"   • Zero-shot vs Few-shot: Shows impact of example guidance")
+    print(f"   • Dual IoU metrics: Bbox-to-bbox (standard) vs bbox-to-mask (anatomical)")
+    print(f"\nIndividual test_XXXXX.json files saved for detailed analysis!")
+    print(f"Dataset: {len(test_indices)} samples ({'QUICK TEST' if QUICK_TEST else 'FULL EVALUATION'})")
+    print(f"Output: {evaluator.output_dir}")
 
 if __name__ == "__main__":
     main()
