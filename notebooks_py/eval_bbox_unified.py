@@ -164,7 +164,8 @@ def main():
         dataset=None,  # Not using dataset object, just adapter
         dataset_adapter=dataset_adapter,
         output_dir=base_output_dir,  # Pass as Path object
-        use_cache=USE_CACHE
+        use_cache=USE_CACHE,
+        dataset_name=DATASET_NAME  # Pass dataset name for RASO model selection
     )
     
     # Determine evaluation type

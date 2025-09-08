@@ -1,10 +1,12 @@
 """Model adapters for endopoint."""
 
+from typing import Optional
 from .base import ModelAdapter, PromptPart, OneQuery, Batch
 from .openai_gpt import OpenAIAdapter
 from .anthropic_claude import AnthropicAdapter
 from .google_gemini import GoogleAdapter
 from .vllm import LLaVAModel, QwenVLModel, PixtralModel, DeepSeekVL2Model
+from .raso_adapter import RASOAdapter
 # Lazy/optional import
 try:
     from .llama import LlamaAdapter  # only defined if transformers supports Mllama
@@ -12,19 +14,22 @@ except Exception:
     LlamaAdapter = None  # consumers must check before using
 
 
-def create_model(model_id: str, use_cache: bool = True, verbose: bool = True):
+def create_model(model_id: str, use_cache: bool = True, verbose: bool = True, dataset: Optional[str] = None):
     """Create a model adapter based on model ID.
     
     Args:
         model_id: Model identifier string
         use_cache: Whether to use caching for responses
         verbose: Whether to enable verbose error logging
+        dataset: Optional dataset name for model-specific configuration
         
     Returns:
         Appropriate model adapter instance
     """
     # Map model IDs to adapters
-    if 'gpt' in model_id.lower():
+    if 'raso' in model_id.lower():
+        adapter = RASOAdapter(model_name=model_id, use_cache=use_cache, verbose=verbose, dataset=dataset)
+    elif 'gpt' in model_id.lower():
         adapter = OpenAIAdapter(model_name=model_id, use_cache=use_cache, verbose=verbose)
     elif 'claude' in model_id.lower():
         adapter = AnthropicAdapter(model_name=model_id, use_cache=use_cache, verbose=verbose)
@@ -59,6 +64,7 @@ if LlamaAdapter is not None:
         "AnthropicAdapter",
         "GoogleAdapter",
         "LlamaAdapter",
+        "RASOAdapter",
         "LLaVAModel",
         "QwenVLModel",
         "PixtralModel",
@@ -74,6 +80,7 @@ else:
         "OpenAIAdapter",
         "AnthropicAdapter",
         "GoogleAdapter",
+        "RASOAdapter",
         "LLaVAModel",
         "QwenVLModel",
         "PixtralModel",

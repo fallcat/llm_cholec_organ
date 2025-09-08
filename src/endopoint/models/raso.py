@@ -28,6 +28,7 @@ class RASORModel:
                  model_path: str = '/shared_data0/weiqiuy/github/hf_repos/raso/raso_zeroshot.pth',
                  image_size: int = 384,
                  vit: str = 'swin_l',
+                 tag_list: Optional[str] = None,
                  device: Optional[str] = None):
         """
         Initialize RASO model.
@@ -36,11 +37,13 @@ class RASORModel:
             model_path: Path to the pretrained RASO model
             image_size: Input image size
             vit: Vision transformer architecture
+            tag_list: Path to the tag list file (for dataset-specific models)
             device: Device to load model on (auto-detected if None)
         """
         self.model_path = model_path
         self.image_size = image_size
         self.vit = vit
+        self.tag_list = tag_list
         
         # Setup device
         if device is None:
@@ -56,13 +59,19 @@ class RASORModel:
     def _load_model(self):
         """Load the RASO model and preprocessing transform."""
         print(f"Loading RASO model from {self.model_path}")
+        if self.tag_list:
+            print(f"Using tag list: {self.tag_list}")
         
-        # Load model
-        self.model = raso(
-            pretrained=self.model_path,
-            image_size=self.image_size,
-            vit=self.vit
-        )
+        # Load model with optional tag list
+        model_kwargs = {
+            'pretrained': self.model_path,
+            'image_size': self.image_size,
+            'vit': self.vit
+        }
+        if self.tag_list:
+            model_kwargs['tag_list'] = self.tag_list
+            
+        self.model = raso(**model_kwargs)
         self.model.eval()
         self.model = self.model.to(self.device)
         
@@ -75,7 +84,7 @@ class RASORModel:
     
     def analyze_image(self, 
                       image: Union[str, Image.Image],
-                      threshold: float = 0.65) -> List[str]:
+                      threshold: float = 0.65) -> str:
         """
         Analyze a single image using RASO.
         
@@ -84,7 +93,7 @@ class RASORModel:
             threshold: Confidence threshold for results
         
         Returns:
-            List of detected tags/labels
+            String of detected tags/labels in format "tag1 | tag2 | tag3"
         """
         # Load image if path provided
         if isinstance(image, str):
@@ -103,7 +112,24 @@ class RASORModel:
         with torch.no_grad():
             result = inference_ram(image_tensor, self.model)
         
-        return result[0] if result else []
+        return result[0] if result else ""
+    
+    def parse_output(self, output: str) -> List[str]:
+        """
+        Parse RASO output string into list of detected organs.
+        
+        Args:
+            output: RASO output string in format "organ1 | organ2 | organ3"
+        
+        Returns:
+            List of detected organ names
+        """
+        if not output:
+            return []
+        
+        # Split by '|' and strip whitespace
+        organs = [organ.strip() for organ in output.split('|')]
+        return [organ for organ in organs if organ]  # Filter out empty strings
     
     def batch_analyze(self,
                       images: List[Union[str, Image.Image]], 
@@ -116,13 +142,14 @@ class RASORModel:
             threshold: Confidence threshold for results
         
         Returns:
-            List of results, one per input image
+            List of parsed results (list of organ names), one per input image
         """
         results = []
         
         for i, image in enumerate(images):
             try:
-                tags = self.analyze_image(image, threshold=threshold)
+                output = self.analyze_image(image, threshold=threshold)
+                tags = self.parse_output(output)
                 results.append(tags)
             except Exception as e:
                 print(f"Error processing image {i}: {e}")
@@ -141,13 +168,14 @@ class RASORModel:
             thresholds: List of thresholds to test
         
         Returns:
-            Dictionary mapping threshold to detected tags
+            Dictionary mapping threshold to detected organ names
         """
         results = {}
         
         for threshold in thresholds:
             try:
-                tags = self.analyze_image(image, threshold=threshold)
+                output = self.analyze_image(image, threshold=threshold)
+                tags = self.parse_output(output)
                 results[threshold] = tags
             except Exception as e:
                 print(f"Error with threshold {threshold}: {e}")
@@ -159,6 +187,7 @@ class RASORModel:
 def load_raso_model(model_path: str = '/shared_data0/weiqiuy/github/hf_repos/raso/raso_zeroshot.pth',
                     image_size: int = 384,
                     vit: str = 'swin_l',
+                    tag_list: Optional[str] = None,
                     device: Optional[str] = None) -> RASORModel:
     """
     Convenience function to load RASO model.
@@ -167,6 +196,7 @@ def load_raso_model(model_path: str = '/shared_data0/weiqiuy/github/hf_repos/ras
         model_path: Path to the pretrained RASO model
         image_size: Input image size
         vit: Vision transformer architecture
+        tag_list: Path to the tag list file (for dataset-specific models)
         device: Device to load model on
     
     Returns:
@@ -174,8 +204,65 @@ def load_raso_model(model_path: str = '/shared_data0/weiqiuy/github/hf_repos/ras
     """
     return RASORModel(model_path=model_path, 
                       image_size=image_size, 
-                      vit=vit, 
+                      vit=vit,
+                      tag_list=tag_list,
                       device=device)
+
+def load_raso_cholecseg8k(device: Optional[str] = None) -> RASORModel:
+    """
+    Load RASO model specifically for CholecSeg8k dataset.
+    
+    Args:
+        device: Device to load model on
+    
+    Returns:
+        RASORModel instance configured for CholecSeg8k
+    """
+    return RASORModel(
+        model_path='/shared_data0/weiqiuy/github/hf_repos/raso/raso_zeroshot_cholecseg8k.pth',
+        image_size=384,
+        vit='swin_l',
+        tag_list='/shared_data0/weiqiuy/github/raso/raso/labels_cholecseg8k.txt',
+        device=device
+    )
+
+
+def load_raso_cholec_organs(device: Optional[str] = None) -> RASORModel:
+    """
+    Load RASO model specifically for CholecOrgans dataset.
+    
+    Args:
+        device: Device to load model on
+    
+    Returns:
+        RASORModel instance configured for CholecOrgans
+    """
+    return RASORModel(
+        model_path='/shared_data0/weiqiuy/github/hf_repos/raso/raso_zeroshot_cholec_organs.pth',
+        image_size=384,
+        vit='swin_l',
+        tag_list='/shared_data0/weiqiuy/github/raso/raso/labels_cholec_organs.txt',
+        device=device
+    )
+
+
+def load_raso_cholec_gonogo(device: Optional[str] = None) -> RASORModel:
+    """
+    Load RASO model specifically for CholecGoNoGo dataset.
+    
+    Args:
+        device: Device to load model on
+    
+    Returns:
+        RASORModel instance configured for CholecGoNoGo
+    """
+    return RASORModel(
+        model_path='/shared_data0/weiqiuy/github/hf_repos/raso/raso_zeroshot_cholec_gonogo.pth',
+        image_size=384,
+        vit='swin_l',
+        tag_list='/shared_data0/weiqiuy/github/raso/raso/labels_cholec_gonogo.txt',
+        device=device
+    )
 
 
 def demo_raso():

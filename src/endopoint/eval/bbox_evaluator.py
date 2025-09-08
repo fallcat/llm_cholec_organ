@@ -186,7 +186,8 @@ class BoundingBoxEvaluator:
         output_dir: Optional[Path] = None,
         use_cache: bool = True,
         min_pixels: int = 50,
-        use_timestamp: bool = True
+        use_timestamp: bool = True,
+        dataset_name: Optional[str] = None
     ):
         """Initialize evaluator.
         
@@ -200,10 +201,12 @@ class BoundingBoxEvaluator:
             use_cache: Whether to use cache
             min_pixels: Minimum pixels for valid detection
             use_timestamp: Whether to use timestamped output directory
+            dataset_name: Name of the dataset for model configuration
         """
         self.models = models
         self.dataset = dataset
         self.adapter = dataset_adapter
+        self.dataset_name = dataset_name
         self.canvas = Canvas(width=canvas_width, height=canvas_height)
         self.use_cache = use_cache
         self.min_pixels = min_pixels
@@ -409,8 +412,8 @@ class BoundingBoxEvaluator:
         Returns:
             Dictionary with evaluation results
         """
-        # Initialize model
-        model = create_model(model_name, use_cache=self.use_cache)
+        # Initialize model (pass dataset name for RASO)
+        model = create_model(model_name, use_cache=self.use_cache, dataset=self.dataset_name)
         system_prompt = "You are an expert medical image analyst specializing in laparoscopic surgery organ detection."
         
         # Results storage
