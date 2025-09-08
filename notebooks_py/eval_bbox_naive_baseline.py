@@ -68,23 +68,26 @@ def compute_bbox_to_mask_iou(bbox, mask):
     return float(intersection / union) if union > 0 else 0.0
 
 
-def run_naive_baseline(dataset_name="cholecseg8k", num_samples=200, presence_mode="perfect"):
+def run_naive_baseline(dataset_name="cholecseg8k", num_samples=200, presence_mode="perfect", box_mode="full"):
     """
     Run naive baseline evaluation.
     
     Args:
-        dataset_name: "cholecseg8k" or "cholec_organs"
+        dataset_name: "cholecseg8k", "cholec_organs", or "cholec_gonogo"
         num_samples: Number of samples to evaluate
         presence_mode: How to determine organ presence
-            - "perfect": Use ground truth presence (oracle)
+            - "perfect": Use ground truth presence (oracle) - CHEATING!
             - "all": Always predict all organs are present
             - "random": Random 50% chance for each organ
+        box_mode: How to generate bounding boxes
+            - "full": Always predict entire image as bounding box
+            - "random": Generate random bounding boxes (x2 > x1, y2 > y1)
     """
     
     print("=" * 80)
     print(f"NAIVE BASELINE - {dataset_name.upper()}")
     print("=" * 80)
-    print(f"Strategy: Always predict entire image as bounding box")
+    print(f"Box strategy: {box_mode}")
     print(f"Presence mode: {presence_mode}")
     print(f"Samples: {num_samples}")
     print()
@@ -101,6 +104,13 @@ def run_naive_baseline(dataset_name="cholecseg8k", num_samples=200, presence_mod
         organ_ids = [1, 2, 3]  # Liver, Gallbladder, Hepatocystic Triangle
         image_width = 640
         image_height = 384
+    elif dataset_name == "cholec_gonogo":
+        # Import the GoNoGo adapter
+        from endopoint.datasets.cholec_gonogo import CholecGoNoGoAdapter
+        dataset_adapter = CholecGoNoGoAdapter()
+        organ_ids = [1, 2]  # Go zone, No-go zone
+        image_width = 640  # FIXED: Was incorrectly 854
+        image_height = 384  # FIXED: Was incorrectly 480
     else:
         raise ValueError(f"Unknown dataset: {dataset_name}")
     
@@ -124,8 +134,9 @@ def run_naive_baseline(dataset_name="cholecseg8k", num_samples=200, presence_mod
     
     print(f"Selected test indices: {test_indices[:5]}{'...' if len(test_indices) > 5 else ''}")
     
-    # Naive bbox: entire image
-    naive_bbox = [0, 0, image_width, image_height]
+    # Initialize random generator for reproducible random boxes
+    if box_mode == "random":
+        rng = np.random.RandomState(42)  # Fixed seed for reproducibility
     
     # Results storage
     all_results = []
@@ -191,19 +202,40 @@ def run_naive_baseline(dataset_name="cholecseg8k", num_samples=200, presence_mod
             
             # Only compute IoU if both GT and pred say present
             if gt_presence[i] == 1 and pred_presence[i] == 1:
+                # Generate the predicted bbox based on box_mode
+                if box_mode == "full":
+                    pred_bbox = [0, 0, image_width, image_height]
+                elif box_mode == "random":
+                    # Generate random box with x2 > x1 and y2 > y1
+                    # Use combination of sample idx and organ_id for unique seed per organ per sample
+                    local_seed = idx * 100 + organ_id
+                    local_rng = np.random.RandomState(local_seed)
+                    
+                    # Random x coordinates (ensure x2 > x1)
+                    x1 = local_rng.randint(0, image_width - 1)
+                    x2 = local_rng.randint(x1 + 1, image_width + 1)  # x2 must be > x1
+                    
+                    # Random y coordinates (ensure y2 > y1) 
+                    y1 = local_rng.randint(0, image_height - 1)
+                    y2 = local_rng.randint(y1 + 1, image_height + 1)  # y2 must be > y1
+                    
+                    pred_bbox = [x1, y1, x2, y2]
+                else:
+                    raise ValueError(f"Unknown box mode: {box_mode}")
+                
                 # Bbox-to-bbox IoU
                 if organ_id in gt_bboxes:
-                    iou_bbox = compute_bbox_to_bbox_iou(naive_bbox, gt_bboxes[organ_id])
+                    iou_bbox = compute_bbox_to_bbox_iou(pred_bbox, gt_bboxes[organ_id])
                     organ_data["iou_bbox_to_bbox"] = iou_bbox
                     all_ious_bbox.append(iou_bbox)
                 
                 # Bbox-to-mask IoU
                 organ_mask = (full_mask == organ_id).astype(np.uint8)
-                iou_mask = compute_bbox_to_mask_iou(naive_bbox, organ_mask)
+                iou_mask = compute_bbox_to_mask_iou(pred_bbox, organ_mask)
                 organ_data["iou_bbox_to_mask"] = iou_mask
                 all_ious_mask.append(iou_mask)
                 
-                organ_data["predicted_bbox"] = naive_bbox
+                organ_data["predicted_bbox"] = pred_bbox
                 organ_data["ground_truth_bbox"] = gt_bboxes.get(organ_id)
             
             sample_result["organs"].append(organ_data)
@@ -223,15 +255,19 @@ def run_naive_baseline(dataset_name="cholecseg8k", num_samples=200, presence_mod
     # Determine output directory based on dataset
     if dataset_name == "cholecseg8k":
         base_dir = Path("/shared_data0/weiqiuy/llm_cholec_organ/results/bbox_cholecseg8k_local_quick")
-    else:  # cholec_organs
+    elif dataset_name == "cholec_organs":
         base_dir = Path("/shared_data0/weiqiuy/llm_cholec_organ/results/bbox_cholec_organs_quick")
+    elif dataset_name == "cholec_gonogo":
+        base_dir = Path("/shared_data0/weiqiuy/llm_cholec_organ/results/bbox_cholec_gonogo_quick")
+    else:
+        raise ValueError(f"Unknown dataset: {dataset_name}")
     
     # Create subdirectory for the evaluation mode
     # Using "zeroshot_combined" as the mode since naive baseline doesn't use few-shot
     mode_dir = base_dir / "zeroshot_combined"
     
-    # Model name includes the presence mode
-    model_name = f"naive_baseline_{presence_mode}"
+    # Model name includes both presence mode and box mode
+    model_name = f"naive_baseline_{presence_mode}_{box_mode}"
     output_dir = mode_dir / model_name
     output_dir.mkdir(parents=True, exist_ok=True)
     
@@ -253,11 +289,13 @@ def run_naive_baseline(dataset_name="cholecseg8k", num_samples=200, presence_mod
     
     # Save summary in the format expected by the main evaluation pipeline
     summary = {
-        "model": f"naive_baseline_{presence_mode}",
+        "model": f"naive_baseline_{presence_mode}_{box_mode}",
         "num_samples": num_samples,
         "detection_mode": "combined",  # Naive baseline is always "combined"
         "use_fewshot": False,  # Naive baseline doesn't use few-shot
         "evaluation": "Zero-shot Combined",
+        "presence_mode": presence_mode,
+        "box_mode": box_mode,
         "timestamp": timestamp,
         "metrics": {
             "presence_accuracy": presence_accuracy,
@@ -283,6 +321,7 @@ def run_naive_baseline(dataset_name="cholecseg8k", num_samples=200, presence_mod
     print("=" * 80)
     print(f"Dataset: {dataset_name}")
     print(f"Presence mode: {presence_mode}")
+    print(f"Box mode: {box_mode}")
     print(f"Samples evaluated: {num_samples}")
     print(f"Results saved to:")
     print(f"  Main: {output_dir}")
@@ -302,14 +341,18 @@ def run_naive_baseline(dataset_name="cholecseg8k", num_samples=200, presence_mod
 
 
 def main():
-    """Run naive baseline for both datasets."""
+    """Run naive baseline for datasets."""
     
     # Configuration from environment or defaults
-    DATASET = os.environ.get('EVAL_DATASET', 'both')  # "cholecseg8k", "cholec_organs", or "both"
+    DATASET = os.environ.get('EVAL_DATASET', 'all')  # "cholecseg8k", "cholec_organs", "cholec_gonogo", "all"
     NUM_SAMPLES = int(os.environ.get('EVAL_NUM_SAMPLES', '200'))
-    PRESENCE_MODE = os.environ.get('EVAL_PRESENCE_MODE', 'perfect')  # "perfect", "all", or "random"
+    PRESENCE_MODE = os.environ.get('EVAL_PRESENCE_MODE', 'all')  # "perfect", "all", or "random"
+    BOX_MODE = os.environ.get('EVAL_BOX_MODE', 'full')  # "full" or "random"
     
-    if DATASET == 'both':
+    if DATASET == 'all':
+        datasets = ['cholecseg8k', 'cholec_organs', 'cholec_gonogo']
+    elif DATASET == 'both':
+        # Legacy support for "both"
         datasets = ['cholecseg8k', 'cholec_organs']
     else:
         datasets = [DATASET]
@@ -324,7 +367,8 @@ def main():
         summary = run_naive_baseline(
             dataset_name=dataset_name,
             num_samples=NUM_SAMPLES,
-            presence_mode=PRESENCE_MODE
+            presence_mode=PRESENCE_MODE,
+            box_mode=BOX_MODE
         )
         
         all_summaries[dataset_name] = summary
