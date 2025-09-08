@@ -159,4 +159,5 @@ msgspec.ValidationError: Expected `array`, got `int`
 Processed prompts:  50%|█████     | 1/2 [00:01<00:01,  1.77s/it, est. speed input: 1213.21 toks/s, output: 64.45 toks/s][A[A
 
 
-Processed prompts:  33%|███▎      | 1/3 [00:01<00:03,  1.76s/it, est. speed input: 1217.93 toks/s, output: 64.70 toks/s][A[A[A
+Processed prompts:  33%|███▎      | 1/3 [00:01<00:03,  1.76s/it, est. speed input: 1217.93 toks/s, output: 64.70 toks/s][A[A[A/opt/conda/envs/rapids/lib/python3.10/multiprocessing/resource_tracker.py:224: UserWarning: resource_tracker: There appear to be 1 leaked semaphore objects to clean up at shutdown
+  warnings.warn('resource_tracker: There appear to be %d '

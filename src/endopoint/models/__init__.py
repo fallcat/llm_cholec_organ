@@ -7,6 +7,7 @@ from .anthropic_claude import AnthropicAdapter
 from .google_gemini import GoogleAdapter
 from .vllm import LLaVAModel, QwenVLModel, PixtralModel, DeepSeekVL2Model
 from .raso_adapter import RASOAdapter
+from .peskavlp_adapter import PeskaVLPAdapter
 # Lazy/optional import
 try:
     from .llama import LlamaAdapter  # only defined if transformers supports Mllama
@@ -29,6 +30,8 @@ def create_model(model_id: str, use_cache: bool = True, verbose: bool = True, da
     # Map model IDs to adapters
     if 'raso' in model_id.lower():
         adapter = RASOAdapter(model_name=model_id, use_cache=use_cache, verbose=verbose, dataset=dataset)
+    elif 'peskavlp' in model_id.lower():
+        adapter = PeskaVLPAdapter(model_name=model_id, use_cache=use_cache, verbose=verbose, dataset=dataset)
     elif 'gpt' in model_id.lower():
         adapter = OpenAIAdapter(model_name=model_id, use_cache=use_cache, verbose=verbose)
     elif 'claude' in model_id.lower():
@@ -65,6 +68,7 @@ if LlamaAdapter is not None:
         "GoogleAdapter",
         "LlamaAdapter",
         "RASOAdapter",
+        "PeskaVLPAdapter",
         "LLaVAModel",
         "QwenVLModel",
         "PixtralModel",
@@ -81,6 +85,7 @@ else:
         "AnthropicAdapter",
         "GoogleAdapter",
         "RASOAdapter",
+        "PeskaVLPAdapter",
         "LLaVAModel",
         "QwenVLModel",
         "PixtralModel",
