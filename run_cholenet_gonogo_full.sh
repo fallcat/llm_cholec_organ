@@ -11,7 +11,7 @@ echo ""
 
 # Configuration for FULL evaluation
 export EVAL_BATCH_MODE=true
-export EVAL_BATCH_MODELS="cholenet,gonogo"
+export EVAL_BATCH_MODELS="cholenet,gonogonet"
 export EVAL_BATCH_DATASETS="cholecseg8k,cholec_organs,cholec_gonogo"
 export EVAL_NUM_SAMPLES=200  # Use all 200 test samples
 export EVAL_USE_CACHE=true
@@ -20,7 +20,7 @@ export EVAL_DETECTION_MODE=combined
 export EVAL_USE_FEWSHOT=false
 
 echo "Configuration:"
-echo "  Models: cholenet, gonogo"
+echo "  Models: cholenet, gonogonet"
 echo "  Datasets: cholecseg8k, cholec_organs, cholec_gonogo"
 echo "  Samples: 200 (full test set)"
 echo "  Detection mode: combined"

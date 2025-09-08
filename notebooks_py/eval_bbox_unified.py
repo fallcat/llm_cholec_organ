@@ -271,7 +271,7 @@ def main():
     
     if BATCH_MODE:
         # Get models and datasets from environment or use defaults
-        BATCH_MODELS = os.environ.get('EVAL_BATCH_MODELS', 'cholenet,gonogo')
+        BATCH_MODELS = os.environ.get('EVAL_BATCH_MODELS', 'cholenet,gonogonet')
         BATCH_DATASETS = os.environ.get('EVAL_BATCH_DATASETS', 'cholecseg8k,cholec_organs,cholec_gonogo')
         
         # Parse comma-separated lists
@@ -302,7 +302,7 @@ def main():
                         desc = f"{model.upper()} on {dataset.replace('_', ' ').title()} (cross-mapped)"
                     else:
                         desc = f"{model.upper()} on {dataset.upper()}"
-                elif model == "gonogo":
+                elif model == "gonogonet":
                     if dataset == "cholecseg8k":
                         desc = f"{model.upper()} on {dataset.upper()} (no organs)"
                     elif dataset == "cholec_organs":

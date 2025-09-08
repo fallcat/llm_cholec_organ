@@ -11,10 +11,10 @@ from PIL import Image
 import torch
 
 from .base import ModelAdapter, Batch
-from .gonogo import GoNoGoNet, load_gonogo_model
+from .gonogonet import GoNoGoNet, load_gonogo_model
 
 
-class GoNoGoAdapter(ModelAdapter):
+class GoNoGoNetAdapter(ModelAdapter):
     """GoNoGoNet model adapter for organ presence detection and segmentation masks.
     
     Unlike other models that provide bounding boxes, GoNoGoNet provides full
@@ -22,7 +22,7 @@ class GoNoGoAdapter(ModelAdapter):
     """
     
     def __init__(self, 
-                 model_name: str = "gonogo",
+                 model_name: str = "gonogonet",
                  use_cache: bool = True,
                  verbose: bool = True,
                  cache_dir: Optional[str] = None,
@@ -30,7 +30,7 @@ class GoNoGoAdapter(ModelAdapter):
                  device: str = 'cuda',
                  return_masks: bool = True,
                  min_pixels: int = 50):
-        """Initialize GoNoGo adapter.
+        """Initialize GoNoGoNet adapter.
         
         Args:
             model_name: Model identifier
@@ -45,7 +45,7 @@ class GoNoGoAdapter(ModelAdapter):
         self.model_name = model_name
         self.use_cache = use_cache
         self.verbose = verbose
-        self.cache_dir = Path(cache_dir) if cache_dir else Path("/shared_data0/weiqiuy/llm_cholec_organ/cache/gonogo")
+        self.cache_dir = Path(cache_dir) if cache_dir else Path("/shared_data0/weiqiuy/llm_cholec_organ/cache/gonogonet")
         self.device = device if torch.cuda.is_available() else 'cpu'
         self.return_masks = return_masks
         self.min_pixels = min_pixels

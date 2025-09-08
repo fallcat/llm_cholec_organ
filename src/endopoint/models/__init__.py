@@ -8,7 +8,7 @@ from .google_gemini import GoogleAdapter
 from .vllm import LLaVAModel, QwenVLModel, PixtralModel, DeepSeekVL2Model
 from .raso_adapter import RASOAdapter
 from .peskavlp_adapter import PeskaVLPAdapter
-from .gonogo_adapter import GoNoGoAdapter
+from .gonogonet_adapter import GoNoGoNetAdapter
 from .cholenet_adapter import CholeNetAdapter
 # Lazy/optional import
 try:
@@ -31,7 +31,7 @@ def create_model(model_id: str, use_cache: bool = True, verbose: bool = True, da
     """
     # Map model IDs to adapters
     if 'gonogo' in model_id.lower():
-        adapter = GoNoGoAdapter(model_name=model_id, use_cache=use_cache, verbose=verbose)
+        adapter = GoNoGoNetAdapter(model_name=model_id, use_cache=use_cache, verbose=verbose)
     elif 'cholenet' in model_id.lower():
         adapter = CholeNetAdapter(model_name=model_id, use_cache=use_cache, verbose=verbose)
     elif 'raso' in model_id.lower():
@@ -75,7 +75,7 @@ if LlamaAdapter is not None:
         "LlamaAdapter",
         "RASOAdapter",
         "PeskaVLPAdapter",
-        "GoNoGoAdapter",
+        "GoNoGoNetAdapter",
         "CholeNetAdapter",
         "LLaVAModel",
         "QwenVLModel",
@@ -94,7 +94,7 @@ else:
         "GoogleAdapter",
         "RASOAdapter",
         "PeskaVLPAdapter",
-        "GoNoGoAdapter",
+        "GoNoGoNetAdapter",
         "CholeNetAdapter",
         "LLaVAModel",
         "QwenVLModel",

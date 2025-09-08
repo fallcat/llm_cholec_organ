@@ -9,8 +9,8 @@ from PIL import Image
 # Add src to path
 sys.path.insert(0, '/shared_data0/weiqiuy/llm_cholec_organ/src')
 
-from endopoint.models.gonogo import load_gonogo_model
-from endopoint.models.gonogo_adapter import GoNoGoAdapter
+from endopoint.models.gonogonet import load_gonogo_model
+from endopoint.models.gonogonet_adapter import GoNoGoNetAdapter
 from endopoint.datasets.cholec_gonogo import CholecGoNoGoAdapter
 from endopoint.eval.bbox_evaluator import compute_mask_to_mask_iou
 import torch
@@ -75,8 +75,8 @@ def test_gonogo_masks():
             print(f"    IoU with GT: {iou:.3f}")
     
     # Test adapter
-    print("\n5. Testing GoNoGoAdapter...")
-    adapter = GoNoGoAdapter(verbose=True, use_cache=False, return_masks=True)
+    print("\n5. Testing GoNoGoNetAdapter...")
+    adapter = GoNoGoNetAdapter(verbose=True, use_cache=False, return_masks=True)
     
     prompt = """Detect the following organs in the image:
 - Go Zone

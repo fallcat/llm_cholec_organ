@@ -72,17 +72,17 @@ echo ""
 echo "1. GoNoGoNet on CholecSeg8k (cannot detect organs)"
 echo "   Expected: All organs marked as absent"
 echo "   -------------------------------------------------"
-run_eval cholecseg8k gonogo $NUM_SAMPLES
+run_eval cholecseg8k gonogonet $NUM_SAMPLES
 
 echo "2. GoNoGoNet on CholecOrgans (cross-dataset)"
 echo "   Expected: Go Zone → Hepatocystic Triangle mapping"
 echo "   -------------------------------------------------"
-run_eval cholec_organs gonogo $NUM_SAMPLES
+run_eval cholec_organs gonogonet $NUM_SAMPLES
 
 echo "3. GoNoGoNet on CholecGoNoGo (native dataset)"
 echo "   Expected: Perfect Go/NoGo zone detection"
 echo "   -------------------------------------------------"
-run_eval cholec_gonogo gonogo $NUM_SAMPLES
+run_eval cholec_gonogo gonogonet $NUM_SAMPLES
 
 # ============================================
 # Summary

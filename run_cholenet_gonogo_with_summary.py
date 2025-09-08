@@ -14,7 +14,7 @@ from datetime import datetime
 # Configuration
 NUM_SAMPLES = 20  # Adjust for testing
 DATASETS = ["cholecseg8k", "cholec_organs", "cholec_gonogo"]
-MODELS = ["cholenet", "gonogo"]
+MODELS = ["cholenet", "gonogonet"]
 
 # Expected capabilities
 CAPABILITIES = {
@@ -23,7 +23,7 @@ CAPABILITIES = {
         "cholec_organs": "Native (all 3 organs)",
         "cholec_gonogo": "Cross-mapped (Hepatocystic Triangle → Go Zone)"
     },
-    "gonogo": {
+    "gonogonet": {
         "cholecseg8k": "None (cannot detect organs)",
         "cholec_organs": "Cross-mapped (Go Zone → Hepatocystic Triangle)",
         "cholec_gonogo": "Native (Go/NoGo zones)"

@@ -10,8 +10,8 @@ from PIL import Image
 # Add src to path
 sys.path.insert(0, '/shared_data0/weiqiuy/llm_cholec_organ/src')
 
-from endopoint.models.gonogo import GoNoGoNet, load_gonogo_model
-from endopoint.models.gonogo_adapter import GoNoGoAdapter
+from endopoint.models.gonogonet import GoNoGoNet, load_gonogo_model
+from endopoint.models.gonogonet_adapter import GoNoGoNetAdapter
 from endopoint.datasets.cholec_gonogo import CholecGoNoGoAdapter
 
 
