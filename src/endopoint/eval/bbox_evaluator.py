@@ -9,6 +9,9 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 import numpy as np
 from tqdm import tqdm
+from PIL import Image
+import io
+import base64
 
 from ..datasets.base import DatasetAdapter
 from ..models import create_model
@@ -23,11 +26,12 @@ class Canvas:
 
 
 class BBoxPrediction:
-    """Container for bounding box prediction."""
+    """Container for bounding box prediction with optional mask support."""
     
-    def __init__(self, present: int, bboxes: List[List[int]]):
+    def __init__(self, present: int, bboxes: List[List[int]], mask: Optional[np.ndarray] = None):
         self.present = present
         self.bboxes = bboxes
+        self.mask = mask  # Optional segmentation mask
     
     @classmethod
     def from_json(cls, response: str, organ_name: str) -> 'BBoxPrediction':
@@ -38,11 +42,15 @@ class BBoxPrediction:
             organ_name: Name of the organ to extract
             
         Returns:
-            BBoxPrediction instance
+            BBoxPrediction instance with optional mask
         """
         try:
             # Try to extract JSON from response
             import re
+            import base64
+            from PIL import Image
+            import io
+            
             json_match = re.search(r'\{.*\}', response, re.DOTALL)
             if json_match:
                 data = json.loads(json_match.group())
@@ -59,7 +67,7 @@ class BBoxPrediction:
                             organ_data = value
                             break
                     else:
-                        return cls(0, [])
+                        return cls(0, [], None)
                 
                 # Extract presence and bbox
                 present = 1 if organ_data.get('present', False) else 0
@@ -73,12 +81,27 @@ class BBoxPrediction:
                 else:
                     bboxes = []
                 
-                return cls(present, bboxes)
+                # Extract mask if present (base64 encoded)
+                mask = None
+                if 'mask' in organ_data and organ_data['mask']:
+                    try:
+                        # Decode base64 mask
+                        mask_data = base64.b64decode(organ_data['mask'])
+                        mask_img = Image.open(io.BytesIO(mask_data))
+                        mask = np.array(mask_img)
+                        # Convert to binary mask (0 or 1)
+                        mask = (mask > 0).astype(np.uint8)
+                    except Exception as e:
+                        if False:  # Set to True for debugging
+                            print(f"Error decoding mask: {e}")
+                        mask = None
+                
+                return cls(present, bboxes, mask)
         except Exception as e:
             pass
         
         # Default to not present
-        return cls(0, [])
+        return cls(0, [], None)
 
 
 def compute_iou(bbox1: List[int], bbox2: List[int]) -> float:
@@ -171,6 +194,33 @@ def compute_bbox_to_mask_iou(pred_bboxes: List[List[int]], mask: np.ndarray) -> 
         best_iou = max(best_iou, iou)
     
     return best_iou
+
+
+def compute_mask_to_mask_iou(pred_mask: np.ndarray, gt_mask: np.ndarray) -> float:
+    """Compute IoU between two segmentation masks.
+    
+    Args:
+        pred_mask: Predicted segmentation mask (H, W)
+        gt_mask: Ground truth segmentation mask (H, W)
+        
+    Returns:
+        IoU value between the two masks
+    """
+    if pred_mask.sum() == 0 or gt_mask.sum() == 0:
+        # If either mask is empty, IoU is 0 unless both are empty
+        if pred_mask.sum() == 0 and gt_mask.sum() == 0:
+            return 1.0
+        return 0.0
+    
+    # Convert to binary
+    pred_binary = (pred_mask > 0).astype(np.uint8)
+    gt_binary = (gt_mask > 0).astype(np.uint8)
+    
+    # Compute IoU
+    intersection = np.logical_and(pred_binary, gt_binary).sum()
+    union = np.logical_or(pred_binary, gt_binary).sum()
+    
+    return intersection / union if union > 0 else 0.0
 
 
 class BoundingBoxEvaluator:
@@ -496,30 +546,51 @@ class BoundingBoxEvaluator:
                 # Parse prediction for this organ
                 pred = BBoxPrediction.from_json(response, organ_name)
                 
-                # Compute both IoU types for comprehensive evaluation
+                # Compute all IoU types for comprehensive evaluation
                 iou_bbox_to_bbox = 0.0
                 iou_bbox_to_mask = 0.0
+                iou_mask_to_mask = 0.0
+                iou_mask_to_bbox = 0.0
                 
-                if gt_present and pred.present and gt_bboxes and pred.bboxes:
-                    # Bbox-to-Bbox IoU (current standard)
-                    iou_bbox_to_bbox = compute_best_iou(pred.bboxes, gt_bboxes)
+                # Get ground truth organ mask
+                organ_mask = (lab_tensor.numpy() == organ_id).astype(np.uint8)
+                
+                if gt_present and pred.present:
+                    # Bbox-to-Bbox IoU (standard metric)
+                    if gt_bboxes and pred.bboxes:
+                        iou_bbox_to_bbox = compute_best_iou(pred.bboxes, gt_bboxes)
                     
-                    # Bbox-to-Mask IoU (alternative metric)
-                    # Get organ mask for this specific organ
-                    organ_mask = (lab_tensor.numpy() == organ_id).astype(np.uint8)
-                    iou_bbox_to_mask = compute_bbox_to_mask_iou(pred.bboxes, organ_mask)
+                    # Bbox-to-Mask IoU (predicted bbox vs GT mask)
+                    if pred.bboxes and organ_mask.sum() > 0:
+                        iou_bbox_to_mask = compute_bbox_to_mask_iou(pred.bboxes, organ_mask)
+                    
+                    # Mask-to-Mask IoU (if model provides masks)
+                    if pred.mask is not None and organ_mask.sum() > 0:
+                        iou_mask_to_mask = compute_mask_to_mask_iou(pred.mask, organ_mask)
+                    
+                    # Mask-to-Bbox IoU (predicted mask vs GT bbox)
+                    if pred.mask is not None and gt_bboxes:
+                        # Convert GT bboxes to mask for comparison
+                        gt_bbox_mask = np.zeros_like(organ_mask)
+                        for bbox in gt_bboxes:
+                            x1, y1, x2, y2 = bbox
+                            gt_bbox_mask[y1:y2, x1:x2] = 1
+                        iou_mask_to_bbox = compute_mask_to_mask_iou(pred.mask, gt_bbox_mask)
                 
-                # Store results with both IoU metrics
+                # Store results with all IoU metrics
                 pred_result = {
                     'test_idx': test_idx,
                     'organ_id': organ_id,
                     'organ_name': organ_name,
                     'predicted_present': pred.present,
                     'predicted_bboxes': pred.bboxes,
+                    'predicted_mask': pred.mask is not None,  # Whether mask was provided
                     'ground_truth_present': gt_present,
                     'ground_truth_bboxes': gt_bboxes,
                     'iou_bbox_to_bbox': iou_bbox_to_bbox,
-                    'iou_bbox_to_mask': iou_bbox_to_mask
+                    'iou_bbox_to_mask': iou_bbox_to_mask,
+                    'iou_mask_to_mask': iou_mask_to_mask,
+                    'iou_mask_to_bbox': iou_mask_to_bbox
                 }
                 predictions.append(pred_result)
                 sample_predictions.append(pred_result)
@@ -778,27 +849,35 @@ class BoundingBoxEvaluator:
                 organ_results[organ_name] = {
                     'tp': 0, 'fp': 0, 'tn': 0, 'fn': 0,
                     'ious_bbox_to_bbox': [],
-                    'ious_bbox_to_mask': []
+                    'ious_bbox_to_mask': [],
+                    'ious_mask_to_mask': [],
+                    'ious_mask_to_bbox': []
                 }
             
             gt_present = pred['ground_truth_present']
             pred_present = pred['predicted_present']
             
             if gt_present and pred_present:
-                # True positive - get both IoU types
+                # True positive - get all IoU types
                 organ_results[organ_name]['tp'] += 1
                 
                 # Use pre-computed IoU values if available (new format)
                 if 'iou_bbox_to_bbox' in pred:
                     iou_bbox_to_bbox = pred['iou_bbox_to_bbox']
                     iou_bbox_to_mask = pred['iou_bbox_to_mask']
+                    iou_mask_to_mask = pred.get('iou_mask_to_mask', 0.0)
+                    iou_mask_to_bbox = pred.get('iou_mask_to_bbox', 0.0)
                 else:
                     # Fallback to legacy computation (old format)
                     iou_bbox_to_bbox = compute_best_iou(pred['predicted_bboxes'], pred['ground_truth_bboxes'])
                     iou_bbox_to_mask = 0.0  # Not available in legacy format
+                    iou_mask_to_mask = 0.0
+                    iou_mask_to_bbox = 0.0
                 
                 organ_results[organ_name]['ious_bbox_to_bbox'].append(iou_bbox_to_bbox)
                 organ_results[organ_name]['ious_bbox_to_mask'].append(iou_bbox_to_mask)
+                organ_results[organ_name]['ious_mask_to_mask'].append(iou_mask_to_mask)
+                organ_results[organ_name]['ious_mask_to_bbox'].append(iou_mask_to_bbox)
             elif not gt_present and not pred_present:
                 organ_results[organ_name]['tn'] += 1
             elif gt_present and not pred_present:
@@ -810,11 +889,15 @@ class BoundingBoxEvaluator:
         organ_metrics = {}
         all_ious_bbox_to_bbox = []
         all_ious_bbox_to_mask = []
+        all_ious_mask_to_mask = []
+        all_ious_mask_to_bbox = []
         
         for organ_name, results in organ_results.items():
             tp, fp, tn, fn = results['tp'], results['fp'], results['tn'], results['fn']
             ious_bbox_to_bbox = results['ious_bbox_to_bbox']
             ious_bbox_to_mask = results['ious_bbox_to_mask']
+            ious_mask_to_mask = results['ious_mask_to_mask']
+            ious_mask_to_bbox = results['ious_mask_to_bbox']
             
             # Presence accuracy
             total = tp + fp + tn + fn
@@ -840,6 +923,26 @@ class BoundingBoxEvaluator:
             else:
                 mean_iou_b2m = iou_at_03_b2m = iou_at_05_b2m = iou_at_075_b2m = 0
             
+            # Mask-to-Mask IoU metrics (best for segmentation models)
+            if ious_mask_to_mask:
+                mean_iou_m2m = np.mean(ious_mask_to_mask)
+                iou_at_03_m2m = np.mean([iou >= 0.3 for iou in ious_mask_to_mask])
+                iou_at_05_m2m = np.mean([iou >= 0.5 for iou in ious_mask_to_mask])
+                iou_at_075_m2m = np.mean([iou >= 0.75 for iou in ious_mask_to_mask])
+                all_ious_mask_to_mask.extend(ious_mask_to_mask)
+            else:
+                mean_iou_m2m = iou_at_03_m2m = iou_at_05_m2m = iou_at_075_m2m = 0
+            
+            # Mask-to-Bbox IoU metrics
+            if ious_mask_to_bbox:
+                mean_iou_m2b = np.mean(ious_mask_to_bbox)
+                iou_at_03_m2b = np.mean([iou >= 0.3 for iou in ious_mask_to_bbox])
+                iou_at_05_m2b = np.mean([iou >= 0.5 for iou in ious_mask_to_bbox])
+                iou_at_075_m2b = np.mean([iou >= 0.75 for iou in ious_mask_to_bbox])
+                all_ious_mask_to_bbox.extend(ious_mask_to_bbox)
+            else:
+                mean_iou_m2b = iou_at_03_m2b = iou_at_05_m2b = iou_at_075_m2b = 0
+            
             organ_metrics[organ_name] = {
                 'presence_accuracy': presence_acc,
                 # Bbox-to-Bbox IoU metrics (current standard)
@@ -847,11 +950,21 @@ class BoundingBoxEvaluator:
                 'iou_at_0.3_bbox_to_bbox': iou_at_03_b2b,
                 'iou_at_0.5_bbox_to_bbox': iou_at_05_b2b,
                 'iou_at_0.75_bbox_to_bbox': iou_at_075_b2b,
-                # Bbox-to-Mask IoU metrics (alternative)
+                # Bbox-to-Mask IoU metrics (predicted bbox vs GT mask)
                 'mean_iou_bbox_to_mask': mean_iou_b2m,
                 'iou_at_0.3_bbox_to_mask': iou_at_03_b2m,
                 'iou_at_0.5_bbox_to_mask': iou_at_05_b2m,
                 'iou_at_0.75_bbox_to_mask': iou_at_075_b2m,
+                # Mask-to-Mask IoU metrics (best for segmentation models)
+                'mean_iou_mask_to_mask': mean_iou_m2m,
+                'iou_at_0.3_mask_to_mask': iou_at_03_m2m,
+                'iou_at_0.5_mask_to_mask': iou_at_05_m2m,
+                'iou_at_0.75_mask_to_mask': iou_at_075_m2m,
+                # Mask-to-Bbox IoU metrics (predicted mask vs GT bbox)
+                'mean_iou_mask_to_bbox': mean_iou_m2b,
+                'iou_at_0.3_mask_to_bbox': iou_at_03_m2b,
+                'iou_at_0.5_mask_to_bbox': iou_at_05_m2b,
+                'iou_at_0.75_mask_to_bbox': iou_at_075_m2b,
                 # Legacy fields for backward compatibility
                 'mean_iou': mean_iou_b2b,
                 'iou_at_0.3': iou_at_03_b2b,
@@ -868,11 +981,21 @@ class BoundingBoxEvaluator:
             'iou_at_0.3_bbox_to_bbox': np.mean([iou >= 0.3 for iou in all_ious_bbox_to_bbox]) if all_ious_bbox_to_bbox else 0,
             'iou_at_0.5_bbox_to_bbox': np.mean([iou >= 0.5 for iou in all_ious_bbox_to_bbox]) if all_ious_bbox_to_bbox else 0,
             'iou_at_0.75_bbox_to_bbox': np.mean([iou >= 0.75 for iou in all_ious_bbox_to_bbox]) if all_ious_bbox_to_bbox else 0,
-            # Bbox-to-Mask IoU metrics (alternative)
+            # Bbox-to-Mask IoU metrics (predicted bbox vs GT mask)
             'mean_iou_bbox_to_mask': np.mean(all_ious_bbox_to_mask) if all_ious_bbox_to_mask else 0,
             'iou_at_0.3_bbox_to_mask': np.mean([iou >= 0.3 for iou in all_ious_bbox_to_mask]) if all_ious_bbox_to_mask else 0,
             'iou_at_0.5_bbox_to_mask': np.mean([iou >= 0.5 for iou in all_ious_bbox_to_mask]) if all_ious_bbox_to_mask else 0,
             'iou_at_0.75_bbox_to_mask': np.mean([iou >= 0.75 for iou in all_ious_bbox_to_mask]) if all_ious_bbox_to_mask else 0,
+            # Mask-to-Mask IoU metrics (best for segmentation models)
+            'mean_iou_mask_to_mask': np.mean(all_ious_mask_to_mask) if all_ious_mask_to_mask else 0,
+            'iou_at_0.3_mask_to_mask': np.mean([iou >= 0.3 for iou in all_ious_mask_to_mask]) if all_ious_mask_to_mask else 0,
+            'iou_at_0.5_mask_to_mask': np.mean([iou >= 0.5 for iou in all_ious_mask_to_mask]) if all_ious_mask_to_mask else 0,
+            'iou_at_0.75_mask_to_mask': np.mean([iou >= 0.75 for iou in all_ious_mask_to_mask]) if all_ious_mask_to_mask else 0,
+            # Mask-to-Bbox IoU metrics (predicted mask vs GT bbox)
+            'mean_iou_mask_to_bbox': np.mean(all_ious_mask_to_bbox) if all_ious_mask_to_bbox else 0,
+            'iou_at_0.3_mask_to_bbox': np.mean([iou >= 0.3 for iou in all_ious_mask_to_bbox]) if all_ious_mask_to_bbox else 0,
+            'iou_at_0.5_mask_to_bbox': np.mean([iou >= 0.5 for iou in all_ious_mask_to_bbox]) if all_ious_mask_to_bbox else 0,
+            'iou_at_0.75_mask_to_bbox': np.mean([iou >= 0.75 for iou in all_ious_mask_to_bbox]) if all_ious_mask_to_bbox else 0,
             # Legacy fields for backward compatibility
             'mean_iou': np.mean(all_ious_bbox_to_bbox) if all_ious_bbox_to_bbox else 0,
             'iou_at_0.3': np.mean([iou >= 0.3 for iou in all_ious_bbox_to_bbox]) if all_ious_bbox_to_bbox else 0,

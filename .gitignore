@@ -209,3 +209,4 @@ __marimo__/
 *.cache*
 *cache.db*
 cache/
+*.out

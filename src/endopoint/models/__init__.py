@@ -8,6 +8,8 @@ from .google_gemini import GoogleAdapter
 from .vllm import LLaVAModel, QwenVLModel, PixtralModel, DeepSeekVL2Model
 from .raso_adapter import RASOAdapter
 from .peskavlp_adapter import PeskaVLPAdapter
+from .gonogo_adapter import GoNoGoAdapter
+from .cholenet_adapter import CholeNetAdapter
 # Lazy/optional import
 try:
     from .llama import LlamaAdapter  # only defined if transformers supports Mllama
@@ -28,7 +30,11 @@ def create_model(model_id: str, use_cache: bool = True, verbose: bool = True, da
         Appropriate model adapter instance
     """
     # Map model IDs to adapters
-    if 'raso' in model_id.lower():
+    if 'gonogo' in model_id.lower():
+        adapter = GoNoGoAdapter(model_name=model_id, use_cache=use_cache, verbose=verbose)
+    elif 'cholenet' in model_id.lower():
+        adapter = CholeNetAdapter(model_name=model_id, use_cache=use_cache, verbose=verbose)
+    elif 'raso' in model_id.lower():
         adapter = RASOAdapter(model_name=model_id, use_cache=use_cache, verbose=verbose, dataset=dataset)
     elif 'peskavlp' in model_id.lower():
         adapter = PeskaVLPAdapter(model_name=model_id, use_cache=use_cache, verbose=verbose, dataset=dataset)
@@ -69,6 +75,8 @@ if LlamaAdapter is not None:
         "LlamaAdapter",
         "RASOAdapter",
         "PeskaVLPAdapter",
+        "GoNoGoAdapter",
+        "CholeNetAdapter",
         "LLaVAModel",
         "QwenVLModel",
         "PixtralModel",
@@ -86,6 +94,8 @@ else:
         "GoogleAdapter",
         "RASOAdapter",
         "PeskaVLPAdapter",
+        "GoNoGoAdapter",
+        "CholeNetAdapter",
         "LLaVAModel",
         "QwenVLModel",
         "PixtralModel",
