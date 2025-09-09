@@ -6,10 +6,22 @@ from .openai_gpt import OpenAIAdapter
 from .anthropic_claude import AnthropicAdapter
 from .google_gemini import GoogleAdapter
 from .vllm import LLaVAModel, QwenVLModel, PixtralModel, DeepSeekVL2Model
-from .raso_adapter import RASOAdapter
-from .peskavlp_adapter import PeskaVLPAdapter
-from .gonogonet_adapter import GoNoGoNetAdapter
-from .cholenet_adapter import CholeNetAdapter
+try:
+    from .raso_adapter import RASOAdapter
+except Exception:
+    RASOAdapter = None
+try:
+    from .peskavlp_adapter import PeskaVLPAdapter
+except Exception:
+    PeskaVLPAdapter = None
+try:
+    from .gonogonet_adapter import GoNoGoNetAdapter
+except Exception:
+    GoNoGoNetAdapter = None
+try:
+    from .cholenet_adapter import CholeNetAdapter
+except Exception:
+    CholeNetAdapter = None
 # Lazy/optional import
 try:
     from .llama import LlamaAdapter  # only defined if transformers supports Mllama

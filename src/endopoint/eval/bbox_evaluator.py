@@ -2,7 +2,6 @@
 Bounding box evaluator supporting both separate and combined detection modes.
 """
 
-import hashlib
 import json
 from dataclasses import dataclass
 from pathlib import Path
@@ -34,7 +33,7 @@ class BBoxPrediction:
         self.mask = mask  # Optional segmentation mask
     
     @classmethod
-    def from_json(cls, response: str, organ_name: str) -> 'BBoxPrediction':
+    def from_json(cls, response: str, organ_name: str, canvas_width: int = 640, canvas_height: int = 384) -> 'BBoxPrediction':
         """Parse prediction from JSON response.
         
         Args:
@@ -51,22 +50,45 @@ class BBoxPrediction:
             from PIL import Image
             import io
             
-            json_match = re.search(r'\{.*\}', response, re.DOTALL)
+            # Clean up response - remove special tokens like <|im_end|>
+            response_clean = re.sub(r'<\|[^|]+\|>', '', response)
+            
+            # Remove the example template if present (e.g., "Organ Name": {...})
+            # This appears before the actual predictions
+            response_clean = re.sub(r'"Organ Name"\s*:\s*\{[^}]+\}[,\s]*', '', response_clean)
+            
+            json_match = re.search(r'\{.*\}', response_clean, re.DOTALL)
             if json_match:
                 data = json.loads(json_match.group())
                 
-                # Handle both formats: direct organ key or nested under 'name'
+                # Create shortened versions of organ names for matching
+                # "Go (Safe to Incise)" -> "Go"
+                # "NoGo (Unsafe to Incise)" -> "NoGo"
+                organ_short = organ_name.split('(')[0].strip()
+                
+                # Try to find organ data with various key formats
+                organ_data = None
+                
+                # Direct match with full name
                 if organ_name in data:
                     organ_data = data[organ_name]
+                # Match with shortened name
+                elif organ_short in data:
+                    organ_data = data[organ_short]
+                # Check if data itself is the organ data
                 elif isinstance(data, dict) and data.get('name') == organ_name:
                     organ_data = data
                 else:
-                    # Search in nested structure
+                    # Search in nested structure with both full and short names
                     for key, value in data.items():
-                        if isinstance(value, dict) and (key == organ_name or value.get('name') == organ_name):
-                            organ_data = value
-                            break
-                    else:
+                        if isinstance(value, dict):
+                            # Check for exact match or shortened match
+                            if key == organ_name or key == organ_short or \
+                               value.get('name') == organ_name or value.get('name') == organ_short:
+                                organ_data = value
+                                break
+                    
+                    if not organ_data:
                         return cls(0, [], None)
                 
                 # Extract presence and bbox
@@ -80,6 +102,24 @@ class BBoxPrediction:
                     bboxes = [bbox]  # Single bbox
                 else:
                     bboxes = []
+                
+                # Convert normalized coordinates (0-1) to pixel coordinates if needed
+                converted_bboxes = []
+                for bbox in bboxes:
+                    if len(bbox) >= 4:
+                        # Check if coordinates are normalized (all values <= 1.0)
+                        if all(0 <= v <= 1.0 for v in bbox[:4]):
+                            # Convert from normalized to pixel coordinates
+                            x1 = int(bbox[0] * canvas_width)
+                            y1 = int(bbox[1] * canvas_height)
+                            x2 = int(bbox[2] * canvas_width)
+                            y2 = int(bbox[3] * canvas_height)
+                            converted_bboxes.append([x1, y1, x2, y2])
+                        else:
+                            # Already in pixel coordinates
+                            converted_bboxes.append(bbox)
+                
+                bboxes = converted_bboxes
                 
                 # Extract mask if present (base64 encoded)
                 mask = None
@@ -237,7 +277,8 @@ class BoundingBoxEvaluator:
         use_cache: bool = True,
         min_pixels: int = 50,
         use_timestamp: bool = True,
-        dataset_name: Optional[str] = None
+        dataset_name: Optional[str] = None,
+        force_regenerate: bool = False
     ):
         """Initialize evaluator.
         
@@ -252,6 +293,7 @@ class BoundingBoxEvaluator:
             min_pixels: Minimum pixels for valid detection
             use_timestamp: Whether to use timestamped output directory
             dataset_name: Name of the dataset for model configuration
+            force_regenerate: Whether to regenerate results even if files exist
         """
         self.models = models
         self.dataset = dataset
@@ -261,6 +303,7 @@ class BoundingBoxEvaluator:
         self.use_cache = use_cache
         self.min_pixels = min_pixels
         self.use_timestamp = use_timestamp
+        self.force_regenerate = force_regenerate
         
         # Set output directory based on timestamp flag
         if output_dir:
@@ -278,58 +321,9 @@ class BoundingBoxEvaluator:
         # Ensure output directory exists
         self.output_dir.mkdir(parents=True, exist_ok=True)
         
-        # Setup cache directory
-        self.cache_dir = Path("cache") / "bbox_eval"
-        self.cache_dir.mkdir(parents=True, exist_ok=True)
+        # Cache directory no longer needed - caching happens in model adapters
     
-    def _get_cache_key(self, model_name: str, prompt: str, image_idx: int = None,
-                      detection_mode: str = None, use_fewshot: bool = False) -> str:
-        """Generate cache key for a prompt with mode and fewshot status.
-        
-        This ensures different evaluation modes (zero/few-shot, separate/combined)
-        have distinct cache entries to prevent overwrites.
-        """
-        parts = [model_name]
-        if image_idx is not None:
-            parts.append(str(image_idx))
-        if detection_mode:
-            parts.append(detection_mode)
-        parts.append('fewshot' if use_fewshot else 'zeroshot')
-        parts.append(prompt[:500])  # Use first 500 chars of prompt
-        
-        content = ":".join(parts)
-        return hashlib.md5(content.encode()).hexdigest()
-    
-    def _get_cached_response(self, model_name: str, prompt: str, image_idx: int = None) -> Optional[str]:
-        """Get cached response if available."""
-        if not self.use_cache:
-            return None
-        
-        cache_key = self._get_cache_key(model_name, prompt, image_idx)
-        cache_file = self.cache_dir / f"{cache_key}.json"
-        
-        if cache_file.exists():
-            with open(cache_file, 'r') as f:
-                data = json.load(f)
-                return data.get('response')
-        
-        return None
-    
-    def _save_cached_response(self, model_name: str, prompt: str, response: str, image_idx: int = None):
-        """Save response to cache."""
-        if not self.use_cache:
-            return
-        
-        cache_key = self._get_cache_key(model_name, prompt, image_idx)
-        cache_file = self.cache_dir / f"{cache_key}.json"
-        
-        with open(cache_file, 'w') as f:
-            json.dump({
-                'model': model_name,
-                'prompt': prompt[:200],  # Save first 200 chars for reference
-                'response': response,
-                'image_idx': image_idx
-            }, f)
+    # Caching methods removed - caching now happens in model adapters
     
     def _extract_ground_truth_bboxes(self, image_idx: int, organ_id: int, split: str = "train") -> List[List[int]]:
         """Extract ground truth bounding boxes for an organ.
@@ -501,8 +495,8 @@ class BoundingBoxEvaluator:
             model_dir = self.output_dir / eval_type / model_name.replace("/", "_")
             sample_file = model_dir / f"test_{test_idx:05d}.json"
             
-            if sample_file.exists() and self.use_cache:
-                # Skip if already processed
+            if sample_file.exists() and not self.force_regenerate:
+                # Skip if already processed (unless force_regenerate is True)
                 pbar.update(1)
                 continue
             
@@ -524,27 +518,21 @@ class BoundingBoxEvaluator:
             else:
                 prompt = self._build_combined_prompt(organ_classes, prompt_type)
             
-            # Check cache with detection mode and fewshot status
-            # Add fewshot flag to cache key to prevent zero-shot/few-shot collisions
-            cache_key_suffix = f"_fewshot_{use_fewshot}_combined"
-            cached_response = self._get_cached_response(model_name, prompt + cache_key_suffix, test_idx)
-            
-            if cached_response:
-                response = cached_response
-            else:
-                # Query model - single call for all organs
-                response = model([(image, prompt)], system_prompt=system_prompt)[0]
-                self._save_cached_response(model_name, prompt + cache_key_suffix, response, test_idx)
+            # Query model - single call for all organs
+            # Caching happens inside the model adapter based on use_cache flag
+            response = model([(image, prompt)], system_prompt=system_prompt)[0]
             
             # Parse predictions for all organs
             sample_predictions = []
+            # Store raw response for debugging
+            raw_response = response
             for organ_id, organ_name in organ_classes.items():
                 # Get ground truth
                 gt_bboxes = self._extract_ground_truth_bboxes(test_idx, organ_id, split)
                 gt_present = 1 if gt_bboxes else 0
                 
                 # Parse prediction for this organ
-                pred = BBoxPrediction.from_json(response, organ_name)
+                pred = BBoxPrediction.from_json(response, organ_name, self.canvas.width, self.canvas.height)
                 
                 # Compute all IoU types for comprehensive evaluation
                 iou_bbox_to_bbox = 0.0
@@ -590,17 +578,39 @@ class BoundingBoxEvaluator:
                     'iou_bbox_to_bbox': iou_bbox_to_bbox,
                     'iou_bbox_to_mask': iou_bbox_to_mask,
                     'iou_mask_to_mask': iou_mask_to_mask,
-                    'iou_mask_to_bbox': iou_mask_to_bbox
+                    'iou_mask_to_bbox': iou_mask_to_bbox,
+                    'raw_response': raw_response  # Include raw model response for debugging
                 }
+                
+                # Store mask for later saving (if available)
+                if pred.mask is not None:
+                    pred_result['_mask_data'] = pred.mask  # Temporary storage for mask
                 predictions.append(pred_result)
                 sample_predictions.append(pred_result)
             
             # Save this sample's results immediately
             model_dir.mkdir(parents=True, exist_ok=True)
             sample_file = model_dir / f"test_{test_idx:05d}.json"
+            
+            # Convert numpy types to regular Python types for JSON serialization
+            clean_sample_predictions = []
+            for pred in sample_predictions:
+                clean_pred = {}
+                # Convert numpy types to regular Python types
+                for key, value in pred.items():
+                    if key == '_mask_data':  # Skip mask data from individual files
+                        continue
+                    elif hasattr(value, 'item'):  # numpy scalar
+                        clean_pred[key] = value.item()
+                    elif hasattr(value, 'tolist'):  # numpy array
+                        clean_pred[key] = value.tolist()
+                    else:
+                        clean_pred[key] = value
+                clean_sample_predictions.append(clean_pred)
+            
             sample_output = {
                 'sample_idx': test_idx,
-                'organs': sample_predictions
+                'organs': clean_sample_predictions
             }
             with open(sample_file, 'w') as f:
                 json.dump(sample_output, f, indent=2)
@@ -625,7 +635,7 @@ class BoundingBoxEvaluator:
                         with open(pred_file, 'r') as f:
                             sample_data = json.load(f)
                             for organ_data in sample_data['organs']:
-                                predictions.append({
+                                pred_dict = {
                                     'test_idx': test_idx,
                                     'organ_id': organ_data['organ_id'],
                                     'organ_name': organ_data['organ_name'],
@@ -633,7 +643,17 @@ class BoundingBoxEvaluator:
                                     'predicted_bboxes': organ_data['predicted_bboxes'],
                                     'ground_truth_present': organ_data['ground_truth_present'],
                                     'ground_truth_bboxes': organ_data['ground_truth_bboxes']
-                                })
+                                }
+                                # Include IoU values if available
+                                if 'iou_bbox_to_bbox' in organ_data:
+                                    pred_dict['iou_bbox_to_bbox'] = organ_data['iou_bbox_to_bbox']
+                                if 'iou_bbox_to_mask' in organ_data:
+                                    pred_dict['iou_bbox_to_mask'] = organ_data['iou_bbox_to_mask']
+                                if 'iou_mask_to_mask' in organ_data:
+                                    pred_dict['iou_mask_to_mask'] = organ_data['iou_mask_to_mask']
+                                if 'iou_mask_to_bbox' in organ_data:
+                                    pred_dict['iou_mask_to_bbox'] = organ_data['iou_mask_to_bbox']
+                                predictions.append(pred_dict)
         
         # Compute metrics and save
         metrics = self._compute_metrics(predictions)
@@ -657,8 +677,8 @@ class BoundingBoxEvaluator:
             model_dir = self.output_dir / eval_type / model_name.replace("/", "_")
             sample_file = model_dir / f"test_{test_idx:05d}.json"
             
-            if sample_file.exists() and self.use_cache:
-                # Skip if already processed
+            if sample_file.exists() and not self.force_regenerate:
+                # Skip if already processed (unless force_regenerate is True)
                 pbar.update(len(organ_classes))
                 continue
             
@@ -712,32 +732,14 @@ class BoundingBoxEvaluator:
                         canvas_height=self.canvas.height
                     )
                 
-                # Check cache with unique key for this configuration
-                cache_key = f"{test_idx}_{organ_id}"
-                cached_response = self._get_cached_response(model_name, prompt + cache_key)
-                
-                if cached_response:
-                    # Use cached response
-                    organ_info.append({
-                        'organ_id': organ_id,
-                        'organ_name': organ_name,
-                        'gt_bboxes': gt_bboxes,
-                        'gt_present': gt_present,
-                        'response': cached_response,
-                        'cache_key': cache_key,
-                        'cached': True
-                    })
-                else:
-                    # Add to batch for model query
-                    batch_queries.append((image, prompt))
-                    organ_info.append({
-                        'organ_id': organ_id,
-                        'organ_name': organ_name,
-                        'gt_bboxes': gt_bboxes,
-                        'gt_present': gt_present,
-                        'cache_key': cache_key,
-                        'cached': False
-                    })
+                # Add to batch for model query
+                batch_queries.append((image, prompt))
+                organ_info.append({
+                    'organ_id': organ_id,
+                    'organ_name': organ_name,
+                    'gt_bboxes': gt_bboxes,
+                    'gt_present': gt_present
+                })
             
             # Execute batched model query for non-cached organs
             if batch_queries:
@@ -745,18 +747,11 @@ class BoundingBoxEvaluator:
             else:
                 batch_responses = []
             
-            # Process responses and cache them
-            batch_idx = 0
-            for organ_data in organ_info:
-                if organ_data['cached']:
-                    response = organ_data['response']
-                else:
-                    response = batch_responses[batch_idx]
-                    batch_idx += 1
-                    # Save to cache
-                    self._save_cached_response(model_name, organ_data['cache_key'], response)
-                    # Store response in organ_data for saving
-                    organ_data['response'] = response
+            # Process responses
+            for batch_idx, organ_data in enumerate(organ_info):
+                response = batch_responses[batch_idx]
+                # Store response in organ_data for saving
+                organ_data['response'] = response
                 
                 organ_id = organ_data['organ_id']
                 organ_name = organ_data['organ_name']
@@ -764,7 +759,7 @@ class BoundingBoxEvaluator:
                 gt_present = organ_data['gt_present']
                 
                 # Parse prediction
-                pred = BBoxPrediction.from_json(response, organ_name)
+                pred = BBoxPrediction.from_json(response, organ_name, self.canvas.width, self.canvas.height)
                 
                 # Compute both IoU types for comprehensive evaluation
                 iou_bbox_to_bbox = 0.0
@@ -789,7 +784,8 @@ class BoundingBoxEvaluator:
                     'ground_truth_present': gt_present,
                     'ground_truth_bboxes': gt_bboxes,
                     'iou_bbox_to_bbox': iou_bbox_to_bbox,
-                    'iou_bbox_to_mask': iou_bbox_to_mask
+                    'iou_bbox_to_mask': iou_bbox_to_mask,
+                    'raw_response': response  # Include raw model response for debugging
                 })
                 
                 pbar.update(1)
@@ -815,7 +811,7 @@ class BoundingBoxEvaluator:
                         with open(pred_file, 'r') as f:
                             sample_data = json.load(f)
                             for organ_data in sample_data['organs']:
-                                predictions.append({
+                                pred_dict = {
                                     'test_idx': test_idx,
                                     'organ_id': organ_data['organ_id'],
                                     'organ_name': organ_data['organ_name'],
@@ -823,7 +819,17 @@ class BoundingBoxEvaluator:
                                     'predicted_bboxes': organ_data['predicted_bboxes'],
                                     'ground_truth_present': organ_data['ground_truth_present'],
                                     'ground_truth_bboxes': organ_data['ground_truth_bboxes']
-                                })
+                                }
+                                # Include IoU values if available
+                                if 'iou_bbox_to_bbox' in organ_data:
+                                    pred_dict['iou_bbox_to_bbox'] = organ_data['iou_bbox_to_bbox']
+                                if 'iou_bbox_to_mask' in organ_data:
+                                    pred_dict['iou_bbox_to_mask'] = organ_data['iou_bbox_to_mask']
+                                if 'iou_mask_to_mask' in organ_data:
+                                    pred_dict['iou_mask_to_mask'] = organ_data['iou_mask_to_mask']
+                                if 'iou_mask_to_bbox' in organ_data:
+                                    pred_dict['iou_mask_to_bbox'] = organ_data['iou_mask_to_bbox']
+                                predictions.append(pred_dict)
         
         # Compute metrics and save
         metrics = self._compute_metrics(predictions)
@@ -1010,11 +1016,18 @@ class BoundingBoxEvaluator:
         self, model_name: str, prompt_type: str, use_fewshot: bool,
         predictions: List[Dict], metrics: Dict, mode: str
     ):
-        """Save evaluation results with individual prediction files."""
+        """Save evaluation results with individual prediction files and masks."""
         # Create output directory
         eval_type = f"{'fewshot' if use_fewshot else 'zeroshot'}_{mode}"
         model_dir = self.output_dir / eval_type / model_name.replace("/", "_")
         model_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Create masks directory if any predictions have masks
+        has_masks = any('_mask_data' in pred for pred in predictions)
+        masks_dir = None
+        if has_masks:
+            masks_dir = model_dir / "masks"
+            masks_dir.mkdir(parents=True, exist_ok=True)
         
         # Group predictions by test index
         predictions_by_idx = {}
@@ -1043,11 +1056,21 @@ class BoundingBoxEvaluator:
             # Process each organ for this sample
             for organ_pred in sample_data['organs']:
                 organ_name = organ_pred['organ_name']
+                organ_id = organ_pred['organ_id']
                 gt_present = organ_pred['ground_truth_present']
                 pred_present = organ_pred['predicted_present']
                 
                 sample_output['y_true'].append(gt_present)
                 sample_output['y_pred'].append(pred_present)
+                
+                # Save mask if available
+                if masks_dir and '_mask_data' in organ_pred:
+                    mask_data = organ_pred['_mask_data']
+                    mask_filename = f"mask_{test_idx:05d}_organ_{organ_id}.npy"
+                    mask_path = masks_dir / mask_filename
+                    np.save(mask_path, mask_data)
+                    # Don't include the raw mask data in JSON, just the filename
+                    organ_pred['mask_file'] = str(mask_filename)
                 
                 # Store bboxes
                 if gt_present and organ_pred['ground_truth_bboxes']:
@@ -1072,20 +1095,38 @@ class BoundingBoxEvaluator:
                         )
                     sample_output['ious'].append(iou_bbox_to_bbox)  # Legacy field
                 
-                # Add detailed organ info with dual IoU
-                sample_output['organs'].append({
+                # Build organ data for JSON output
+                organ_json_data = {
                     'organ_id': organ_pred['organ_id'],
                     'organ_name': organ_name,
                     'ground_truth_present': gt_present,
                     'predicted_present': pred_present,
                     'ground_truth_bboxes': organ_pred['ground_truth_bboxes'],
                     'predicted_bboxes': organ_pred['predicted_bboxes'],
-                    # Legacy field for backward compatibility
-                    'iou': iou_bbox_to_bbox if (gt_present and pred_present) else None,
-                    # New dual IoU fields
-                    'iou_bbox_to_bbox': iou_bbox_to_bbox if (gt_present and pred_present) else None,
-                    'iou_bbox_to_mask': iou_bbox_to_mask if (gt_present and pred_present) else None
-                })
+                    # Legacy field for backward compatibility - use 0 when no valid comparison
+                    'iou': iou_bbox_to_bbox if (gt_present and pred_present) else 0.0,
+                    # New dual IoU fields - use 0 when no valid comparison
+                    'iou_bbox_to_bbox': iou_bbox_to_bbox if (gt_present and pred_present) else 0.0,
+                    'iou_bbox_to_mask': iou_bbox_to_mask if (gt_present and pred_present) else 0.0
+                }
+                
+                # Add mask file reference if available
+                if 'mask_file' in organ_pred:
+                    organ_json_data['mask_file'] = organ_pred['mask_file']
+                    organ_json_data['has_mask'] = True
+                
+                # Add mask IoU metrics if available (include even if 0 for completeness)
+                if 'iou_mask_to_mask' in organ_pred:
+                    organ_json_data['iou_mask_to_mask'] = organ_pred['iou_mask_to_mask']
+                if 'iou_mask_to_bbox' in organ_pred:
+                    organ_json_data['iou_mask_to_bbox'] = organ_pred['iou_mask_to_bbox']
+                
+                # Add raw response if available for debugging
+                if 'raw_response' in organ_pred:
+                    organ_json_data['raw_response'] = organ_pred['raw_response']
+                
+                # Add detailed organ info with dual IoU
+                sample_output['organs'].append(organ_json_data)
             
             # Save individual file
             sample_file = model_dir / f"test_{test_idx:05d}.json"
@@ -1093,8 +1134,17 @@ class BoundingBoxEvaluator:
                 json.dump(sample_output, f, indent=2)
         
         # Save aggregated predictions (for backward compatibility)
+        # Convert _mask_data from numpy array to list for JSON serialization
+        clean_predictions = []
+        for pred in predictions:
+            clean_pred = pred.copy()
+            if '_mask_data' in clean_pred:
+                # Convert numpy array to nested list for JSON serialization
+                clean_pred['_mask_data'] = clean_pred['_mask_data'].tolist()
+            clean_predictions.append(clean_pred)
+        
         with open(model_dir / "predictions.json", 'w') as f:
-            json.dump(predictions, f, indent=2)
+            json.dump(clean_predictions, f, indent=2)
         
         # Save metrics
         with open(model_dir / "metrics.json", 'w') as f:
@@ -1187,7 +1237,7 @@ class BoundingBoxEvaluator:
                 continue
                 
             # Parse prediction
-            pred = BBoxPrediction.from_json(response, organ_name)
+            pred = BBoxPrediction.from_json(response, organ_name, self.canvas.width, self.canvas.height)
             
             # Compute both IoU types
             iou_bbox_to_bbox = 0.0
@@ -1209,7 +1259,8 @@ class BoundingBoxEvaluator:
                 'ground_truth_bboxes': gt_bboxes,
                 'predicted_bboxes': pred.bboxes,
                 'iou_bbox_to_bbox': iou_bbox_to_bbox,
-                'iou_bbox_to_mask': iou_bbox_to_mask
+                'iou_bbox_to_mask': iou_bbox_to_mask,
+                'raw_response': response  # Include raw model response for debugging
             })
         
         sample_data = {

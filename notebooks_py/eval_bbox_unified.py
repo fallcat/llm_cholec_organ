@@ -30,7 +30,7 @@ from endopoint.eval.bbox_evaluator import BoundingBoxEvaluator
 def load_dataset_adapter(dataset_name):
     """Load the appropriate dataset adapter based on dataset name."""
     
-    if dataset_name == "cholecseg8k":
+    if dataset_name == "cholecseg8k_local":
         from endopoint.datasets.cholecseg8k_local import CholecSeg8kLocalAdapter
         data_dir = "/shared_data0/weiqiuy/datasets/cholecseg8k"
         return CholecSeg8kLocalAdapter(data_dir=data_dir)
@@ -46,13 +46,13 @@ def load_dataset_adapter(dataset_name):
         return CholecGoNoGoAdapter()
     
     else:
-        raise ValueError(f"Unknown dataset: {dataset_name}. Supported: cholecseg8k, cholec_organs, cholec_gonogo")
+        raise ValueError(f"Unknown dataset: {dataset_name}. Supported: cholecseg8k_local, cholec_organs, cholec_gonogo")
 
 
 def get_dataset_display_name(dataset_name):
     """Get display name for dataset."""
     display_names = {
-        "cholecseg8k": "CHOLECSEG8K",
+        "cholecseg8k_local": "CHOLECSEG8K",
         "cholec_organs": "CHOLEC ORGANS",
         "cholec_gonogo": "CHOLEC GONOGO"
     }
@@ -61,7 +61,7 @@ def get_dataset_display_name(dataset_name):
 
 def get_results_dir(dataset_name):
     """Get the results directory for a dataset."""
-    if dataset_name == "cholecseg8k":
+    if dataset_name == "cholecseg8k_local":
         return "bbox_cholecseg8k_local_quick"
     elif dataset_name == "cholec_organs":
         return "bbox_cholec_organs_quick"
@@ -73,7 +73,7 @@ def get_results_dir(dataset_name):
 
 def run_single_evaluation(dataset_name, model, num_samples=2, use_cache=True, 
                          use_persistent_dir=True, detection_mode='combined', 
-                         use_fewshot=False):
+                         use_fewshot=False, force_regenerate=False):
     """Run evaluation for a single model-dataset combination.
     
     Returns:
@@ -112,26 +112,50 @@ def run_single_evaluation(dataset_name, model, num_samples=2, use_cache=True,
         print(f"  Validation: {total_val} examples")
         print(f"  Test: {total_test} examples")
     
-    # Load test indices
-    indices_dir = Path(f"/shared_data0/weiqiuy/llm_cholec_organ/data_info/{dataset_name}_balanced_200")
+    # Load test indices - MUST use consistent global indices across all models
+    # Map dataset names to their correct directory names
+    dataset_dir_mapping = {
+        "cholecseg8k_local": "cholecseg8k_local_balanced_200",
+        "cholec_organs": "cholec_organs_balanced_200", 
+        "cholec_gonogo": "cholec_gonogo_balanced_200"
+    }
+    
+    dataset_dir = dataset_dir_mapping.get(dataset_name, f"{dataset_name}_balanced_200")
+    indices_dir = Path(f"/shared_data0/weiqiuy/llm_cholec_organ/data_info/{dataset_dir}")
     indices_file = indices_dir / "balanced_test_indices_advanced_200.json"
     
-    if indices_file.exists():
-        with open(indices_file, 'r') as f:
-            data = json.load(f)
-            # Handle different formats: dict with 'indices' key or direct list
-            if isinstance(data, dict) and 'indices' in data:
-                test_indices = data['indices']
-            else:
-                test_indices = data
-            test_indices = test_indices[:num_samples]
-        print(f"Selected test indices: {test_indices[:5]}{'...' if len(test_indices) > 5 else ''}")
-    else:
-        print(f"Warning: No balanced test indices found, using first {num_samples} samples")
-        test_indices = list(range(num_samples))
+    if not indices_file.exists():
+        raise FileNotFoundError(
+            f"Required balanced test indices file not found: {indices_file}\n"
+            f"This file is required to ensure consistent global test indices across all models.\n"
+            f"Please generate the balanced test indices file or check the dataset name."
+        )
+    
+    with open(indices_file, 'r') as f:
+        data = json.load(f)
+        # Handle different formats: dict with 'indices' key or direct list
+        if isinstance(data, dict) and 'indices' in data:
+            test_indices = data['indices']
+        else:
+            test_indices = data
+    
+    if not isinstance(test_indices, list) or len(test_indices) == 0:
+        raise ValueError(
+            f"Invalid test indices format in {indices_file}. "
+            f"Expected non-empty list, got: {type(test_indices)}"
+        )
+    
+    # Ensure we're using global indices (should be > num_samples for most datasets)
+    if len(test_indices) > 10 and max(test_indices[:10]) < 50:
+        print(f"WARNING: Test indices appear to be local indices, not global: {test_indices[:10]}")
+        print(f"This may indicate an issue with the balanced test indices file.")
+    
+    test_indices = test_indices[:num_samples]
+    print(f"Using global test indices: {test_indices[:5]}{'...' if len(test_indices) > 5 else ''}")
+    print(f"Index range: {min(test_indices)} to {max(test_indices)}")
     
     # Get image dimensions based on dataset
-    if dataset_name == "cholecseg8k":
+    if dataset_name == "cholecseg8k_local":
         image_width, image_height = 854, 480
     elif dataset_name in ["cholec_organs", "cholec_gonogo"]:
         image_width, image_height = 640, 384
@@ -157,9 +181,12 @@ def run_single_evaluation(dataset_name, model, num_samples=2, use_cache=True,
         models=[model],  # Pass as list
         dataset=None,  # Not using dataset object, just adapter
         dataset_adapter=dataset_adapter,
+        canvas_width=image_width,  # Pass correct canvas dimensions
+        canvas_height=image_height,  # Pass correct canvas dimensions
         output_dir=base_output_dir,  # Pass as Path object
         use_cache=use_cache,
-        dataset_name=dataset_name  # Pass dataset name for RASO model selection
+        dataset_name=dataset_name,  # Pass dataset name for RASO model selection
+        force_regenerate=force_regenerate  # Force regeneration of results if needed
     )
     
     # Determine evaluation type
@@ -256,7 +283,7 @@ def main():
     """Run bbox evaluation for specified dataset(s) and model(s)."""
     
     # Configuration from environment variables
-    DATASET_NAME = os.environ.get('EVAL_DATASET', 'cholecseg8k')
+    DATASET_NAME = os.environ.get('EVAL_DATASET', 'cholecseg8k_local')
     MODEL = os.environ.get('EVAL_MODEL', 'gpt-4.1')
     NUM_SAMPLES = int(os.environ.get('EVAL_NUM_SAMPLES', '2'))
     USE_CACHE = os.environ.get('EVAL_USE_CACHE', 'true').lower() != 'false'
@@ -265,6 +292,7 @@ def main():
     # Evaluation configuration
     DETECTION_MODE = os.environ.get('EVAL_DETECTION_MODE', 'combined')
     USE_FEWSHOT = os.environ.get('EVAL_USE_FEWSHOT', 'false').lower() == 'true'
+    FORCE_REGENERATE = os.environ.get('EVAL_FORCE_REGENERATE', 'false').lower() == 'true'
     
     # Check for batch mode (multiple models or datasets)
     BATCH_MODE = os.environ.get('EVAL_BATCH_MODE', 'false').lower() == 'true'
@@ -272,7 +300,7 @@ def main():
     if BATCH_MODE:
         # Get models and datasets from environment or use defaults
         BATCH_MODELS = os.environ.get('EVAL_BATCH_MODELS', 'cholenet,gonogonet')
-        BATCH_DATASETS = os.environ.get('EVAL_BATCH_DATASETS', 'cholecseg8k,cholec_organs,cholec_gonogo')
+        BATCH_DATASETS = os.environ.get('EVAL_BATCH_DATASETS', 'cholecseg8k_local,cholec_organs,cholec_gonogo')
         
         # Parse comma-separated lists
         models = [m.strip() for m in BATCH_MODELS.split(',')]
@@ -294,8 +322,8 @@ def main():
             for dataset in datasets:
                 # Create description based on model and dataset combination
                 if model == "cholenet":
-                    if dataset == "cholecseg8k":
-                        desc = f"{model.upper()} on {dataset.upper()} (3/13 organs)"
+                    if dataset == "cholecseg8k_local":
+                        desc = f"{model.upper()} on CHOLECSEG8K (3/13 organs)"
                     elif dataset == "cholec_organs":
                         desc = f"{model.upper()} on {dataset.replace('_', ' ').title()} (native)"
                     elif dataset == "cholec_gonogo":
@@ -303,8 +331,8 @@ def main():
                     else:
                         desc = f"{model.upper()} on {dataset.upper()}"
                 elif model == "gonogonet":
-                    if dataset == "cholecseg8k":
-                        desc = f"{model.upper()} on {dataset.upper()} (no organs)"
+                    if dataset == "cholecseg8k_local":
+                        desc = f"{model.upper()} on CHOLECSEG8K (no organs)"
                     elif dataset == "cholec_organs":
                         desc = f"{model.upper()} on {dataset.replace('_', ' ').title()} (cross-mapped)"
                     elif dataset == "cholec_gonogo":
@@ -313,7 +341,10 @@ def main():
                         desc = f"{model.upper()} on {dataset.upper()}"
                 else:
                     # For other models (GPT, Claude, etc.)
-                    desc = f"{model.upper()} on {dataset.replace('_', ' ').title()}"
+                    if dataset == "cholecseg8k_local":
+                        desc = f"{model.upper()} on CHOLECSEG8K"
+                    else:
+                        desc = f"{model.upper()} on {dataset.replace('_', ' ').title()}"
                 
                 evaluations.append((dataset, model, desc))
         
@@ -330,7 +361,8 @@ def main():
                 use_cache=USE_CACHE,
                 use_persistent_dir=USE_PERSISTENT_DIR,
                 detection_mode=DETECTION_MODE,
-                use_fewshot=USE_FEWSHOT
+                use_fewshot=USE_FEWSHOT,
+                force_regenerate=FORCE_REGENERATE
             )
             
             all_results[f"{model}_{dataset}"] = results
@@ -367,7 +399,8 @@ def main():
             use_cache=USE_CACHE,
             use_persistent_dir=USE_PERSISTENT_DIR,
             detection_mode=DETECTION_MODE,
-            use_fewshot=USE_FEWSHOT
+            use_fewshot=USE_FEWSHOT,
+            force_regenerate=FORCE_REGENERATE
         )
 
 

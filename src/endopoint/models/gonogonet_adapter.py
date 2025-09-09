@@ -174,22 +174,38 @@ class GoNoGoNetAdapter(ModelAdapter):
             "No Go Zone": "NoGo Zone"  # Handle variations
         }
         
-        # Cross-dataset mapping for cholec_organs:
-        # Go Zone (class 1) -> Hepatocystic Triangle (safe dissection area)
-        # NoGo Zone (class 2) -> Background (everything else)
-        # Background (class 0) remains as background
+        # Cross-dataset mapping for CholecSeg8k organs:
+        # Go Zone (class 1) -> Safe areas for dissection
+        # NoGo Zone (class 2) -> Dangerous/critical structures
+        # Background (class 0) -> Everything else
         cross_dataset_mapping = {
-            "Hepatocystic Triangle": "Go Zone",  # Safe area maps to Go Zone
-            "Liver": None,  # GoNoGo doesn't detect liver
-            "Gallbladder": None,  # GoNoGo doesn't detect gallbladder
+            # Go Zone (safe to dissect)
+            "Hepatocystic Triangle": "Go Zone",  # Safe dissection area
+            "Cystic Duct": "Go Zone",  # Safe dissection area
+            
+            # NoGo Zone (dangerous structures)
+            "Hepatic Vein": "NoGo Zone",  # Critical vascular structure
+            "Gastrointestinal Tract": "NoGo Zone",  # Critical organ
+            
+            # Background (everything else)
+            "Liver": None,  # Maps to background
+            "Gallbladder": None,  # Maps to background
+            "Abdominal Wall": None,  # Maps to background
+            "Fat": None,  # Maps to background
+            "Grasper": None,  # Maps to background
+            "Connective Tissue": None,  # Maps to background
+            "Blood": None,  # Maps to background
+            "L-hook Electrocautery": None,  # Maps to background
+            "Liver Ligament": None,  # Maps to background
         }
         
         # Handle background class if requested
         if "Background" in requested_organs or "Black Background" in requested_organs:
-            # For GoNoGo: Background (class 0) + NoGo Zone (class 2) both map to background in cholec_organs
+            # For CholecSeg8k: Only class 0 (background) maps to background
+            # NoGo Zone (class 2) now represents specific dangerous organs
             background_name = "Black Background" if "Black Background" in requested_organs else "Background"
-            # Count both class 0 (background) and class 2 (nogo) as background for cholec_organs
-            background_pixels = np.sum((mask == 0) | (mask == 2))
+            # Count only class 0 (background) as background for CholecSeg8k
+            background_pixels = np.sum(mask == 0)
             
             result[background_name] = {
                 "present": background_pixels >= self.min_pixels,
@@ -236,7 +252,11 @@ class GoNoGoNetAdapter(ModelAdapter):
             
             if internal_name and internal_name in gonogo_zones:
                 # GoNoGo can detect this zone
-                is_present = bool(presence.get(internal_name, False))
+                presence_value = presence.get(internal_name, False)
+                if hasattr(presence_value, 'item'):
+                    is_present = bool(presence_value.item())
+                else:
+                    is_present = bool(presence_value)
                 organ_bboxes = bboxes.get(internal_name, [])
                 
                 # Format bbox (use first bbox if multiple)
@@ -273,7 +293,21 @@ class GoNoGoNetAdapter(ModelAdapter):
                 "classes": self.model.ID2LABEL
             }
         
-        return json.dumps(result, indent=2)
+        # Convert any numpy types to regular Python types for JSON serialization
+        def convert_numpy_types(obj):
+            if hasattr(obj, 'item'):  # numpy scalar
+                return obj.item()
+            elif hasattr(obj, 'tolist'):  # numpy array
+                return obj.tolist()
+            elif isinstance(obj, dict):
+                return {k: convert_numpy_types(v) for k, v in obj.items()}
+            elif isinstance(obj, list):
+                return [convert_numpy_types(item) for item in obj]
+            else:
+                return obj
+        
+        clean_result = convert_numpy_types(result)
+        return json.dumps(clean_result, indent=2)
     
     def _extract_organs_from_prompt(self, prompt: str) -> List[str]:
         """Extract organ names from detection prompt.
