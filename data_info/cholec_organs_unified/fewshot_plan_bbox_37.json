@@ -1,0 +1,198 @@
+{
+  "split": "train",
+  "task": "bounding_box",
+  "plan": {
+    "1": {
+      "name": "Liver",
+      "class_id": 1,
+      "pos_available": 163,
+      "neg_available": 0,
+      "positives": [
+        {
+          "idx": 74,
+          "bboxes": [
+            [
+              87,
+              0,
+              192,
+              160
+            ],
+            [
+              272,
+              0,
+              490,
+              159
+            ],
+            [
+              320,
+              163,
+              536,
+              299
+            ],
+            [
+              83,
+              208,
+              292,
+              382
+            ]
+          ],
+          "frame_id": "train_74",
+          "num_regions": 4
+        }
+      ],
+      "negatives_absent": [],
+      "negatives_wrong_bbox": [
+        {
+          "idx": 90,
+          "bboxes": [
+            [
+              96,
+              143,
+              440,
+              382
+            ]
+          ],
+          "frame_id": "train_90",
+          "wrong_type": "adjacent_Hepatocystic Triangle"
+        },
+        {
+          "idx": 171,
+          "bboxes": [
+            [
+              57,
+              31,
+              223,
+              261
+            ]
+          ],
+          "frame_id": "train_171",
+          "wrong_type": "adjacent_Gallbladder"
+        }
+      ]
+    },
+    "2": {
+      "name": "Gallbladder",
+      "class_id": 2,
+      "pos_available": 163,
+      "neg_available": 0,
+      "positives": [
+        {
+          "idx": 193,
+          "bboxes": [
+            [
+              126,
+              0,
+              396,
+              73
+            ]
+          ],
+          "frame_id": "train_193",
+          "num_regions": 1
+        }
+      ],
+      "negatives_absent": [],
+      "negatives_wrong_bbox": [
+        {
+          "idx": 14,
+          "bboxes": [
+            [
+              40,
+              0,
+              262,
+              192
+            ],
+            [
+              40,
+              228,
+              343,
+              382
+            ]
+          ],
+          "frame_id": "train_14",
+          "wrong_type": "adjacent_Liver"
+        },
+        {
+          "idx": 98,
+          "bboxes": [
+            [
+              265,
+              127,
+              483,
+              382
+            ]
+          ],
+          "frame_id": "train_98",
+          "wrong_type": "adjacent_Hepatocystic Triangle"
+        }
+      ]
+    },
+    "3": {
+      "name": "Hepatocystic Triangle",
+      "class_id": 3,
+      "pos_available": 163,
+      "neg_available": 0,
+      "positives": [
+        {
+          "idx": 13,
+          "bboxes": [
+            [
+              315,
+              21,
+              545,
+              301
+            ]
+          ],
+          "frame_id": "train_13",
+          "num_regions": 1
+        }
+      ],
+      "negatives_absent": [],
+      "negatives_wrong_bbox": [
+        {
+          "idx": 197,
+          "bboxes": [
+            [
+              0,
+              0,
+              296,
+              175
+            ],
+            [
+              377,
+              0,
+              638,
+              382
+            ],
+            [
+              0,
+              192,
+              383,
+              382
+            ]
+          ],
+          "frame_id": "train_197",
+          "wrong_type": "adjacent_Liver"
+        },
+        {
+          "idx": 127,
+          "bboxes": [
+            [
+              0,
+              19,
+              402,
+              382
+            ]
+          ],
+          "frame_id": "train_127",
+          "wrong_type": "adjacent_Gallbladder"
+        }
+      ]
+    }
+  },
+  "summary": {
+    "total_excluded": 37,
+    "total_pool_size": 163,
+    "task_type": "bounding_box_detection",
+    "description": "Few-shot examples for bounding box prediction task"
+  }
+}

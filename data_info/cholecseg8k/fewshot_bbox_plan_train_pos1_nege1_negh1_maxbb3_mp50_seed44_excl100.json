@@ -1,0 +1,494 @@
+{
+  "split": "train",
+  "config": {
+    "n_pos": 1,
+    "n_neg_easy": 1,
+    "n_neg_hard": 1,
+    "min_pixels": 50,
+    "max_bboxes": 3,
+    "min_bbox_size": 20,
+    "seed": 44
+  },
+  "excluded_indices": [
+    2514,
+    1413,
+    5785,
+    2557,
+    1848,
+    5703,
+    3086,
+    1411,
+    5766,
+    2127,
+    1417,
+    5725,
+    3114,
+    5691,
+    1844,
+    3051,
+    5720,
+    1766,
+    2109,
+    5750,
+    1586,
+    2519,
+    1809,
+    5642,
+    3102,
+    5717,
+    1807,
+    2494,
+    5741,
+    1776,
+    2117,
+    1855,
+    5653,
+    2101,
+    1911,
+    5814,
+    2094,
+    5761,
+    1866,
+    2147,
+    5631,
+    1416,
+    3062,
+    5670,
+    1555,
+    2096,
+    5824,
+    1583,
+    3094,
+    5658,
+    1850,
+    3061,
+    1549,
+    5686,
+    2511,
+    1879,
+    5609,
+    2531,
+    1527,
+    5780,
+    3043,
+    5798,
+    1837,
+    2486,
+    5822,
+    1572,
+    2157,
+    5787,
+    1559,
+    2098,
+    1863,
+    5791,
+    2126,
+    1859,
+    5629,
+    3045,
+    1867,
+    5677,
+    2136,
+    1914,
+    5759,
+    3106,
+    1839,
+    5637,
+    3079,
+    5627,
+    1820,
+    2104,
+    1771,
+    5784,
+    3078,
+    1836,
+    5795,
+    3082,
+    1811,
+    5816,
+    2150,
+    1569,
+    5760,
+    2551
+  ],
+  "plan": {
+    "1": {
+      "name": "Abdominal Wall",
+      "positives": [
+        {
+          "idx": 6830,
+          "bboxes": [
+            [
+              85,
+              1,
+              562,
+              367
+            ],
+            [
+              365,
+              49,
+              625,
+              191
+            ]
+          ],
+          "main_bbox": [
+            85,
+            1,
+            562,
+            367
+          ]
+        }
+      ],
+      "negatives_easy": [
+        5203
+      ],
+      "negatives_hard": [],
+      "pos_available": 7158,
+      "neg_available": 822
+    },
+    "2": {
+      "name": "Liver",
+      "positives": [
+        {
+          "idx": 163,
+          "bboxes": [
+            [
+              398,
+              212,
+              773,
+              422
+            ]
+          ],
+          "main_bbox": [
+            398,
+            212,
+            773,
+            422
+          ]
+        }
+      ],
+      "negatives_easy": [],
+      "negatives_hard": [],
+      "pos_available": 7980,
+      "neg_available": 0
+    },
+    "3": {
+      "name": "Gastrointestinal Tract",
+      "positives": [
+        {
+          "idx": 5965,
+          "bboxes": [
+            [
+              298,
+              123,
+              554,
+              478
+            ]
+          ],
+          "main_bbox": [
+            298,
+            123,
+            554,
+            478
+          ]
+        }
+      ],
+      "negatives_easy": [
+        698
+      ],
+      "negatives_hard": [
+        615
+      ],
+      "pos_available": 4476,
+      "neg_available": 3504
+    },
+    "4": {
+      "name": "Fat",
+      "positives": [
+        {
+          "idx": 1826,
+          "bboxes": [
+            [
+              671,
+              150,
+              738,
+              279
+            ],
+            [
+              266,
+              352,
+              700,
+              478
+            ]
+          ],
+          "main_bbox": [
+            671,
+            150,
+            738,
+            279
+          ]
+        }
+      ],
+      "negatives_easy": [
+        2387
+      ],
+      "negatives_hard": [
+        3973
+      ],
+      "pos_available": 7410,
+      "neg_available": 570
+    },
+    "5": {
+      "name": "Grasper",
+      "positives": [
+        {
+          "idx": 3384,
+          "bboxes": [
+            [
+              515,
+              71,
+              685,
+              163
+            ],
+            [
+              254,
+              357,
+              350,
+              478
+            ]
+          ],
+          "main_bbox": [
+            515,
+            71,
+            685,
+            163
+          ]
+        }
+      ],
+      "negatives_easy": [
+        5826
+      ],
+      "negatives_hard": [
+        1283
+      ],
+      "pos_available": 5953,
+      "neg_available": 2027
+    },
+    "6": {
+      "name": "Connective Tissue",
+      "positives": [
+        {
+          "idx": 1503,
+          "bboxes": [
+            [
+              148,
+              16,
+              560,
+              378
+            ]
+          ],
+          "main_bbox": [
+            148,
+            16,
+            560,
+            378
+          ]
+        }
+      ],
+      "negatives_easy": [
+        4359
+      ],
+      "negatives_hard": [
+        4389
+      ],
+      "pos_available": 1533,
+      "neg_available": 6447
+    },
+    "7": {
+      "name": "Blood",
+      "positives": [
+        {
+          "idx": 3306,
+          "bboxes": [
+            [
+              426,
+              450,
+              448,
+              478
+            ]
+          ],
+          "main_bbox": [
+            426,
+            450,
+            448,
+            478
+          ]
+        }
+      ],
+      "negatives_easy": [
+        5995
+      ],
+      "negatives_hard": [
+        6747
+      ],
+      "pos_available": 658,
+      "neg_available": 7322
+    },
+    "8": {
+      "name": "Cystic Duct",
+      "positives": [
+        {
+          "idx": 2536,
+          "bboxes": [
+            [
+              319,
+              240,
+              505,
+              380
+            ]
+          ],
+          "main_bbox": [
+            319,
+            240,
+            505,
+            380
+          ]
+        }
+      ],
+      "negatives_easy": [
+        2307
+      ],
+      "negatives_hard": [
+        2260
+      ],
+      "pos_available": 207,
+      "neg_available": 7773
+    },
+    "9": {
+      "name": "L-hook Electrocautery",
+      "positives": [
+        {
+          "idx": 1699,
+          "bboxes": [
+            [
+              451,
+              11,
+              689,
+              221
+            ]
+          ],
+          "main_bbox": [
+            451,
+            11,
+            689,
+            221
+          ]
+        }
+      ],
+      "negatives_easy": [
+        601
+      ],
+      "negatives_hard": [
+        1650
+      ],
+      "pos_available": 2212,
+      "neg_available": 5768
+    },
+    "10": {
+      "name": "Gallbladder",
+      "positives": [
+        {
+          "idx": 3304,
+          "bboxes": [
+            [
+              46,
+              68,
+              460,
+              457
+            ],
+            [
+              58,
+              371,
+              106,
+              407
+            ]
+          ],
+          "main_bbox": [
+            46,
+            68,
+            460,
+            457
+          ]
+        }
+      ],
+      "negatives_easy": [
+        5649
+      ],
+      "negatives_hard": [
+        5835
+      ],
+      "pos_available": 6793,
+      "neg_available": 1187
+    },
+    "11": {
+      "name": "Hepatic Vein",
+      "positives": [
+        {
+          "idx": 1786,
+          "bboxes": [
+            [
+              276,
+              371,
+              283,
+              379
+            ]
+          ],
+          "main_bbox": [
+            276,
+            371,
+            283,
+            379
+          ]
+        }
+      ],
+      "negatives_easy": [
+        6218
+      ],
+      "negatives_hard": [
+        2530
+      ],
+      "pos_available": 283,
+      "neg_available": 7697
+    },
+    "12": {
+      "name": "Liver Ligament",
+      "positives": [
+        {
+          "idx": 5832,
+          "bboxes": [
+            [
+              568,
+              0,
+              819,
+              288
+            ]
+          ],
+          "main_bbox": [
+            568,
+            0,
+            819,
+            288
+          ]
+        }
+      ],
+      "negatives_easy": [
+        5929
+      ],
+      "negatives_hard": [
+        1431
+      ],
+      "pos_available": 207,
+      "neg_available": 7773
+    }
+  }
+}

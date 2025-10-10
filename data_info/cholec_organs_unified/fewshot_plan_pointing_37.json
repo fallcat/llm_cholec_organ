@@ -1,0 +1,96 @@
+{
+  "split": "train",
+  "task": "pointing",
+  "plan": {
+    "1": {
+      "name": "Liver",
+      "class_id": 1,
+      "pos_available": 163,
+      "neg_available": 0,
+      "positives": [
+        {
+          "idx": 23,
+          "point": [
+            314,
+            157
+          ],
+          "frame_id": "train_23"
+        }
+      ],
+      "negatives_absent": [],
+      "negatives_wrong_point": [
+        {
+          "idx": 60,
+          "point": [
+            267,
+            77
+          ],
+          "frame_id": "train_60",
+          "note": "wrong_location"
+        }
+      ]
+    },
+    "2": {
+      "name": "Gallbladder",
+      "class_id": 2,
+      "pos_available": 163,
+      "neg_available": 0,
+      "positives": [
+        {
+          "idx": 148,
+          "point": [
+            351,
+            52
+          ],
+          "frame_id": "train_148"
+        }
+      ],
+      "negatives_absent": [],
+      "negatives_wrong_point": [
+        {
+          "idx": 189,
+          "point": [
+            264,
+            256
+          ],
+          "frame_id": "train_189",
+          "note": "wrong_location"
+        }
+      ]
+    },
+    "3": {
+      "name": "Hepatocystic Triangle",
+      "class_id": 3,
+      "pos_available": 163,
+      "neg_available": 0,
+      "positives": [
+        {
+          "idx": 92,
+          "point": [
+            288,
+            179
+          ],
+          "frame_id": "train_92"
+        }
+      ],
+      "negatives_absent": [],
+      "negatives_wrong_point": [
+        {
+          "idx": 75,
+          "point": [
+            298,
+            226
+          ],
+          "frame_id": "train_75",
+          "note": "wrong_location"
+        }
+      ]
+    }
+  },
+  "summary": {
+    "total_excluded": 37,
+    "total_pool_size": 163,
+    "task_type": "pointing",
+    "description": "Few-shot examples for pointing task"
+  }
+}

@@ -1,0 +1,98 @@
+{
+  "split": "train",
+  "task": "bounding_box",
+  "plan": {
+    "1": {
+      "name": "Go",
+      "class_id": 1,
+      "pos_available": 151,
+      "neg_available": 13,
+      "positives": [
+        {
+          "idx": 178,
+          "bboxes": [
+            [
+              206,
+              0,
+              376,
+              264
+            ]
+          ],
+          "frame_id": "train_178",
+          "num_regions": 1
+        }
+      ],
+      "negatives_absent": [
+        {
+          "idx": 191,
+          "bboxes": null,
+          "frame_id": "train_191"
+        }
+      ],
+      "negatives_wrong_bbox": [
+        {
+          "idx": 96,
+          "bboxes": [
+            [
+              118,
+              130,
+              333,
+              313
+            ]
+          ],
+          "frame_id": "train_96",
+          "wrong_type": "shifted"
+        }
+      ]
+    },
+    "2": {
+      "name": "NoGo",
+      "class_id": 2,
+      "pos_available": 147,
+      "neg_available": 17,
+      "positives": [
+        {
+          "idx": 90,
+          "bboxes": [
+            [
+              425,
+              265,
+              568,
+              382
+            ]
+          ],
+          "frame_id": "train_90",
+          "num_regions": 1
+        }
+      ],
+      "negatives_absent": [
+        {
+          "idx": 32,
+          "bboxes": null,
+          "frame_id": "train_32"
+        }
+      ],
+      "negatives_wrong_bbox": [
+        {
+          "idx": 20,
+          "bboxes": [
+            [
+              417,
+              308,
+              486,
+              376
+            ]
+          ],
+          "frame_id": "train_20",
+          "wrong_type": "shifted"
+        }
+      ]
+    }
+  },
+  "summary": {
+    "total_excluded": 36,
+    "total_pool_size": 164,
+    "task_type": "bounding_box_detection",
+    "description": "Few-shot examples for bounding box prediction task"
+  }
+}

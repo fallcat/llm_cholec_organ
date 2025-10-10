@@ -1,0 +1,733 @@
+{
+  "split": "train",
+  "task": "bounding_box",
+  "plan": {
+    "1": {
+      "name": "Abdominal Wall",
+      "class_id": 1,
+      "pos_available": 4875,
+      "neg_available": 725,
+      "positives": [
+        {
+          "idx": 1607,
+          "bboxes": [
+            [
+              42,
+              1,
+              409,
+              158
+            ],
+            [
+              1,
+              148,
+              215,
+              300
+            ]
+          ],
+          "frame_id": "video20_video20_03340_3347",
+          "num_regions": 2
+        }
+      ],
+      "negatives_absent": [
+        {
+          "idx": 963,
+          "bboxes": null,
+          "frame_id": "video01_video01_28660_28663"
+        }
+      ],
+      "negatives_wrong_bbox": [
+        {
+          "idx": 5339,
+          "bboxes": [
+            [
+              359,
+              1,
+              570,
+              317
+            ]
+          ],
+          "frame_id": "video18_video18_00979_979",
+          "wrong_type": "adjacent_Gallbladder"
+        }
+      ]
+    },
+    "2": {
+      "name": "Liver",
+      "class_id": 2,
+      "pos_available": 5600,
+      "neg_available": 0,
+      "positives": [
+        {
+          "idx": 1777,
+          "bboxes": [
+            [
+              517,
+              269,
+              778,
+              446
+            ],
+            [
+              372,
+              276,
+              484,
+              330
+            ]
+          ],
+          "frame_id": "video52_video52_00080_117",
+          "num_regions": 2
+        }
+      ],
+      "negatives_absent": [],
+      "negatives_wrong_bbox": [
+        {
+          "idx": 3527,
+          "bboxes": [
+            [
+              98,
+              1,
+              608,
+              379
+            ],
+            [
+              639,
+              4,
+              699,
+              91
+            ],
+            [
+              558,
+              65,
+              774,
+              297
+            ]
+          ],
+          "frame_id": "video43_video43_00387_394",
+          "wrong_type": "adjacent_Abdominal Wall"
+        },
+        {
+          "idx": 5205,
+          "bboxes": [
+            [
+              451,
+              193,
+              699,
+              478
+            ]
+          ],
+          "frame_id": "video55_video55_00668_673",
+          "wrong_type": "adjacent_Gastrointestinal Tract"
+        }
+      ]
+    },
+    "3": {
+      "name": "Gastrointestinal Tract",
+      "class_id": 3,
+      "pos_available": 2772,
+      "neg_available": 2828,
+      "positives": [
+        {
+          "idx": 4779,
+          "bboxes": [
+            [
+              598,
+              352,
+              773,
+              407
+            ]
+          ],
+          "frame_id": "video27_video27_00240_299",
+          "num_regions": 1
+        }
+      ],
+      "negatives_absent": [
+        {
+          "idx": 3367,
+          "bboxes": null,
+          "frame_id": "video43_video43_00147_154"
+        }
+      ],
+      "negatives_wrong_bbox": [
+        {
+          "idx": 4310,
+          "bboxes": [
+            [
+              655,
+              141,
+              735,
+              246
+            ],
+            [
+              133,
+              315,
+              704,
+              478
+            ]
+          ],
+          "frame_id": "video12_video12_19580_19650",
+          "wrong_type": "adjacent_Fat"
+        }
+      ]
+    },
+    "4": {
+      "name": "Fat",
+      "class_id": 4,
+      "pos_available": 5280,
+      "neg_available": 320,
+      "positives": [
+        {
+          "idx": 3711,
+          "bboxes": [
+            [
+              577,
+              5,
+              715,
+              184
+            ],
+            [
+              546,
+              179,
+              624,
+              295
+            ],
+            [
+              129,
+              310,
+              750,
+              476
+            ]
+          ],
+          "frame_id": "video43_video43_00547_578",
+          "num_regions": 3
+        }
+      ],
+      "negatives_absent": [
+        {
+          "idx": 339,
+          "bboxes": null,
+          "frame_id": "video01_video01_14859_14878"
+        }
+      ],
+      "negatives_wrong_bbox": [
+        {
+          "idx": 2973,
+          "bboxes": [
+            [
+              84,
+              1,
+              741,
+              405
+            ]
+          ],
+          "frame_id": "video26_video26_01855_1868",
+          "wrong_type": "adjacent_Liver"
+        }
+      ]
+    },
+    "5": {
+      "name": "Grasper",
+      "class_id": 5,
+      "pos_available": 4434,
+      "neg_available": 1166,
+      "positives": [
+        {
+          "idx": 598,
+          "bboxes": [
+            [
+              418,
+              46,
+              761,
+              155
+            ],
+            [
+              68,
+              402,
+              130,
+              428
+            ]
+          ],
+          "frame_id": "video01_video01_15099_15137",
+          "num_regions": 2
+        }
+      ],
+      "negatives_absent": [
+        {
+          "idx": 3141,
+          "bboxes": null,
+          "frame_id": "video26_video26_02095_2116"
+        }
+      ],
+      "negatives_wrong_bbox": [
+        {
+          "idx": 4600,
+          "bboxes": [
+            [
+              248,
+              196,
+              684,
+              411
+            ]
+          ],
+          "frame_id": "video12_video12_19980_20020",
+          "wrong_type": "adjacent_Connective Tissue"
+        }
+      ]
+    },
+    "6": {
+      "name": "Connective Tissue",
+      "class_id": 6,
+      "pos_available": 1544,
+      "neg_available": 4056,
+      "positives": [
+        {
+          "idx": 538,
+          "bboxes": [
+            [
+              62,
+              319,
+              544,
+              478
+            ]
+          ],
+          "frame_id": "video01_video01_15019_15077",
+          "num_regions": 1
+        }
+      ],
+      "negatives_absent": [
+        {
+          "idx": 1909,
+          "bboxes": null,
+          "frame_id": "video52_video52_00160_229"
+        }
+      ],
+      "negatives_wrong_bbox": [
+        {
+          "idx": 677,
+          "bboxes": [
+            [
+              247,
+              1,
+              288,
+              29
+            ],
+            [
+              499,
+              1,
+              800,
+              344
+            ],
+            [
+              91,
+              30,
+              213,
+              89
+            ],
+            [
+              41,
+              145,
+              509,
+              478
+            ],
+            [
+              696,
+              382,
+              782,
+              440
+            ]
+          ],
+          "frame_id": "video01_video01_16345_16382",
+          "wrong_type": "adjacent_Liver"
+        }
+      ]
+    },
+    "7": {
+      "name": "Blood",
+      "class_id": 7,
+      "pos_available": 668,
+      "neg_available": 4932,
+      "positives": [
+        {
+          "idx": 936,
+          "bboxes": [
+            [
+              85,
+              1,
+              319,
+              120
+            ],
+            [
+              274,
+              97,
+              378,
+              154
+            ],
+            [
+              448,
+              260,
+              594,
+              477
+            ],
+            [
+              628,
+              369,
+              686,
+              475
+            ]
+          ],
+          "frame_id": "video01_video01_28580_28636",
+          "num_regions": 4
+        }
+      ],
+      "negatives_absent": [
+        {
+          "idx": 580,
+          "bboxes": null,
+          "frame_id": "video01_video01_15099_15119"
+        }
+      ],
+      "negatives_wrong_bbox": [
+        {
+          "idx": 980,
+          "bboxes": [
+            [
+              599,
+              1,
+              724,
+              90
+            ],
+            [
+              41,
+              84,
+              464,
+              477
+            ],
+            [
+              547,
+              99,
+              577,
+              127
+            ],
+            [
+              559,
+              128,
+              799,
+              447
+            ],
+            [
+              476,
+              134,
+              537,
+              177
+            ]
+          ],
+          "frame_id": "video01_video01_28660_28680",
+          "wrong_type": "adjacent_Liver"
+        }
+      ]
+    },
+    "8": {
+      "name": "Cystic Duct",
+      "class_id": 8,
+      "pos_available": 216,
+      "neg_available": 5384,
+      "positives": [
+        {
+          "idx": 719,
+          "bboxes": [
+            [
+              318,
+              330,
+              472,
+              423
+            ]
+          ],
+          "frame_id": "video01_video01_16345_16424",
+          "num_regions": 1
+        }
+      ],
+      "negatives_absent": [
+        {
+          "idx": 5663,
+          "bboxes": null,
+          "frame_id": "video25_video25_00402_465"
+        }
+      ],
+      "negatives_wrong_bbox": [
+        {
+          "idx": 856,
+          "bboxes": [
+            [
+              123,
+              1,
+              323,
+              148
+            ],
+            [
+              435,
+              1,
+              799,
+              404
+            ],
+            [
+              42,
+              141,
+              442,
+              386
+            ]
+          ],
+          "frame_id": "video01_video01_16585_16641",
+          "wrong_type": "adjacent_Liver"
+        }
+      ]
+    },
+    "9": {
+      "name": "L-hook Electrocautery",
+      "class_id": 9,
+      "pos_available": 2070,
+      "neg_available": 3530,
+      "positives": [
+        {
+          "idx": 523,
+          "bboxes": [
+            [
+              520,
+              294,
+              795,
+              380
+            ]
+          ],
+          "frame_id": "video01_video01_15019_15062",
+          "num_regions": 1
+        }
+      ],
+      "negatives_absent": [
+        {
+          "idx": 1905,
+          "bboxes": null,
+          "frame_id": "video52_video52_00160_225"
+        }
+      ],
+      "negatives_wrong_bbox": [
+        {
+          "idx": 2377,
+          "bboxes": [
+            [
+              103,
+              1,
+              606,
+              269
+            ],
+            [
+              546,
+              32,
+              708,
+              154
+            ],
+            [
+              671,
+              68,
+              779,
+              255
+            ],
+            [
+              100,
+              250,
+              248,
+              342
+            ]
+          ],
+          "frame_id": "video52_video52_02826_2883",
+          "wrong_type": "adjacent_Abdominal Wall"
+        }
+      ]
+    },
+    "10": {
+      "name": "Gallbladder",
+      "class_id": 10,
+      "pos_available": 5052,
+      "neg_available": 548,
+      "positives": [
+        {
+          "idx": 2421,
+          "bboxes": [
+            [
+              355,
+              116,
+              506,
+              377
+            ]
+          ],
+          "frame_id": "video52_video52_02906_2927",
+          "num_regions": 1
+        }
+      ],
+      "negatives_absent": [
+        {
+          "idx": 1004,
+          "bboxes": null,
+          "frame_id": "video01_video01_28660_28704"
+        }
+      ],
+      "negatives_wrong_bbox": [
+        {
+          "idx": 3255,
+          "bboxes": [
+            [
+              98,
+              1,
+              418,
+              137
+            ],
+            [
+              555,
+              1,
+              605,
+              134
+            ],
+            [
+              422,
+              14,
+              523,
+              52
+            ],
+            [
+              629,
+              21,
+              725,
+              161
+            ]
+          ],
+          "frame_id": "video26_video26_02175_2230",
+          "wrong_type": "adjacent_Abdominal Wall"
+        }
+      ]
+    },
+    "11": {
+      "name": "Hepatic Vein",
+      "class_id": 11,
+      "pos_available": 296,
+      "neg_available": 5304,
+      "positives": [
+        {
+          "idx": 4527,
+          "bboxes": [
+            [
+              264,
+              360,
+              273,
+              370
+            ]
+          ],
+          "frame_id": "video12_video12_19900_19947",
+          "num_regions": 1
+        }
+      ],
+      "negatives_absent": [
+        {
+          "idx": 479,
+          "bboxes": null,
+          "frame_id": "video01_video01_14939_15018"
+        }
+      ],
+      "negatives_wrong_bbox": [
+        {
+          "idx": 4550,
+          "bboxes": [
+            [
+              359,
+              1,
+              707,
+              210
+            ],
+            [
+              483,
+              137,
+              741,
+              398
+            ],
+            [
+              467,
+              219,
+              507,
+              231
+            ],
+            [
+              235,
+              230,
+              277,
+              261
+            ],
+            [
+              223,
+              281,
+              245,
+              302
+            ],
+            [
+              379,
+              309,
+              461,
+              343
+            ],
+            [
+              519,
+              346,
+              569,
+              361
+            ]
+          ],
+          "frame_id": "video12_video12_19900_19970",
+          "wrong_type": "adjacent_Liver"
+        }
+      ]
+    },
+    "12": {
+      "name": "Liver Ligament",
+      "class_id": 12,
+      "pos_available": 220,
+      "neg_available": 5380,
+      "positives": [
+        {
+          "idx": 1414,
+          "bboxes": [
+            [
+              517,
+              1,
+              791,
+              273
+            ]
+          ],
+          "frame_id": "video09_video09_00912_966",
+          "num_regions": 1
+        }
+      ],
+      "negatives_absent": [
+        {
+          "idx": 2589,
+          "bboxes": null,
+          "frame_id": "video35_video35_00940_949"
+        }
+      ],
+      "negatives_wrong_bbox": [
+        {
+          "idx": 1443,
+          "bboxes": [
+            [
+              385,
+              350,
+              759,
+              478
+            ]
+          ],
+          "frame_id": "video09_video09_00992_1003",
+          "wrong_type": "adjacent_Gastrointestinal Tract"
+        }
+      ]
+    }
+  },
+  "summary": {
+    "total_excluded": 160,
+    "total_pool_size": 5600,
+    "task_type": "bounding_box_detection",
+    "description": "Few-shot examples for bounding box prediction task"
+  }
+}

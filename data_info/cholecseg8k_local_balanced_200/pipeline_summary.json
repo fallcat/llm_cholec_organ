@@ -1,0 +1,145 @@
+{
+  "dataset_tag": "cholecseg8k_local",
+  "n_classes": 12,
+  "n_train_total": 5760,
+  "n_test_selected": 200,
+  "balance_metrics": {
+    "original_stddev": 37.19602228954726,
+    "selected_stddev": 27.0319705266848,
+    "balance_improvement_pct": 27.32564166066418
+  },
+  "class_distribution": {
+    "original": [
+      87.06597222222221,
+      100.0,
+      49.861111111111114,
+      94.42708333333333,
+      79.40972222222223,
+      27.77777777777778,
+      12.01388888888889,
+      4.149305555555555,
+      37.22222222222222,
+      90.13888888888889,
+      5.486111111111111,
+      4.166666666666666
+    ],
+    "selected": {
+      "Abdominal Wall": {
+        "original_count": 5015,
+        "original_pct": 87.06597222222221,
+        "selected_count": 180,
+        "selected_pct": 90.0,
+        "improvement": 2.9340277777777857,
+        "change_type": "similar"
+      },
+      "Liver": {
+        "original_count": 5760,
+        "original_pct": 100.0,
+        "selected_count": 200,
+        "selected_pct": 100.0,
+        "improvement": 0.0,
+        "change_type": "similar"
+      },
+      "Gastrointestinal Tract": {
+        "original_count": 2872,
+        "original_pct": 49.861111111111114,
+        "selected_count": 157,
+        "selected_pct": 78.5,
+        "improvement": 28.638888888888886,
+        "change_type": "boosted"
+      },
+      "Fat": {
+        "original_count": 5439,
+        "original_pct": 94.42708333333333,
+        "selected_count": 200,
+        "selected_pct": 100.0,
+        "improvement": 5.572916666666671,
+        "change_type": "boosted"
+      },
+      "Grasper": {
+        "original_count": 4574,
+        "original_pct": 79.40972222222223,
+        "selected_count": 140,
+        "selected_pct": 70.0,
+        "improvement": -9.409722222222229,
+        "change_type": "reduced"
+      },
+      "Connective Tissue": {
+        "original_count": 1600,
+        "original_pct": 27.77777777777778,
+        "selected_count": 120,
+        "selected_pct": 60.0,
+        "improvement": 32.22222222222222,
+        "change_type": "boosted"
+      },
+      "Blood": {
+        "original_count": 692,
+        "original_pct": 12.01388888888889,
+        "selected_count": 60,
+        "selected_pct": 30.0,
+        "improvement": 17.98611111111111,
+        "change_type": "boosted"
+      },
+      "Cystic Duct": {
+        "original_count": 239,
+        "original_pct": 4.149305555555555,
+        "selected_count": 60,
+        "selected_pct": 30.0,
+        "improvement": 25.850694444444443,
+        "change_type": "boosted"
+      },
+      "L-hook Electrocautery": {
+        "original_count": 2144,
+        "original_pct": 37.22222222222222,
+        "selected_count": 74,
+        "selected_pct": 37.0,
+        "improvement": -0.22222222222222143,
+        "change_type": "similar"
+      },
+      "Gallbladder": {
+        "original_count": 5192,
+        "original_pct": 90.13888888888889,
+        "selected_count": 140,
+        "selected_pct": 70.0,
+        "improvement": -20.138888888888886,
+        "change_type": "reduced"
+      },
+      "Hepatic Vein": {
+        "original_count": 316,
+        "original_pct": 5.486111111111111,
+        "selected_count": 60,
+        "selected_pct": 30.0,
+        "improvement": 24.51388888888889,
+        "change_type": "boosted"
+      },
+      "Liver Ligament": {
+        "original_count": 240,
+        "original_pct": 4.166666666666666,
+        "selected_count": 60,
+        "selected_pct": 30.0,
+        "improvement": 25.833333333333336,
+        "change_type": "boosted"
+      }
+    }
+  },
+  "rare_classes": [
+    "Blood",
+    "Cystic Duct",
+    "Hepatic Vein",
+    "Liver Ligament"
+  ],
+  "pointing_stats": {
+    "total_positive": 12,
+    "total_negative_absent": 11,
+    "total_negative_wrong": 12,
+    "total_multi_region": 0,
+    "total_examples": 35
+  },
+  "bbox_stats": {
+    "total_positive": 12,
+    "total_negative_absent": 11,
+    "total_negative_wrong": 13,
+    "total_multi_region": 3,
+    "total_examples": 36
+  }
+}

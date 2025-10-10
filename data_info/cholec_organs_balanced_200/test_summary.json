@@ -1,0 +1,21 @@
+{
+  "dataset_name": "cholec_organs",
+  "n_test_samples": 140,
+  "balance_metrics": {
+    "original_stddev": 0.22807167065020192,
+    "selected_stddev": 0.0,
+    "improvement_percent": 100.0
+  },
+  "class_distribution": {
+    "original": [
+      99.86033519553072,
+      99.58100558659217,
+      99.30167597765363
+    ],
+    "selected": [
+      100.0,
+      100.0,
+      100.0
+    ]
+  }
+}

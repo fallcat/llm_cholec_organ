@@ -1,0 +1,70 @@
+{
+  "presence_matrix_shape": [
+    5760,
+    12
+  ],
+  "organ_names": [
+    "Abdominal Wall",
+    "Liver",
+    "Gastrointestinal Tract",
+    "Fat",
+    "Grasper",
+    "Connective Tissue",
+    "Blood",
+    "Cystic Duct",
+    "L-hook Electrocautery",
+    "Gallbladder",
+    "Hepatic Vein",
+    "Liver Ligament"
+  ],
+  "examples": {
+    "all_organs": {
+      "selected_indices": [
+        860,
+        4000,
+        1280
+      ],
+      "num_selected": 3,
+      "uncovered_cols": [],
+      "impossible_cols": []
+    },
+    "capped_8": {
+      "selected_indices": [
+        860,
+        4000,
+        1280
+      ],
+      "num_selected": 3,
+      "covered_cols": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
+      ],
+      "uncovered_cols": []
+    },
+    "rare_organs": {
+      "rare_threshold": 0.2,
+      "rare_organs": [
+        "Blood",
+        "Cystic Duct",
+        "Hepatic Vein",
+        "Liver Ligament"
+      ],
+      "selected_indices": [
+        640,
+        1280,
+        4000
+      ],
+      "num_selected": 3
+    }
+  }
+}

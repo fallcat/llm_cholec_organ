@@ -1,0 +1,198 @@
+{
+  "metadata": {
+    "creation_method": "greedy_set_cover",
+    "task_type": "bounding_box",
+    "description": "Combined few-shot examples for bounding_box detection",
+    "total_organs": 3,
+    "num_examples": 3,
+    "organs_covered": 3,
+    "uncovered_organs": [],
+    "dataset": "cholec_organs",
+    "max_examples": null,
+    "min_examples": 3,
+    "has_bbox_support": true,
+    "greedy_cover_results": {
+      "selected_indices": [
+        0,
+        121,
+        571
+      ],
+      "covered_cols": [
+        0,
+        1,
+        2
+      ],
+      "uncovered_cols": [],
+      "impossible_cols": []
+    }
+  },
+  "organ_names": [
+    "Liver",
+    "Gallbladder",
+    "Hepatocystic Triangle"
+  ],
+  "examples": [
+    {
+      "idx": 0,
+      "frame_id": "train_0",
+      "video_id": "unknown",
+      "organs_present": [
+        "Liver",
+        "Gallbladder",
+        "Hepatocystic Triangle"
+      ],
+      "num_organs": 3,
+      "bboxes": {
+        "Liver": {
+          "bboxes": [
+            [
+              0,
+              28,
+              332,
+              382
+            ]
+          ],
+          "num_regions": 1
+        },
+        "Gallbladder": {
+          "bboxes": [
+            [
+              79,
+              0,
+              528,
+              143
+            ]
+          ],
+          "num_regions": 1
+        },
+        "Hepatocystic Triangle": {
+          "bboxes": [
+            [
+              143,
+              94,
+              599,
+              382
+            ]
+          ],
+          "num_regions": 1
+        }
+      }
+    },
+    {
+      "idx": 121,
+      "frame_id": "train_121",
+      "video_id": "unknown",
+      "organs_present": [
+        "Liver",
+        "Gallbladder",
+        "Hepatocystic Triangle"
+      ],
+      "num_organs": 3,
+      "bboxes": {
+        "Liver": {
+          "bboxes": [
+            [
+              356,
+              0,
+              610,
+              269
+            ],
+            [
+              39,
+              6,
+              277,
+              321
+            ],
+            [
+              492,
+              272,
+              597,
+              308
+            ]
+          ],
+          "num_regions": 3
+        },
+        "Gallbladder": {
+          "bboxes": [
+            [
+              136,
+              0,
+              403,
+              104
+            ]
+          ],
+          "num_regions": 1
+        },
+        "Hepatocystic Triangle": {
+          "bboxes": [
+            [
+              150,
+              15,
+              401,
+              309
+            ]
+          ],
+          "num_regions": 1
+        }
+      }
+    },
+    {
+      "idx": 571,
+      "frame_id": "train_571",
+      "video_id": "unknown",
+      "organs_present": [
+        "Liver",
+        "Gallbladder",
+        "Hepatocystic Triangle"
+      ],
+      "num_organs": 3,
+      "bboxes": {
+        "Liver": {
+          "bboxes": [
+            [
+              0,
+              0,
+              638,
+              319
+            ]
+          ],
+          "num_regions": 1
+        },
+        "Gallbladder": {
+          "bboxes": [
+            [
+              0,
+              76,
+              199,
+              243
+            ]
+          ],
+          "num_regions": 1
+        },
+        "Hepatocystic Triangle": {
+          "bboxes": [
+            [
+              153,
+              70,
+              370,
+              339
+            ]
+          ],
+          "num_regions": 1
+        }
+      }
+    }
+  ],
+  "coverage_analysis": {
+    "organs_per_image": {
+      "image_0": 3,
+      "image_121": 3,
+      "image_571": 3
+    },
+    "organ_frequency": {
+      "Liver": 3,
+      "Gallbladder": 3,
+      "Hepatocystic Triangle": 3
+    }
+  }
+}

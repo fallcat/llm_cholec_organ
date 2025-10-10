@@ -1,0 +1,496 @@
+{
+  "metadata": {
+    "creation_method": "greedy_set_cover",
+    "description": "Combined few-shot examples for bounding box detection - all organs predicted together",
+    "total_organs": 12,
+    "num_examples": 3,
+    "organs_covered": 12,
+    "uncovered_organs": [],
+    "dataset": "cholecseg8k_local",
+    "source_presence_matrix": "presence_matrix_train.npy",
+    "image_size": {
+      "width": 854,
+      "height": 480
+    },
+    "greedy_cover_results": {
+      "selected_indices": [
+        860,
+        4000,
+        1280
+      ],
+      "covered_cols": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
+      ],
+      "uncovered_cols": [],
+      "impossible_cols": []
+    }
+  },
+  "organ_names": [
+    "Abdominal Wall",
+    "Liver",
+    "Gastrointestinal Tract",
+    "Fat",
+    "Grasper",
+    "Connective Tissue",
+    "Blood",
+    "Cystic Duct",
+    "L-hook Electrocautery",
+    "Gallbladder",
+    "Hepatic Vein",
+    "Liver Ligament"
+  ],
+  "examples": [
+    {
+      "idx": 860,
+      "frame_id": "video01_video01_16585_16645",
+      "video_id": "video01",
+      "organs_present": [
+        "Abdominal Wall",
+        "Liver",
+        "Gastrointestinal Tract",
+        "Fat",
+        "Grasper",
+        "Connective Tissue",
+        "Blood",
+        "Cystic Duct",
+        "Gallbladder"
+      ],
+      "num_organs": 9,
+      "bboxes": {
+        "Abdominal Wall": {
+          "bboxes": [
+            [
+              97,
+              1,
+              289,
+              91
+            ],
+            [
+              42,
+              115,
+              109,
+              243
+            ]
+          ],
+          "num_regions": 2
+        },
+        "Liver": {
+          "bboxes": [
+            [
+              137,
+              1,
+              331,
+              133
+            ],
+            [
+              455,
+              1,
+              799,
+              397
+            ],
+            [
+              45,
+              135,
+              452,
+              381
+            ]
+          ],
+          "num_regions": 3
+        },
+        "Gastrointestinal Tract": {
+          "bboxes": [
+            [
+              325,
+              354,
+              755,
+              477
+            ]
+          ],
+          "num_regions": 1
+        },
+        "Fat": {
+          "bboxes": [
+            [
+              42,
+              242,
+              411,
+              477
+            ],
+            [
+              439,
+              250,
+              773,
+              439
+            ]
+          ],
+          "num_regions": 2
+        },
+        "Grasper": {
+          "bboxes": [
+            [
+              72,
+              65,
+              294,
+              195
+            ]
+          ],
+          "num_regions": 1
+        },
+        "Connective Tissue": {
+          "bboxes": [
+            [
+              246,
+              147,
+              475,
+              270
+            ],
+            [
+              546,
+              208,
+              583,
+              232
+            ]
+          ],
+          "num_regions": 2
+        },
+        "Blood": {
+          "bboxes": [
+            [
+              407,
+              226,
+              460,
+              267
+            ],
+            [
+              476,
+              259,
+              504,
+              282
+            ]
+          ],
+          "num_regions": 2
+        },
+        "Cystic Duct": {
+          "bboxes": [
+            [
+              346,
+              255,
+              460,
+              320
+            ]
+          ],
+          "num_regions": 1
+        },
+        "Gallbladder": {
+          "bboxes": [
+            [
+              208,
+              1,
+              486,
+              197
+            ],
+            [
+              199,
+              162,
+              274,
+              220
+            ],
+            [
+              448,
+              167,
+              477,
+              235
+            ]
+          ],
+          "num_regions": 3
+        }
+      }
+    },
+    {
+      "idx": 4000,
+      "frame_id": "video12_video12_15750_15750",
+      "video_id": "video12",
+      "organs_present": [
+        "Abdominal Wall",
+        "Liver",
+        "Gastrointestinal Tract",
+        "Fat",
+        "Grasper",
+        "Connective Tissue",
+        "L-hook Electrocautery",
+        "Gallbladder",
+        "Hepatic Vein"
+      ],
+      "num_organs": 9,
+      "bboxes": {
+        "Abdominal Wall": {
+          "bboxes": [
+            [
+              122,
+              1,
+              400,
+              262
+            ],
+            [
+              439,
+              1,
+              639,
+              111
+            ],
+            [
+              623,
+              90,
+              714,
+              151
+            ],
+            [
+              127,
+              291,
+              274,
+              382
+            ]
+          ],
+          "num_regions": 4
+        },
+        "Liver": {
+          "bboxes": [
+            [
+              444,
+              68,
+              558,
+              198
+            ],
+            [
+              255,
+              84,
+              366,
+              245
+            ],
+            [
+              463,
+              144,
+              742,
+              365
+            ],
+            [
+              255,
+              280,
+              544,
+              370
+            ],
+            [
+              515,
+              340,
+              629,
+              378
+            ]
+          ],
+          "num_regions": 5
+        },
+        "Gastrointestinal Tract": {
+          "bboxes": [
+            [
+              172,
+              401,
+              268,
+              477
+            ]
+          ],
+          "num_regions": 1
+        },
+        "Fat": {
+          "bboxes": [
+            [
+              646,
+              126,
+              730,
+              208
+            ],
+            [
+              147,
+              301,
+              720,
+              477
+            ]
+          ],
+          "num_regions": 2
+        },
+        "Grasper": {
+          "bboxes": [
+            [
+              421,
+              1,
+              481,
+              23
+            ],
+            [
+              122,
+              252,
+              313,
+              306
+            ]
+          ],
+          "num_regions": 2
+        },
+        "Connective Tissue": {
+          "bboxes": [
+            [
+              255,
+              186,
+              598,
+              342
+            ]
+          ],
+          "num_regions": 1
+        },
+        "L-hook Electrocautery": {
+          "bboxes": [
+            [
+              465,
+              25,
+              695,
+              218
+            ]
+          ],
+          "num_regions": 1
+        },
+        "Gallbladder": {
+          "bboxes": [
+            [
+              251,
+              1,
+              467,
+              277
+            ]
+          ],
+          "num_regions": 1
+        },
+        "Hepatic Vein": {
+          "bboxes": [
+            [
+              495,
+              334,
+              557,
+              360
+            ]
+          ],
+          "num_regions": 1
+        }
+      }
+    },
+    {
+      "idx": 1280,
+      "frame_id": "video09_video09_00832_832",
+      "video_id": "video09",
+      "organs_present": [
+        "Abdominal Wall",
+        "Liver",
+        "Gastrointestinal Tract",
+        "Fat",
+        "Liver Ligament"
+      ],
+      "num_organs": 5,
+      "bboxes": {
+        "Abdominal Wall": {
+          "bboxes": [
+            [
+              59,
+              0,
+              564,
+              330
+            ],
+            [
+              657,
+              36,
+              835,
+              343
+            ]
+          ],
+          "num_regions": 2
+        },
+        "Liver": {
+          "bboxes": [
+            [
+              246,
+              181,
+              536,
+              371
+            ],
+            [
+              602,
+              239,
+              816,
+              413
+            ]
+          ],
+          "num_regions": 2
+        },
+        "Gastrointestinal Tract": {
+          "bboxes": [
+            [
+              412,
+              317,
+              784,
+              477
+            ]
+          ],
+          "num_regions": 1
+        },
+        "Fat": {
+          "bboxes": [
+            [
+              75,
+              309,
+              639,
+              479
+            ]
+          ],
+          "num_regions": 1
+        },
+        "Liver Ligament": {
+          "bboxes": [
+            [
+              464,
+              0,
+              783,
+              342
+            ]
+          ],
+          "num_regions": 1
+        }
+      }
+    }
+  ],
+  "coverage_analysis": {
+    "organs_per_image": {
+      "image_860": 9,
+      "image_4000": 9,
+      "image_1280": 5
+    },
+    "organ_frequency": {
+      "Abdominal Wall": 3,
+      "Liver": 3,
+      "Gastrointestinal Tract": 3,
+      "Fat": 3,
+      "Grasper": 2,
+      "Connective Tissue": 2,
+      "Blood": 1,
+      "Cystic Duct": 1,
+      "L-hook Electrocautery": 1,
+      "Gallbladder": 2,
+      "Hepatic Vein": 1,
+      "Liver Ligament": 1
+    }
+  }
+}

@@ -1,0 +1,328 @@
+{
+  "dataset": "CholecSeg8k",
+  "split": "train",
+  "min_pixels": 50,
+  "seed": 43,
+  "n_pos": 1,
+  "n_neg_easy": 1,
+  "n_neg_hard": 0,
+  "exclude_balanced": [
+    1411,
+    1413,
+    1416,
+    1417,
+    1527,
+    1549,
+    1555,
+    1559,
+    1569,
+    1572,
+    1583,
+    1586,
+    1766,
+    1771,
+    1776,
+    1807,
+    1809,
+    1811,
+    1820,
+    1836,
+    1837,
+    1839,
+    1844,
+    1848,
+    1850,
+    1855,
+    1859,
+    1863,
+    1866,
+    1867,
+    1879,
+    1911,
+    1914,
+    2094,
+    2096,
+    2098,
+    2101,
+    2104,
+    2109,
+    2117,
+    2126,
+    2127,
+    2136,
+    2147,
+    2150,
+    2157,
+    2486,
+    2494,
+    2511,
+    2514,
+    2519,
+    2531,
+    2551,
+    2557,
+    3043,
+    3045,
+    3051,
+    3061,
+    3062,
+    3078,
+    3079,
+    3082,
+    3086,
+    3094,
+    3102,
+    3106,
+    3114,
+    5609,
+    5627,
+    5629,
+    5631,
+    5637,
+    5642,
+    5653,
+    5658,
+    5670,
+    5677,
+    5686,
+    5691,
+    5703,
+    5717,
+    5720,
+    5725,
+    5741,
+    5750,
+    5759,
+    5760,
+    5761,
+    5766,
+    5780,
+    5784,
+    5785,
+    5787,
+    5791,
+    5795,
+    5798,
+    5814,
+    5816,
+    5822,
+    5824
+  ],
+  "base_pool_size": 7980,
+  "plan": {
+    "1": {
+      "name": "Abdominal Wall",
+      "positives": [
+        {
+          "idx": 4169,
+          "point": [
+            536,
+            179
+          ]
+        }
+      ],
+      "negatives_easy": [
+        4371
+      ],
+      "negatives_hard": [],
+      "pos_available": 7158,
+      "neg_available": 822
+    },
+    "2": {
+      "name": "Liver",
+      "positives": [
+        {
+          "idx": 3269,
+          "point": [
+            229,
+            274
+          ]
+        }
+      ],
+      "negatives_easy": [],
+      "negatives_hard": [],
+      "pos_available": 7980,
+      "neg_available": 0
+    },
+    "3": {
+      "name": "Gastrointestinal Tract",
+      "positives": [
+        {
+          "idx": 915,
+          "point": [
+            717,
+            361
+          ]
+        }
+      ],
+      "negatives_easy": [
+        3568
+      ],
+      "negatives_hard": [],
+      "pos_available": 4476,
+      "neg_available": 3504
+    },
+    "4": {
+      "name": "Fat",
+      "positives": [
+        {
+          "idx": 148,
+          "point": [
+            382,
+            413
+          ]
+        }
+      ],
+      "negatives_easy": [
+        2477
+      ],
+      "negatives_hard": [],
+      "pos_available": 7410,
+      "neg_available": 570
+    },
+    "5": {
+      "name": "Grasper",
+      "positives": [
+        {
+          "idx": 7122,
+          "point": [
+            731,
+            135
+          ]
+        }
+      ],
+      "negatives_easy": [
+        3973
+      ],
+      "negatives_hard": [],
+      "pos_available": 5953,
+      "neg_available": 2027
+    },
+    "6": {
+      "name": "Connective Tissue",
+      "positives": [
+        {
+          "idx": 2466,
+          "point": [
+            453,
+            416
+          ]
+        }
+      ],
+      "negatives_easy": [
+        7852
+      ],
+      "negatives_hard": [],
+      "pos_available": 1533,
+      "neg_available": 6447
+    },
+    "7": {
+      "name": "Blood",
+      "positives": [
+        {
+          "idx": 2480,
+          "point": [
+            461,
+            247
+          ]
+        }
+      ],
+      "negatives_easy": [
+        6956
+      ],
+      "negatives_hard": [],
+      "pos_available": 658,
+      "neg_available": 7322
+    },
+    "8": {
+      "name": "Cystic Duct",
+      "positives": [
+        {
+          "idx": 3060,
+          "point": [
+            393,
+            350
+          ]
+        }
+      ],
+      "negatives_easy": [
+        3225
+      ],
+      "negatives_hard": [],
+      "pos_available": 207,
+      "neg_available": 7773
+    },
+    "9": {
+      "name": "L-hook Electrocautery",
+      "positives": [
+        {
+          "idx": 1755,
+          "point": [
+            638,
+            66
+          ]
+        }
+      ],
+      "negatives_easy": [
+        3038
+      ],
+      "negatives_hard": [],
+      "pos_available": 2212,
+      "neg_available": 5768
+    },
+    "10": {
+      "name": "Gallbladder",
+      "positives": [
+        {
+          "idx": 3092,
+          "point": [
+            311,
+            68
+          ]
+        }
+      ],
+      "negatives_easy": [
+        5777
+      ],
+      "negatives_hard": [],
+      "pos_available": 6793,
+      "neg_available": 1187
+    },
+    "11": {
+      "name": "Hepatic Vein",
+      "positives": [
+        {
+          "idx": 1581,
+          "point": [
+            523,
+            347
+          ]
+        }
+      ],
+      "negatives_easy": [
+        1133
+      ],
+      "negatives_hard": [],
+      "pos_available": 283,
+      "neg_available": 7697
+    },
+    "12": {
+      "name": "Liver Ligament",
+      "positives": [
+        {
+          "idx": 5830,
+          "point": [
+            716,
+            126
+          ]
+        }
+      ],
+      "negatives_easy": [
+        3085
+      ],
+      "negatives_hard": [],
+      "pos_available": 207,
+      "neg_available": 7773
+    }
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "dataset": "minwoosun/CholecSeg8k",
+  "split": "train",
+  "n_select": 10,
+  "indices": [
+    2514,
+    3105,
+    1846,
+    1858,
+    5815,
+    5738,
+    7256,
+    5320,
+    5173,
+    3843
+  ],
+  "generated_at": "2025-08-31T03:58:33.151316Z",
+  "params": {
+    "min_pixels": 50,
+    "rare_top_k": 4,
+    "min_quota_rare": 2,
+    "max_cap_frac": 0.7,
+    "seed": 7
+  },
+  "targets": {
+    "T_total": [
+      7,
+      10,
+      6,
+      7,
+      7,
+      2,
+      2,
+      2,
+      3,
+      7,
+      2,
+      2
+    ],
+    "cap_counts": [
+      7,
+      10,
+      7,
+      7,
+      7,
+      7,
+      7,
+      7,
+      7,
+      7,
+      7,
+      7
+    ],
+    "rare_order_cols": [
+      11,
+      7,
+      10,
+      6
+    ]
+  }
+}

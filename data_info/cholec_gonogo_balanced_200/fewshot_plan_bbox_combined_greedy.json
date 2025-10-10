@@ -1,0 +1,147 @@
+{
+  "metadata": {
+    "creation_method": "greedy_set_cover",
+    "task_type": "bounding_box",
+    "description": "Combined few-shot examples for bounding_box detection",
+    "total_organs": 2,
+    "num_examples": 3,
+    "organs_covered": 2,
+    "uncovered_organs": [],
+    "dataset": "cholec_gonogo",
+    "max_examples": null,
+    "min_examples": 3,
+    "has_bbox_support": true,
+    "greedy_cover_results": {
+      "selected_indices": [
+        1,
+        299,
+        82
+      ],
+      "covered_cols": [
+        0,
+        1
+      ],
+      "uncovered_cols": [],
+      "impossible_cols": []
+    }
+  },
+  "organ_names": [
+    "Go",
+    "NoGo"
+  ],
+  "examples": [
+    {
+      "idx": 1,
+      "frame_id": "train_1",
+      "video_id": "unknown",
+      "organs_present": [
+        "Go",
+        "NoGo"
+      ],
+      "num_organs": 2,
+      "bboxes": {
+        "Go": {
+          "bboxes": [
+            [
+              52,
+              0,
+              275,
+              248
+            ]
+          ],
+          "num_regions": 1
+        },
+        "NoGo": {
+          "bboxes": [
+            [
+              272,
+              246,
+              582,
+              382
+            ]
+          ],
+          "num_regions": 1
+        }
+      }
+    },
+    {
+      "idx": 299,
+      "frame_id": "train_299",
+      "video_id": "unknown",
+      "organs_present": [
+        "Go",
+        "NoGo"
+      ],
+      "num_organs": 2,
+      "bboxes": {
+        "Go": {
+          "bboxes": [
+            [
+              200,
+              0,
+              320,
+              281
+            ]
+          ],
+          "num_regions": 1
+        },
+        "NoGo": {
+          "bboxes": [
+            [
+              332,
+              179,
+              609,
+              382
+            ]
+          ],
+          "num_regions": 1
+        }
+      }
+    },
+    {
+      "idx": 82,
+      "frame_id": "train_82",
+      "video_id": "unknown",
+      "organs_present": [
+        "Go",
+        "NoGo"
+      ],
+      "num_organs": 2,
+      "bboxes": {
+        "Go": {
+          "bboxes": [
+            [
+              244,
+              33,
+              523,
+              192
+            ]
+          ],
+          "num_regions": 1
+        },
+        "NoGo": {
+          "bboxes": [
+            [
+              196,
+              158,
+              563,
+              382
+            ]
+          ],
+          "num_regions": 1
+        }
+      }
+    }
+  ],
+  "coverage_analysis": {
+    "organs_per_image": {
+      "image_1": 2,
+      "image_299": 2,
+      "image_82": 2
+    },
+    "organ_frequency": {
+      "Go": 3,
+      "NoGo": 3
+    }
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "timestamp": "2025-09-01T03:04:25.035580",
+  "dataset": "CholecSeg8k",
+  "configuration": {
+    "n_test_samples": 100,
+    "n_pos_examples": 1,
+    "n_neg_easy": 1,
+    "n_neg_hard": 1,
+    "min_pixels": 50,
+    "seed": 42
+  },
+  "files_created": {
+    "balanced_indices": "../../data_info/cholecseg8k/balanced_indices_train_100.json",
+    "fewshot_plan_easy": "../../data_info/cholecseg8k/fewshot_plan_train_pos1_neg1_seed43_excl100.json",
+    "fewshot_plan_hard": "../../data_info/cholecseg8k/fewshot_plan_train_pos1_nege1_negh1_seed44_excl100.json"
+  },
+  "statistics": {
+    "total_train_samples": 8080,
+    "organ_distribution_original": {
+      "Abdominal Wall": 7255,
+      "Liver": 8080,
+      "Gastrointestinal Tract": 4556,
+      "Fat": 7510,
+      "Grasper": 6020,
+      "Connective Tissue": 1600,
+      "Blood": 692,
+      "Cystic Duct": 241,
+      "L-hook Electrocautery": 2251,
+      "Gallbladder": 6860,
+      "Hepatic Vein": 316,
+      "Liver Ligament": 240
+    },
+    "organ_distribution_balanced": {
+      "Abdominal Wall": 97,
+      "Liver": 100,
+      "Gastrointestinal Tract": 80,
+      "Fat": 100,
+      "Grasper": 67,
+      "Connective Tissue": 67,
+      "Blood": 34,
+      "Cystic Duct": 34,
+      "L-hook Electrocautery": 39,
+      "Gallbladder": 67,
+      "Hepatic Vein": 33,
+      "Liver Ligament": 33
+    }
+  }
+}

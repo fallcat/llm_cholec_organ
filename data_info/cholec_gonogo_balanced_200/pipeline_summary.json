@@ -1,0 +1,50 @@
+{
+  "dataset_tag": "cholec_gonogo",
+  "n_classes": 2,
+  "n_train_total": 716,
+  "n_test_selected": 151,
+  "balance_metrics": {
+    "original_stddev": 0.13966480446926965,
+    "selected_stddev": 0.0,
+    "balance_improvement_pct": 100.0
+  },
+  "class_distribution": {
+    "original": [
+      91.06145251396647,
+      90.78212290502793
+    ],
+    "selected": {
+      "Go (Safe to Incise)": {
+        "original_count": 652,
+        "original_pct": 91.06145251396647,
+        "selected_count": 140,
+        "selected_pct": 92.71523178807946,
+        "improvement": 1.653779274112992,
+        "change_type": "similar"
+      },
+      "NoGo (Unsafe to Incise)": {
+        "original_count": 650,
+        "original_pct": 90.78212290502793,
+        "selected_count": 140,
+        "selected_pct": 92.71523178807946,
+        "improvement": 1.9331088830515313,
+        "change_type": "similar"
+      }
+    }
+  },
+  "rare_classes": [],
+  "pointing_stats": {
+    "total_positive": 2,
+    "total_negative_absent": 2,
+    "total_negative_wrong": 2,
+    "total_multi_region": 0,
+    "total_examples": 6
+  },
+  "bbox_stats": {
+    "total_positive": 2,
+    "total_negative_absent": 2,
+    "total_negative_wrong": 2,
+    "total_multi_region": 0,
+    "total_examples": 6
+  }
+}

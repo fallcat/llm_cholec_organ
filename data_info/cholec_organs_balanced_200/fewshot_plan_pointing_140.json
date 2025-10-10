@@ -1,0 +1,114 @@
+{
+  "split": "train",
+  "task": "pointing",
+  "plan": {
+    "1": {
+      "name": "Liver",
+      "class_id": 1,
+      "pos_available": 575,
+      "neg_available": 1,
+      "positives": [
+        {
+          "idx": 255,
+          "point": [
+            301,
+            194
+          ],
+          "frame_id": "train_255"
+        }
+      ],
+      "negatives_absent": [
+        {
+          "idx": 164,
+          "point": null,
+          "frame_id": "train_164"
+        }
+      ],
+      "negatives_wrong_point": [
+        {
+          "idx": 463,
+          "point": [
+            288,
+            51
+          ],
+          "frame_id": "train_463",
+          "note": "wrong_location"
+        }
+      ]
+    },
+    "2": {
+      "name": "Gallbladder",
+      "class_id": 2,
+      "pos_available": 573,
+      "neg_available": 3,
+      "positives": [
+        {
+          "idx": 242,
+          "point": [
+            222,
+            80
+          ],
+          "frame_id": "train_242"
+        }
+      ],
+      "negatives_absent": [
+        {
+          "idx": 208,
+          "point": null,
+          "frame_id": "train_208"
+        }
+      ],
+      "negatives_wrong_point": [
+        {
+          "idx": 525,
+          "point": [
+            462,
+            191
+          ],
+          "frame_id": "train_525",
+          "note": "wrong_location"
+        }
+      ]
+    },
+    "3": {
+      "name": "Hepatocystic Triangle",
+      "class_id": 3,
+      "pos_available": 571,
+      "neg_available": 5,
+      "positives": [
+        {
+          "idx": 40,
+          "point": [
+            321,
+            142
+          ],
+          "frame_id": "train_40"
+        }
+      ],
+      "negatives_absent": [
+        {
+          "idx": 697,
+          "point": null,
+          "frame_id": "train_697"
+        }
+      ],
+      "negatives_wrong_point": [
+        {
+          "idx": 322,
+          "point": [
+            283,
+            138
+          ],
+          "frame_id": "train_322",
+          "note": "wrong_location"
+        }
+      ]
+    }
+  },
+  "summary": {
+    "total_excluded": 140,
+    "total_pool_size": 576,
+    "task_type": "pointing",
+    "description": "Few-shot examples for pointing task"
+  }
+}

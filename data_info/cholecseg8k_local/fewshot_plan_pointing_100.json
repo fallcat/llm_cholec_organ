@@ -1,0 +1,407 @@
+{
+  "split": "train",
+  "plan": {
+    "1": {
+      "name": "Abdominal Wall",
+      "class_id": 1,
+      "pos_available": 4923,
+      "neg_available": 737,
+      "positives": [
+        {
+          "idx": 1793,
+          "point": [
+            435,
+            156
+          ],
+          "frame_id": "video52_video52_00080_133"
+        }
+      ],
+      "negatives_absent": [
+        {
+          "idx": 3153,
+          "point": null,
+          "frame_id": "video26_video26_02095_2128"
+        }
+      ],
+      "negatives_wrong_point": [
+        {
+          "idx": 3119,
+          "point": [
+            430,
+            213
+          ],
+          "frame_id": "video26_video26_01935_2014",
+          "note": "wrong_location"
+        }
+      ]
+    },
+    "2": {
+      "name": "Liver",
+      "class_id": 2,
+      "pos_available": 5660,
+      "neg_available": 0,
+      "positives": [
+        {
+          "idx": 2287,
+          "point": [
+            526,
+            283
+          ],
+          "frame_id": "video52_video52_02746_2793"
+        }
+      ],
+      "negatives_absent": [],
+      "negatives_wrong_point": [
+        {
+          "idx": 286,
+          "point": [
+            486,
+            379
+          ],
+          "frame_id": "video01_video01_00400_446",
+          "note": "wrong_location"
+        }
+      ]
+    },
+    "3": {
+      "name": "Gastrointestinal Tract",
+      "class_id": 3,
+      "pos_available": 2817,
+      "neg_available": 2843,
+      "positives": [
+        {
+          "idx": 5075,
+          "point": [
+            392,
+            405
+          ],
+          "frame_id": "video55_video55_00508_543"
+        }
+      ],
+      "negatives_absent": [
+        {
+          "idx": 2132,
+          "point": null,
+          "frame_id": "video52_video52_00400_452"
+        }
+      ],
+      "negatives_wrong_point": [
+        {
+          "idx": 1481,
+          "point": [
+            509,
+            153
+          ],
+          "frame_id": "video09_video09_00992_1041",
+          "note": "wrong_location"
+        }
+      ]
+    },
+    "4": {
+      "name": "Fat",
+      "class_id": 4,
+      "pos_available": 5339,
+      "neg_available": 321,
+      "positives": [
+        {
+          "idx": 1410,
+          "point": [
+            395,
+            395
+          ],
+          "frame_id": "video09_video09_00912_962"
+        }
+      ],
+      "negatives_absent": [
+        {
+          "idx": 387,
+          "point": null,
+          "frame_id": "video01_video01_14859_14926"
+        }
+      ],
+      "negatives_wrong_point": [
+        {
+          "idx": 1093,
+          "point": [
+            318,
+            295
+          ],
+          "frame_id": "video01_video01_28740_28793",
+          "note": "wrong_location"
+        }
+      ]
+    },
+    "5": {
+      "name": "Grasper",
+      "class_id": 5,
+      "pos_available": 4490,
+      "neg_available": 1170,
+      "positives": [
+        {
+          "idx": 222,
+          "point": [
+            194,
+            234
+          ],
+          "frame_id": "video01_video01_00240_302"
+        }
+      ],
+      "negatives_absent": [
+        {
+          "idx": 3456,
+          "point": null,
+          "frame_id": "video43_video43_00307_323"
+        }
+      ],
+      "negatives_wrong_point": [
+        {
+          "idx": 4289,
+          "point": [
+            479,
+            51
+          ],
+          "frame_id": "video12_video12_19580_19629",
+          "note": "wrong_location"
+        }
+      ]
+    },
+    "6": {
+      "name": "Connective Tissue",
+      "class_id": 6,
+      "pos_available": 1564,
+      "neg_available": 4096,
+      "positives": [
+        {
+          "idx": 986,
+          "point": [
+            423,
+            126
+          ],
+          "frame_id": "video01_video01_28660_28686"
+        }
+      ],
+      "negatives_absent": [
+        {
+          "idx": 1999,
+          "point": null,
+          "frame_id": "video52_video52_00240_319"
+        }
+      ],
+      "negatives_wrong_point": [
+        {
+          "idx": 1136,
+          "point": [
+            448,
+            221
+          ],
+          "frame_id": "video01_video01_28820_28836",
+          "note": "wrong_location"
+        }
+      ]
+    },
+    "7": {
+      "name": "Blood",
+      "class_id": 7,
+      "pos_available": 681,
+      "neg_available": 4979,
+      "positives": [
+        {
+          "idx": 692,
+          "point": [
+            441,
+            334
+          ],
+          "frame_id": "video01_video01_16345_16397"
+        }
+      ],
+      "negatives_absent": [
+        {
+          "idx": 265,
+          "point": null,
+          "frame_id": "video01_video01_00400_425"
+        }
+      ],
+      "negatives_wrong_point": [
+        {
+          "idx": 1222,
+          "point": [
+            413,
+            283
+          ],
+          "frame_id": "video01_video01_28900_28922",
+          "note": "wrong_location"
+        }
+      ]
+    },
+    "8": {
+      "name": "Cystic Duct",
+      "class_id": 8,
+      "pos_available": 232,
+      "neg_available": 5428,
+      "positives": [
+        {
+          "idx": 664,
+          "point": [
+            493,
+            346
+          ],
+          "frame_id": "video01_video01_16345_16369"
+        }
+      ],
+      "negatives_absent": [
+        {
+          "idx": 955,
+          "point": null,
+          "frame_id": "video01_video01_28580_28655"
+        }
+      ],
+      "negatives_wrong_point": [
+        {
+          "idx": 700,
+          "point": [
+            389,
+            326
+          ],
+          "frame_id": "video01_video01_16345_16405",
+          "note": "wrong_location"
+        }
+      ]
+    },
+    "9": {
+      "name": "L-hook Electrocautery",
+      "class_id": 9,
+      "pos_available": 2103,
+      "neg_available": 3557,
+      "positives": [
+        {
+          "idx": 2359,
+          "point": [
+            566,
+            125
+          ],
+          "frame_id": "video52_video52_02826_2865"
+        }
+      ],
+      "negatives_absent": [
+        {
+          "idx": 1736,
+          "point": null,
+          "frame_id": "video52_video52_00000_60"
+        }
+      ],
+      "negatives_wrong_point": [
+        {
+          "idx": 4124,
+          "point": [
+            452,
+            126
+          ],
+          "frame_id": "video12_video12_15830_15874",
+          "note": "wrong_location"
+        }
+      ]
+    },
+    "10": {
+      "name": "Gallbladder",
+      "class_id": 10,
+      "pos_available": 5098,
+      "neg_available": 562,
+      "positives": [
+        {
+          "idx": 2729,
+          "point": [
+            437,
+            350
+          ],
+          "frame_id": "video48_video48_00561_570"
+        }
+      ],
+      "negatives_absent": [
+        {
+          "idx": 1410,
+          "point": null,
+          "frame_id": "video09_video09_00912_962"
+        }
+      ],
+      "negatives_wrong_point": [
+        {
+          "idx": 4802,
+          "point": [
+            227,
+            295
+          ],
+          "frame_id": "video27_video27_00400_402",
+          "note": "wrong_location"
+        }
+      ]
+    },
+    "11": {
+      "name": "Hepatic Vein",
+      "class_id": 11,
+      "pos_available": 310,
+      "neg_available": 5350,
+      "positives": [
+        {
+          "idx": 4131,
+          "point": [
+            522,
+            347
+          ],
+          "frame_id": "video12_video12_15830_15881"
+        }
+      ],
+      "negatives_absent": [
+        {
+          "idx": 1357,
+          "point": null,
+          "frame_id": "video09_video09_00832_909"
+        }
+      ],
+      "negatives_wrong_point": [
+        {
+          "idx": 4535,
+          "point": [
+            594,
+            208
+          ],
+          "frame_id": "video12_video12_19900_19955",
+          "note": "wrong_location"
+        }
+      ]
+    },
+    "12": {
+      "name": "Liver Ligament",
+      "class_id": 12,
+      "pos_available": 236,
+      "neg_available": 5424,
+      "positives": [
+        {
+          "idx": 1353,
+          "point": [
+            675,
+            147
+          ],
+          "frame_id": "video09_video09_00832_905"
+        }
+      ],
+      "negatives_absent": [
+        {
+          "idx": 2944,
+          "point": null,
+          "frame_id": "video48_video48_00801_865"
+        }
+      ],
+      "negatives_wrong_point": [
+        {
+          "idx": 1398,
+          "point": [
+            688,
+            319
+          ],
+          "frame_id": "video09_video09_00912_950",
+          "note": "wrong_location"
+        }
+      ]
+    }
+  }
+}

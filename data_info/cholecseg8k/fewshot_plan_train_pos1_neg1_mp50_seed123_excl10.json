@@ -1,0 +1,295 @@
+{
+  "dataset": "CholecSeg8k",
+  "split": "train",
+  "min_pixels": 50,
+  "seed": 123,
+  "n_pos": 1,
+  "n_neg": 1,
+  "exclude_balanced": [
+    1846,
+    1858,
+    2514,
+    3105,
+    3843,
+    5173,
+    5320,
+    5738,
+    5815,
+    7256
+  ],
+  "base_pool_size": 8070,
+  "plan": {
+    "1": {
+      "label": "Abdominal Wall",
+      "pos": [
+        {
+          "index": 1030,
+          "point_original": [
+            411,
+            141
+          ]
+        }
+      ],
+      "neg": [
+        {
+          "index": 4390
+        }
+      ],
+      "stats": {
+        "pos_avail": 7247,
+        "neg_avail": 823,
+        "pos_sel": 1,
+        "neg_sel": 1
+      }
+    },
+    "2": {
+      "label": "Liver",
+      "pos": [
+        {
+          "index": 558,
+          "point_original": [
+            669,
+            170
+          ]
+        }
+      ],
+      "neg": [],
+      "stats": {
+        "pos_avail": 8070,
+        "neg_avail": 0,
+        "pos_sel": 1,
+        "neg_sel": 0
+      }
+    },
+    "3": {
+      "label": "Gastrointestinal Tract",
+      "pos": [
+        {
+          "index": 6793,
+          "point_original": [
+            671,
+            339
+          ]
+        }
+      ],
+      "neg": [
+        {
+          "index": 569
+        }
+      ],
+      "stats": {
+        "pos_avail": 4550,
+        "neg_avail": 3520,
+        "pos_sel": 1,
+        "neg_sel": 1
+      }
+    },
+    "4": {
+      "label": "Fat",
+      "pos": [
+        {
+          "index": 2681,
+          "point_original": [
+            591,
+            401
+          ]
+        }
+      ],
+      "neg": [
+        {
+          "index": 2426
+        }
+      ],
+      "stats": {
+        "pos_avail": 7501,
+        "neg_avail": 569,
+        "pos_sel": 1,
+        "neg_sel": 1
+      }
+    },
+    "5": {
+      "label": "Grasper",
+      "pos": [
+        {
+          "index": 1837,
+          "point_original": [
+            573,
+            236
+          ]
+        }
+      ],
+      "neg": [
+        {
+          "index": 215
+        }
+      ],
+      "stats": {
+        "pos_avail": 6013,
+        "neg_avail": 2057,
+        "pos_sel": 1,
+        "neg_sel": 1
+      }
+    },
+    "6": {
+      "label": "Connective Tissue",
+      "pos": [
+        {
+          "index": 3342,
+          "point_original": [
+            447,
+            323
+          ]
+        }
+      ],
+      "neg": [
+        {
+          "index": 4532
+        }
+      ],
+      "stats": {
+        "pos_avail": 1596,
+        "neg_avail": 6474,
+        "pos_sel": 1,
+        "neg_sel": 1
+      }
+    },
+    "7": {
+      "label": "Blood",
+      "pos": [
+        {
+          "index": 2295,
+          "point_original": [
+            211,
+            41
+          ]
+        }
+      ],
+      "neg": [
+        {
+          "index": 4355
+        }
+      ],
+      "stats": {
+        "pos_avail": 690,
+        "neg_avail": 7380,
+        "pos_sel": 1,
+        "neg_sel": 1
+      }
+    },
+    "8": {
+      "label": "Cystic Duct",
+      "pos": [
+        {
+          "index": 3044,
+          "point_original": [
+            452,
+            358
+          ]
+        }
+      ],
+      "neg": [
+        {
+          "index": 1476
+        }
+      ],
+      "stats": {
+        "pos_avail": 239,
+        "neg_avail": 7831,
+        "pos_sel": 1,
+        "neg_sel": 1
+      }
+    },
+    "9": {
+      "label": "L-hook Electrocautery",
+      "pos": [
+        {
+          "index": 5925,
+          "point_original": [
+            584,
+            58
+          ]
+        }
+      ],
+      "neg": [
+        {
+          "index": 2188
+        }
+      ],
+      "stats": {
+        "pos_avail": 2248,
+        "neg_avail": 5822,
+        "pos_sel": 1,
+        "neg_sel": 1
+      }
+    },
+    "10": {
+      "label": "Gallbladder",
+      "pos": [
+        {
+          "index": 6952,
+          "point_original": [
+            247,
+            345
+          ]
+        }
+      ],
+      "neg": [
+        {
+          "index": 1307
+        }
+      ],
+      "stats": {
+        "pos_avail": 6853,
+        "neg_avail": 1217,
+        "pos_sel": 1,
+        "neg_sel": 1
+      }
+    },
+    "11": {
+      "label": "Hepatic Vein",
+      "pos": [
+        {
+          "index": 1880,
+          "point_original": [
+            527,
+            351
+          ]
+        }
+      ],
+      "neg": [
+        {
+          "index": 775
+        }
+      ],
+      "stats": {
+        "pos_avail": 314,
+        "neg_avail": 7756,
+        "pos_sel": 1,
+        "neg_sel": 1
+      }
+    },
+    "12": {
+      "label": "Liver Ligament",
+      "pos": [
+        {
+          "index": 5757,
+          "point_original": [
+            513,
+            151
+          ]
+        }
+      ],
+      "neg": [
+        {
+          "index": 5882
+        }
+      ],
+      "stats": {
+        "pos_avail": 238,
+        "neg_avail": 7832,
+        "pos_sel": 1,
+        "neg_sel": 1
+      }
+    }
+  }
+}

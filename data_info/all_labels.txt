@@ -1,0 +1,20 @@
+black background
+abdominal wall
+liver
+gastrointestinal tract
+fat
+grasper
+connective tissue
+blood
+cystic duct
+l-hook electrocautery
+gallbladder
+hepatic vein
+liver ligament
+background
+liver
+gallbladder
+hepatocystic triangle
+background
+go (safe to incise)
+nogo (unsafe to incise)

@@ -1,0 +1,80 @@
+{
+  "split": "train",
+  "task": "pointing",
+  "plan": {
+    "1": {
+      "name": "Go",
+      "class_id": 1,
+      "pos_available": 151,
+      "neg_available": 13,
+      "positives": [
+        {
+          "idx": 184,
+          "point": [
+            259,
+            206
+          ],
+          "frame_id": "train_184"
+        }
+      ],
+      "negatives_absent": [
+        {
+          "idx": 161,
+          "point": null,
+          "frame_id": "train_161"
+        }
+      ],
+      "negatives_wrong_point": [
+        {
+          "idx": 63,
+          "point": [
+            184,
+            240
+          ],
+          "frame_id": "train_63",
+          "note": "wrong_location"
+        }
+      ]
+    },
+    "2": {
+      "name": "NoGo",
+      "class_id": 2,
+      "pos_available": 147,
+      "neg_available": 17,
+      "positives": [
+        {
+          "idx": 142,
+          "point": [
+            353,
+            333
+          ],
+          "frame_id": "train_142"
+        }
+      ],
+      "negatives_absent": [
+        {
+          "idx": 107,
+          "point": null,
+          "frame_id": "train_107"
+        }
+      ],
+      "negatives_wrong_point": [
+        {
+          "idx": 56,
+          "point": [
+            468,
+            351
+          ],
+          "frame_id": "train_56",
+          "note": "wrong_location"
+        }
+      ]
+    }
+  },
+  "summary": {
+    "total_excluded": 36,
+    "total_pool_size": 164,
+    "task_type": "pointing",
+    "description": "Few-shot examples for pointing task"
+  }
+}

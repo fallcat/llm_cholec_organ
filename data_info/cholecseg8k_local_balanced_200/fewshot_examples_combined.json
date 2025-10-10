@@ -1,0 +1,229 @@
+{
+  "examples": [
+    {
+      "train_idx": 427,
+      "detections": {
+        "Abdominal Wall": {
+          "present": true,
+          "bbox": [
+            41,
+            1,
+            510,
+            347
+          ]
+        },
+        "Liver": {
+          "present": true,
+          "bbox": [
+            59,
+            1,
+            799,
+            478
+          ]
+        },
+        "Gastrointestinal Tract": {
+          "present": false
+        },
+        "Fat": {
+          "present": false
+        },
+        "Grasper": {
+          "present": true,
+          "bbox": [
+            50,
+            40,
+            753,
+            411
+          ]
+        },
+        "Connective Tissue": {
+          "present": true,
+          "bbox": [
+            59,
+            327,
+            516,
+            478
+          ]
+        },
+        "Blood": {
+          "present": false
+        },
+        "Cystic Duct": {
+          "present": false
+        },
+        "L-hook Electrocautery": {
+          "present": true,
+          "bbox": [
+            511,
+            350,
+            781,
+            447
+          ]
+        },
+        "Gallbladder": {
+          "present": true,
+          "bbox": [
+            76,
+            86,
+            514,
+            469
+          ]
+        },
+        "Hepatic Vein": {
+          "present": false
+        },
+        "Liver Ligament": {
+          "present": false
+        }
+      }
+    },
+    {
+      "train_idx": 157,
+      "detections": {
+        "Abdominal Wall": {
+          "present": true,
+          "bbox": [
+            34,
+            1,
+            227,
+            213
+          ]
+        },
+        "Liver": {
+          "present": true,
+          "bbox": [
+            33,
+            1,
+            790,
+            478
+          ]
+        },
+        "Gastrointestinal Tract": {
+          "present": true,
+          "bbox": [
+            385,
+            344,
+            682,
+            478
+          ]
+        },
+        "Fat": {
+          "present": true,
+          "bbox": [
+            95,
+            286,
+            742,
+            478
+          ]
+        },
+        "Grasper": {
+          "present": true,
+          "bbox": [
+            30,
+            245,
+            130,
+            310
+          ]
+        },
+        "Connective Tissue": {
+          "present": false
+        },
+        "Blood": {
+          "present": false
+        },
+        "Cystic Duct": {
+          "present": false
+        },
+        "L-hook Electrocautery": {
+          "present": false
+        },
+        "Gallbladder": {
+          "present": true,
+          "bbox": [
+            222,
+            1,
+            440,
+            375
+          ]
+        },
+        "Hepatic Vein": {
+          "present": false
+        },
+        "Liver Ligament": {
+          "present": false
+        }
+      }
+    },
+    {
+      "train_idx": 112,
+      "detections": {
+        "Abdominal Wall": {
+          "present": true,
+          "bbox": [
+            34,
+            1,
+            284,
+            284
+          ]
+        },
+        "Liver": {
+          "present": true,
+          "bbox": [
+            35,
+            1,
+            792,
+            478
+          ]
+        },
+        "Gastrointestinal Tract": {
+          "present": false
+        },
+        "Fat": {
+          "present": true,
+          "bbox": [
+            423,
+            1,
+            579,
+            478
+          ]
+        },
+        "Grasper": {
+          "present": true,
+          "bbox": [
+            323,
+            1,
+            611,
+            94
+          ]
+        },
+        "Connective Tissue": {
+          "present": false
+        },
+        "Blood": {
+          "present": false
+        },
+        "Cystic Duct": {
+          "present": false
+        },
+        "L-hook Electrocautery": {
+          "present": false
+        },
+        "Gallbladder": {
+          "present": true,
+          "bbox": [
+            201,
+            40,
+            449,
+            478
+          ]
+        },
+        "Hepatic Vein": {
+          "present": false
+        },
+        "Liver Ligament": {
+          "present": false
+        }
+      }
+    }
+  ]
+}
